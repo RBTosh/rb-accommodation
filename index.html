@@ -910,7 +910,7 @@ function renderCalendar(){
       bars += `<button class="bar${spill} ${it.hold ? "hold" : ""} ${!it.end ? "open-end" : ""}" data-act="edit-stay" data-kind="${multi ? "stay-multi" : "stay"}" data-id="${esc(it.ids[0])}" data-ids="${esc(it.ids.join(","))}" ${writable() ? "" : "disabled"} style="${style}" title="${esc(it.name)}${it.hc > 1 ? ` (${it.hc})` : ""} · ${range}${it.hold ? " · on hold" : ""}"><span class="n">${esc(it.name)}${it.hc > 1 ? ` <small>×${it.hc}</small>` : ""}${it.hold ? ` <small>· hold</small>` : ""}</span>${!multi && it.end && writable() ? `<span class="grip" aria-hidden="true"></span>` : ""}</button>`;
     });
     let rowCls = "", sub = maxOf(sp) ? `sleeps ${num(sp.idealOcc)}${maxOf(sp) > num(sp.idealOcc) ? `–${maxOf(sp)}` : ""}` : "capacity not set";
-    if (isHold(sp)){ rowCls = "holdrow"; sub = items.length ? "drag into a space" : "nobody waiting"; }
+    if (isHold(sp)){ rowCls = "holdrow"; sub = items.length ? (window.matchMedia("(hover: none)").matches ? "tap a name to place it" : "drag into a space") : "nobody waiting"; }
     else if (isRes(sp)){ rowCls = "res" + (F ? " dim" : ""); }
     else if (F){ const f = fitFor(sp, F.from, F.to, F.people); rowCls = f.ok === f.n ? "fit" : f.ok ? "part" : "dim"; sub = f.ok === f.n ? "has room" : f.ok ? `${f.ok} of ${f.n} nights` : "no room"; }
     if (isRes(sp) && !resDivider){ resDivider = true; rows += `<div class="cal-row cal-divider" aria-hidden="true"><div class="cal-name"></div><div style="width:${W}px"></div></div>`; }
@@ -1200,7 +1200,7 @@ function stayForm(id, preset = {}){
     const to = end || addDays(from, 60);
     // which spaces have room for these dates
     const ok = sortedSpaces().filter(s => s.id !== spId && !isRes(s) && !isHold(s) && fitFor(s, from, to, hc, id).ok === diff(from, to));
-    fits.innerHTML = ok.length ? `<span class="hint">Also has room${end ? "" : " for the next 60 days"}:</span>` + ok.slice(0, 8).map(s => `<button type="button" class="fitchip" data-act="pick-space" data-id="${esc(s.id)}">${esc(s.name)}</button>`).join("") : "";
+    fits.innerHTML = ok.length ? `<span class="hint">${isHold(sp) ? "Has room for these dates" : "Also has room"}${end ? "" : " for the next 60 days"}:</span>` + ok.slice(0, 8).map(s => `<button type="button" class="fitchip" data-act="pick-space" data-id="${esc(s.id)}">${esc(s.name)}</button>`).join("") : "";
     if (isHold(sp)){ box.innerHTML = ""; return; }
     // problems in the chosen space
     const nights = diff(from, to), bl = blocksFor(spId);
