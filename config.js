@@ -1,6 +1,5 @@
-// Paste your two values from Supabase: Project Settings > API Keys (or the Connect button).
-// Both are safe to publish: the database only lets signed-in team members see private details.
+// Paste the web app address from your Google Sheet's script (Deploy > New deployment > Web app).
+// It ends in /exec. The team password is not here: it lives in the script, inside your Google account.
 window.RB_CONFIG = {
-  url: "https://afxzeqppxwlvvfxknpjn.supabase.co",
-  key: "sb_publishable_o9cDkSIbV-BQwsdugs1bZQ_x-HJEslO"
+  api: "https://script.google.com/macros/s/AKfycbziuqEWpHe9tdY0J9k173sNG5jYH-bt2YtfwMcKV4hNyfbEBrLCKLlwTzxIQs9vFMS5/exec"
 };
