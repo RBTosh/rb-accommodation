@@ -366,6 +366,32 @@ body.is-dragging,body.is-dragging *{cursor:grabbing!important;user-select:none;-
 .padd span{font-size:22px;line-height:1}
 .padd:hover{border-color:var(--ink-3);color:var(--ink)}
 
+/* calendar bar, this week, last resort, double booking, book button */
+.cal-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.cal-bar .nav{gap:6px;flex-wrap:nowrap}
+.seg .short{display:none}
+.jump{position:relative;padding:6px 10px;overflow:hidden}
+.jump input{position:absolute;inset:0;opacity:0;width:100%;height:100%;cursor:pointer;border:0;padding:0}
+.weekline{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center;font-size:14px}
+.wl-label{font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);font-weight:500;margin-right:4px}
+.wl-item{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 12px;color:var(--ink);font-size:14px;text-align:left}
+.wl-item b{font-weight:600;margin-right:4px}
+.wl-item.out{color:var(--ink-2)}
+.wl-item:hover{border-color:var(--line-2)}
+.cal-row.lastrow .cal-track{background-color:color-mix(in srgb,var(--gold) 9%,transparent)}
+.cal-row.lastrow .cal-name{background:color-mix(in srgb,var(--gold) 12%,var(--surface))}
+.bar.clash{box-shadow:inset 0 0 0 2px var(--accent)!important}
+.card.last{background:color-mix(in srgb,var(--gold) 8%,var(--surface))}
+.card.nophoto .card-body{padding:16px 18px}
+.card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.fitchip.lastchip{border-color:var(--gold);color:var(--ink);background:var(--gold-soft)}
+.page-foot{display:flex;justify-content:center;padding-top:20px}
+.page-foot .linkish{font-weight:400;color:var(--ink-3);font-size:14px}
+.f > span small{font-weight:400;color:var(--ink-3)}
+.book{padding:9px 16px}
+.book svg{margin:-2px 0}
+.btn.book.plus::before{content:none}
+
 /* visitor view */
 .pub-hero{display:flex;flex-direction:column;gap:12px;padding:40px 36px;border-radius:var(--r);background:var(--brand);color:var(--brand-ink)}
 .pub-hero .wordmark{width:min(300px,80%);height:auto;margin-bottom:8px}
@@ -406,7 +432,17 @@ body.is-dragging,body.is-dragging *{cursor:grabbing!important;user-select:none;-
   .top{backdrop-filter:none;-webkit-backdrop-filter:none;background:var(--bg)}
   .top-in{padding-block:12px;gap:12px}
   .brand{flex:1}
-  .brand .logo,.brand .logo-fallback{width:38px;height:38px}
+  .brand .logo,.brand .logo-fallback{width:34px;height:34px}
+  .top{position:relative;top:auto}
+  .top-in{padding-block:8px}
+  .book{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(78px + env(safe-area-inset-bottom,0px));z-index:26;border-radius:999px;padding:14px 20px;font-size:16px;box-shadow:0 6px 20px rgba(30,27,45,.28)}
+  .seg .short{display:inline} .seg .long{display:none}
+  .cal-bar{gap:8px}
+  .cal-bar .seg button{padding:6px 10px}
+  .cal-name{width:100px!important;padding:6px 8px!important}
+  .cal-name b{font-size:13px;white-space:normal;line-height:1.15;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+  .cal-name small{font-size:11px;line-height:1.2}
+  .weekline{font-size:13.5px}
   .brand-sub{display:none}
   .top-actions .btn{padding:5px 10px;font-size:13.5px}
   .tabs{position:fixed;left:0;right:0;bottom:0;z-index:25;justify-content:space-around;gap:0;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line);padding:6px max(8px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px))}
@@ -440,12 +476,9 @@ body.is-dragging,body.is-dragging *{cursor:grabbing!important;user-select:none;-
       <button class="tab" role="tab" data-view="calendar" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg><span class="long">Calendar</span><span class="short">Calendar</span></button>
       <button class="tab" role="tab" data-view="spaces" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg><span class="long">Spaces</span><span class="short">Spaces</span></button>
       <button class="tab" role="tab" data-view="repairs" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 6.5a4 4 0 0 0-5.3 5.3L4 17l3 3 5.2-5.2a4 4 0 0 0 5.3-5.3l-2.6 2.6-2.4-.6-.6-2.4z"/></svg><span class="long">Repairs</span><span class="short">Repairs</span></button>
-      <button class="tab" role="tab" data-view="visitors" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 12s3.5-6.5 9.5-6.5 9.5 6.5 9.5 6.5-3.5 6.5-9.5 6.5S2.5 12 2.5 12z"/><circle cx="12" cy="12" r="2.8"/></svg><span class="long">Visitor view</span><span class="short">Visitors</span></button>
     </nav>
     <div class="top-actions" id="topActions" hidden>
-      <button class="btn sm plus" data-act="new-stay">Stay</button>
-      <button class="btn sm primary plus" data-act="new-space">Space</button>
-      <button class="btn sm ghost" data-act="sign-out" id="signOutBtn" hidden>Sign out</button>
+      <button class="btn primary book" data-act="new-stay" aria-label="Book a stay"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg><span>Book</span></button>
     </div>
   </div>
 </header>
@@ -454,7 +487,8 @@ body.is-dragging,body.is-dragging *{cursor:grabbing!important;user-select:none;-
   <div id="notice"></div>
 
   <section class="view" id="view-spaces" hidden>
-    <div class="view-h"><h2>Spaces</h2><div id="spacesSummary" class="summary"></div></div>
+    <div class="view-h"><h2>Spaces</h2><div class="row"><button class="btn sm" data-act="go-visitors">Visitor page</button><button class="btn sm plus" data-act="new-space" id="addSpaceBtn" hidden>Add space</button></div></div>
+    <div id="spacesSummary" class="summary"></div>
     <div class="toolbar" id="spacesToolbar">
       <div class="seg" role="group" aria-label="Filter spaces">
         <button data-filter="all" aria-pressed="true">All</button>
@@ -464,27 +498,25 @@ body.is-dragging,body.is-dragging *{cursor:grabbing!important;user-select:none;-
       </div>
     </div>
     <div id="spacesGrid"></div>
+    <div class="page-foot"><button class="linkish" data-act="sign-out" id="signOutBtn" hidden>Sign out</button></div>
   </section>
 
   <section class="view" id="view-calendar">
-    <div class="view-h"><h2>Calendar</h2>
-      <div class="row">
+    <div class="cal-bar">
+      <div class="row nav">
         <button class="btn sm" data-act="cal-prev" aria-label="Earlier">‹</button>
         <button class="btn sm" data-act="cal-today">Today</button>
         <button class="btn sm" data-act="cal-next" aria-label="Later">›</button>
-        <input class="inline" type="date" id="calJump" aria-label="Jump to date">
+        <label class="btn sm jump" title="Jump to a date"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg><input type="date" id="calJump" aria-label="Jump to date"></label>
       </div>
-    </div>
-    <div class="toolbar">
       <div class="seg" role="group" aria-label="Zoom">
         <button data-zoom="week" aria-pressed="false">Week</button>
         <button data-zoom="month" aria-pressed="true">Month</button>
-        <button data-zoom="quarter" aria-pressed="false">3 months</button>
+        <button data-zoom="quarter" aria-pressed="false"><span class="long">3 months</span><span class="short">3 mo</span></button>
         <button data-zoom="year" aria-pressed="false">Year</button>
       </div>
-      <span class="spacer"></span>
-      <button class="btn sm plus" data-act="new-event" id="newEventBtn">Event</button>
     </div>
+    <div class="weekline" id="weekLine" hidden></div>
     <div class="cal-frame" id="calFrame"></div>
     <p class="hint" style="margin:0" id="calHint"></p>
     <div class="finder">
@@ -493,6 +525,8 @@ body.is-dragging,body.is-dragging *{cursor:grabbing!important;user-select:none;-
         <label>Leaving <input class="inline" type="date" id="fTo"></label>
         <label>People <input class="inline" type="number" id="fPeople" min="1" max="30" value="1" inputmode="numeric" style="width:70px"></label>
         <button class="btn sm ghost" data-act="find-clear" id="fClear" hidden>Clear</button>
+        <span class="spacer"></span>
+        <button class="btn sm plus" data-act="new-event" id="newEventBtn">Event</button>
       </div>
       <div id="fResults" class="fits"></div>
     </div>
@@ -513,6 +547,7 @@ body.is-dragging,body.is-dragging *{cursor:grabbing!important;user-select:none;-
   </section>
 
   <section class="view" id="view-visitors" hidden>
+    <div><button class="btn sm ghost" data-act="go-spaces">‹ Spaces</button></div>
     <div class="banner info"><span class="grow">Preview of the page visitors see. It lists spaces that are ready to use, aren't someone's long-term home, and have free nights in the dates below. Names, notes and repairs stay private.<span id="pubLink"></span></span>
       <button class="btn sm" data-act="edit-public" id="editPublicBtn">Edit text</button></div>
     <div id="pubHero"></div>
@@ -590,39 +625,59 @@ const covers = (st, day) => st.start <= day && (!st.end || day < st.end);
 const heads = st => Math.max(1, num(st.headcount, 1));
 const loadOn = (id, day) => staysFor(id).filter(st => covers(st, day)).reduce((a, st) => a + heads(st), 0);
 const maxOf = sp => Math.max(num(sp.maxOcc), num(sp.idealOcc), 0);
+const kindOf = sp => sp && (sp.kind === "shared" || sp.kind === "lastResort") ? sp.kind : "regular";
+const isLast = sp => kindOf(sp) === "lastResort";
+const isShared = sp => kindOf(sp) === "shared";
 function blocksFor(id){
   return D().work.filter(w => w.spaceId === id && w.status !== "done" && validDate(w.blockStart))
     .map(w => ({ id: w.id, name: w.task, start: w.blockStart, end: validDate(w.blockEnd) && w.blockEnd > w.blockStart ? w.blockEnd : addDays(w.blockStart, 1) }));
 }
 const notReadyOn = (sp, d) => !USABLE.has(sp.condition) && !(validDate(sp.readyBy) && d >= sp.readyBy);
 const blockedOn = (sp, d) => blocksFor(sp.id).some(b => b.start <= d && d < b.end);
-function freeOn(sp, d, excludeId){
-  if (notReadyOn(sp, d) || blockedOn(sp, d)) return 0;
-  return maxOf(sp) - staysFor(sp.id).filter(x => x.id !== excludeId && covers(x, d)).reduce((a, x) => a + heads(x), 0);
+const partiesOn = (sp, d, excludeId) => staysFor(sp.id).filter(x => x.id !== excludeId && covers(x, d));
+// One party per space. A party is one booking (a person, a couple). Shared spaces take several parties up to their number of sites.
+function roomOn(sp, d, people = 1, excludeId){
+  if (isRes(sp) || isHold(sp) || notReadyOn(sp, d) || blockedOn(sp, d)) return false;
+  const others = partiesOn(sp, d, excludeId);
+  if (isShared(sp)) return others.length < Math.max(1, maxOf(sp));
+  return !others.length && people <= Math.max(1, maxOf(sp));
 }
+const freeOn = (sp, d, excludeId) => roomOn(sp, d, 1, excludeId) ? 1 : 0;
 function fitFor(sp, from, to, people, excludeId){
   const n = diff(from, to); let ok = 0;
-  for (let i = 0; i < n; i++) if (freeOn(sp, addDays(from, i), excludeId) >= people) ok++;
+  for (let i = 0; i < n; i++) if (roomOn(sp, addDays(from, i), people, excludeId)) ok++;
   return { ok, n };
 }
-function statusOf(sp){
-  const load = loadOn(sp.id, TODAY), max = maxOf(sp);
-  if (blockedOn(sp, TODAY)) return { key: load ? "over" : "notready", text: load ? "Repairs while occupied" : "Closed for repairs", load };
-  if (load > 0 && max && load > max) return { key: "over", text: `Over capacity`, load };
-  if (load > 0 && max && load >= max) return { key: "full", text: "Full", load };
-  if (load > 0) return { key: "part", text: max ? `${load} of ${max}` : `${load} here`, load };
-  if (notReadyOn(sp, TODAY)) return { key: "notready", text: validDate(sp.readyBy) ? `Ready ~${fmt(sp.readyBy)}` : label(CONDITIONS, sp.condition), load };
-  return { key: "open", text: "Available", load };
-}
-function overbookedDays(sp, from = TODAY, days = 120){
-  const max = maxOf(sp), sts = staysFor(sp.id), bl = blocksFor(sp.id), out = [];
-  if (!max || !sts.length) return out;
+// Nights where a space holds more than it should: two parties in a one-party space, too many tents, or people during a repair closure
+function clashDays(sp, from = TODAY, days = 120){
+  if (isRes(sp) || isHold(sp)) return [];
+  const sts = staysFor(sp.id), bl = blocksFor(sp.id), out = [];
+  if (!sts.length) return out;
   for (let i = 0; i < days; i++){
-    const d = addDays(from, i), cap = bl.some(b => b.start <= d && d < b.end) ? 0 : max;
-    const l = sts.filter(st => covers(st, d)).reduce((a, st) => a + heads(st), 0);
-    if (l > 0 && l > cap) out.push(d);
+    const d = addDays(from, i), here = sts.filter(st => covers(st, d));
+    if (!here.length) continue;
+    const blocked = bl.some(b => b.start <= d && d < b.end);
+    const tooMany = isShared(sp) ? here.length > Math.max(1, maxOf(sp)) : here.length > 1;
+    if (blocked || tooMany) out.push(d);
   }
   return out;
+}
+const overbookedDays = clashDays;
+function statusOf(sp){
+  const here = staysFor(sp.id).filter(x => covers(x, TODAY)), load = here.reduce((a, x) => a + heads(x), 0);
+  if (blockedOn(sp, TODAY)) return { key: load ? "over" : "notready", text: load ? "Repairs while occupied" : "Closed for repairs", load };
+  if (clashDays(sp, TODAY, 1).length) return { key: "over", text: "Double booked", load };
+  if (isShared(sp) && here.length) return { key: "part", text: `${here.length} of ${Math.max(1, maxOf(sp))} sites`, load };
+  if (load > 0) return { key: "full", text: "Occupied", load };
+  if (notReadyOn(sp, TODAY)) return { key: "notready", text: validDate(sp.readyBy) ? `Ready ~${fmt(sp.readyBy)}` : label(CONDITIONS, sp.condition), load };
+  if (isLast(sp)) return { key: "notready", text: "Last resort", load };
+  return { key: "open", text: "Available", load };
+}
+function capLine(sp){
+  if (isRes(sp)) return "";
+  if (isShared(sp)) return `${Math.max(1, maxOf(sp))} tent sites`;
+  const n = Math.max(1, num(sp.idealOcc)), m = maxOf(sp);
+  return `Sleeps ${n}${m > n ? (m === 2 && n === 1 ? " · fits a couple" : `, up to ${m}`) : ""}`;
 }
 function nextChange(sp){
   const sts = staysFor(sp.id), cur = sts.filter(st => covers(st, TODAY));
@@ -651,7 +706,7 @@ function setView(v, push = true){
   if (v === "work") v = "repairs"; if (v === "outsiders") v = "visitors";
   if (!VIEWS.includes(v)) v = "calendar";
   S.view = v;
-  document.querySelectorAll(".tab").forEach(t => t.setAttribute("aria-selected", String(t.dataset.view === v)));
+  document.querySelectorAll(".tab").forEach(t => t.setAttribute("aria-selected", String(t.dataset.view === (v === "visitors" ? "spaces" : v))));
   VIEWS.forEach(k => { $("#view-" + k).hidden = k !== v; });
   if (push && location.hash !== "#" + v){ try { history.replaceState(null, "", "#" + v); } catch { location.hash = v; } }
   renderView(); window.scrollTo(0, 0);
@@ -678,13 +733,13 @@ function photoBlock(sp, withPill){
   return `<div class="ph"><img src="${esc(photoUrl(ph[0]))}" alt="${esc(sp.name)}" loading="lazy" onerror="this.parentNode.classList.add('empty');this.remove()">${ph.length > 1 ? `<span class="count">${ph.length}</span>` : ""}${pill}</div>`;
 }
 function renderSummary(){
-  const sps = realSpaces(); let people = 0, beds = 0, notReady = 0, overSp = 0;
+  const sps = realSpaces(); let people = 0, free = 0, notReady = 0, clash = 0;
   sps.forEach(sp => {
-    const l = loadOn(sp.id, TODAY); people += l;
-    if (isRes(sp)) {} else if (!notReadyOn(sp, TODAY) && !blockedOn(sp, TODAY)) beds += Math.max(0, num(sp.idealOcc) - l); else notReady++;
-    if (overbookedDays(sp, TODAY, 90).length) overSp++;
+    people += loadOn(sp.id, TODAY);
+    if (!isRes(sp) && !isLast(sp) && !isShared(sp)){ if (roomOn(sp, TODAY)) free++; else if (notReadyOn(sp, TODAY) || blockedOn(sp, TODAY)) notReady++; }
+    if (clashDays(sp, TODAY, 90).length) clash++;
   });
-  $("#spacesSummary").innerHTML = `<span><b>${people}</b>here tonight</span><span><b>${beds}</b>open ${beds === 1 ? "bed" : "beds"}</span><span><b>${notReady}</b>not ready</span>${overSp ? `<span class="alert"><b>${overSp}</b>overbooked ahead</span>` : ""}`;
+  $("#spacesSummary").innerHTML = `<span><b>${people}</b>here tonight</span><span><b>${free}</b>free ${free === 1 ? "space" : "spaces"}</span>${notReady ? `<span><b>${notReady}</b>not ready</span>` : ""}${clash ? `<span class="alert"><b>${clash}</b>double booked ahead</span>` : ""}`;
 }
 function renderSpaces(){
   const all = D().spaces, grid = $("#spacesGrid");
@@ -699,9 +754,10 @@ function renderSpaces(){
     return;
   }
   $("#spacesToolbar").hidden = false; renderSummary();
+  $("#addSpaceBtn").hidden = !writable();
   const list = sortedSpaces(realSpaces()).filter(sp => {
     const st = statusOf(sp);
-    if (S.filter === "open") return !isRes(sp) && freeOn(sp, TODAY) > 0;
+    if (S.filter === "open") return !isRes(sp) && !isLast(sp) && roomOn(sp, TODAY);
     if (S.filter === "occupied") return st.load > 0;
     if (S.filter === "notready") return notReadyOn(sp, TODAY) || blockedOn(sp, TODAY);
     return true;
@@ -716,17 +772,18 @@ function renderSpaces(){
 function cardHtml(sp){
   const st = statusOf(sp), cur = staysFor(sp.id).filter(x => covers(x, TODAY));
   const wk = openWork(sp.id), blockers = wk.some(w => w.priority === "blocker");
-  const over = overbookedDays(sp, TODAY, 90), nc = nextChange(sp), dl = distLine(sp);
-  return `<button class="card${isRes(sp) ? " res" : ""}" data-act="open-space" data-id="${esc(sp.id)}">
-    ${photoBlock(sp, st)}
+  const over = clashDays(sp, TODAY, 90), nc = nextChange(sp), dl = distLine(sp), cap = capLine(sp);
+  const hasPhoto = Array.isArray(sp.photos) && sp.photos.length;
+  return `<button class="card${isRes(sp) ? " res" : ""}${isLast(sp) ? " last" : ""}${hasPhoto ? "" : " nophoto"}" data-act="open-space" data-id="${esc(sp.id)}">
+    ${hasPhoto ? photoBlock(sp, st) : ""}
     <div class="card-body">
-      <h3>${esc(sp.name || "Untitled space")}</h3>
-      <div class="cap">${maxOf(sp) ? `Sleeps ${num(sp.idealOcc)}${maxOf(sp) > num(sp.idealOcc) ? `, up to ${maxOf(sp)}` : ""}` : "Capacity not set"}${nc ? ` · ${esc(nc)}` : ""}</div>
+      <div class="card-head"><h3>${esc(sp.name || "Untitled space")}</h3>${hasPhoto ? "" : `<span class="pill soft st-${st.key}">${esc(st.text)}</span>`}</div>
+      ${cap || nc ? `<div class="cap">${esc([cap, nc].filter(Boolean).join(" · "))}</div>` : ""}
       ${dl ? `<div class="dist">${esc(dl)}</div>` : ""}
-      ${cur.length ? `<div class="who">${cur.map(x => `<span class="swatch cat-${esc(x.category)}" style="margin-right:6px"></span>${esc(x.name)}`).join(", ")}</div>` : ""}
+      ${cur.length ? `<div class="who">${cur.map(x => esc(x.name)).join(", ")}</div>` : ""}
       ${wk.length || over.length ? `<div class="card-foot">
-        ${wk.length ? `<span class="chip ${blockers ? "crit" : "warn"}">${wk.length} ${wk.length === 1 ? "task" : "tasks"}${sumHours(wk) ? ` · ${hrs(sumHours(wk))}` : ""}</span>` : ""}
-        ${over.length ? `<span class="chip crit">Overbooked ${fmt(over[0])}</span>` : ""}</div>` : ""}
+        ${wk.length ? `<span class="chip ${blockers ? "crit" : "warn"}">${wk.length} ${wk.length === 1 ? "repair" : "repairs"}${sumHours(wk) ? ` · ${hrs(sumHours(wk))}` : ""}</span>` : ""}
+        ${over.length ? `<span class="chip crit">Double booked ${fmt(over[0])}</span>` : ""}</div>` : ""}
     </div></button>`;
 }
 
@@ -766,7 +823,7 @@ function renderDrawer(){
       ${over.length ? `<div class="warnbox">Over capacity on ${over.length} ${over.length === 1 ? "night" : "nights"} ahead, from ${fmt(over[0])}.</div>` : ""}
 
       <section class="sect">
-        <div class="facts"><div><small>Ideal</small><b>${maxOf(sp) ? num(sp.idealOcc) : "—"}</b></div><div><small>Max</small><b>${maxOf(sp) || "—"}</b></div><div><small>Here tonight</small><b>${st.load}</b></div></div>
+        <div class="facts"><div><small>Sleeps</small><b>${maxOf(sp) ? num(sp.idealOcc) : "—"}</b></div><div><small>Max</small><b>${maxOf(sp) || "—"}</b></div><div><small>Here tonight</small><b>${st.load}</b></div></div>
         ${sp.toMax ? `<p class="prose small muted">To reach max: ${esc(sp.toMax)}</p>` : ""}
         ${DIST.some(([k]) => hasNum(sp[k])) ? `<div class="facts">${DIST.map(([k, l]) => `<div><small>${l}</small><b>${hasNum(sp[k]) ? esc(ft(sp[k])) : "—"}</b></div>`).join("")}</div>` : ""}
         ${am.length ? `<div class="chips">${am.map(a => `<span class="chip">${esc(label(AMENITIES, a))}</span>`).join("")}</div>` : ""}
@@ -805,7 +862,7 @@ function workRow(wi){
 
 /* ---------- calendar ---------- */
 const CAL_DAYS = 380; // a little over a year from the start date
-const NAME_W = () => window.innerWidth < 720 ? 118 : 168;
+const NAME_W = () => window.innerWidth < 720 ? 100 : 168;
 const ZOOM_SPAN = { week: 7, month: 31, quarter: 92, year: CAL_DAYS }, ZOOM_MIN = { week: 40, month: 22, quarter: 7, year: 2.5 };
 function cellW(){
   const z = ZOOM_SPAN[S.cal.zoom] ? S.cal.zoom : "month";
@@ -819,13 +876,37 @@ function renderFinder(){
   $("#fClear").hidden = !S.find.from && !S.find.to;
   if (!finderActive()){ el.innerHTML = `<span class="hint">Pick dates to see which spaces have room.</span>`; return; }
   const { from, to, people } = S.find;
-  const res = sortedSpaces(realSpaces()).filter(sp => !isRes(sp)).map(sp => ({ sp, ...fitFor(sp, from, to, people) }));
+  const res = sortedSpaces(realSpaces()).filter(sp => !isRes(sp) && !isLast(sp)).map(sp => ({ sp, ...fitFor(sp, from, to, people) }));
   const full = res.filter(r => r.n && r.ok === r.n), part = res.filter(r => r.ok > 0 && r.ok < r.n).sort((a, b) => b.ok - a.ok);
+  const last = full.length ? [] : sortedSpaces(realSpaces()).filter(isLast).map(sp => ({ sp, ...fitFor(sp, from, to, people) })).filter(r => r.n && r.ok === r.n);
   let h = full.length
     ? `<span>Room for ${people} ${people === 1 ? "person" : "people"}, ${fmt(from)} – ${fmt(to)}:</span>` + full.map(r => `<button class="fitchip" data-act="find-book" data-id="${esc(r.sp.id)}" title="Book ${esc(r.sp.name)} for these dates">${esc(r.sp.name)}${!USABLE.has(r.sp.condition) ? " · once ready" : ""}</button>`).join("")
     : `<span>Nothing has room for ${people === 1 ? "one person" : people + " people"} on all ${diff(from, to)} nights.</span>`;
+  if (last.length) h += `<span class="hint" style="margin-left:8px">Last resort:</span>` + last.map(r => `<button class="fitchip lastchip" data-act="find-book" data-id="${esc(r.sp.id)}">${esc(r.sp.name)}</button>`).join("");
   if (part.length) h += `<span class="hint" style="margin-left:8px">Partly free:</span>` + part.slice(0, 6).map(r => `<button class="fitchip part" data-act="open-space" data-id="${esc(r.sp.id)}">${esc(r.sp.name)} · ${r.ok} of ${r.n} nights</button>`).join("");
   el.innerHTML = h;
+}
+// Who arrives, moves and leaves in the next 7 days
+function renderWeekLine(){
+  const el = $("#weekLine"); if (!el) return;
+  const endD = addDays(TODAY, 7), sp = id => space(id), nameOf = id => (sp(id) && !isHold(sp(id))) ? sp(id).name : "needs a space";
+  const key = x => String(x.name || "").trim().toLowerCase();
+  const sts = activeStays().filter(x => !isRes(sp(x.spaceId)));
+  const items = [];
+  sts.forEach(x => {
+    if (x.start >= TODAY && x.start < endD){
+      const prev = sts.find(y => y !== x && key(y) === key(x) && y.end === x.start);
+      if (prev) items.push({ d: x.start, id: x.id, html: `${esc(x.name)} moves to ${esc(nameOf(x.spaceId))}` });
+      else items.push({ d: x.start, id: x.id, html: `${esc(x.name)} → ${esc(nameOf(x.spaceId))}` });
+    }
+    if (x.end && x.end >= TODAY && x.end < endD && !sts.some(y => y !== x && key(y) === key(x) && y.start === x.end))
+      items.push({ d: x.end, id: x.id, html: `${esc(x.name)} leaves ${esc(nameOf(x.spaceId))}`, out: true });
+  });
+  if (!items.length){ el.innerHTML = ""; el.hidden = true; return; }
+  el.hidden = false;
+  items.sort((a, b) => a.d < b.d ? -1 : a.d > b.d ? 1 : (a.out ? -1 : 1));
+  const dayName = d => d === TODAY ? "Today" : d === addDays(TODAY, 1) ? "Tomorrow" : `${["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][parse(d).getUTCDay()]} ${parse(d).getUTCDate()}`;
+  el.innerHTML = `<span class="wl-label">Next 7 days</span>` + items.map(it => `<button class="wl-item${it.out ? " out" : ""}" data-act="edit-stay" data-id="${esc(it.id)}" ${writable() ? "" : "disabled"}><b>${dayName(it.d)}</b> ${it.html}</button>`).join("");
 }
 // Merge back-to-back stays of the same person in one space into one block
 function blocksForRow(sts){
@@ -842,7 +923,7 @@ function renderCalendar(){
   if (drag && drag.started){ S.calDirty = true; return; }
   S.calDirty = false;
   document.querySelectorAll("[data-zoom]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.zoom === S.cal.zoom)));
-  $("#calJump").value = S.cal.start;
+  renderWeekLine();
   const touch = window.matchMedia("(hover: none)").matches;
   $("#calHint").textContent = !writable() ? "" : touch
     ? "Tap an empty spot to book it. Tap a name to change dates or move the person."
@@ -888,6 +969,15 @@ function renderCalendar(){
       if (!nrEnd || nrEnd > start) items.push({ kind: "nr", name: nrEnd ? `Not ready · expected ${fmt(nrEnd)}` : label(CONDITIONS, sp.condition), start: start, end: nrEnd, ids: [] });
     }
     items.sort((a, b) => a.start < b.start ? -1 : a.start > b.start ? 1 : 0);
+    // double bookings: overlapping stays in a one-party space, or a stay during a repair closure
+    if (!isRes(sp) && !isHold(sp)){
+      const ov = (a, b) => a.start < (b.end || "9999-12-31") && b.start < (a.end || "9999-12-31");
+      const st = items.filter(it => it.kind === "stay"), bk = items.filter(it => it.kind === "blk");
+      st.forEach(a => {
+        const others = st.filter(b => b !== a && ov(a, b));
+        if (bk.some(b => ov(a, b)) || (isShared(sp) ? others.length >= Math.max(1, maxOf(sp)) : others.length)) a.clash = true;
+      });
+    }
     const lanes = [];
     items.forEach(it => {
       let li = lanes.findIndex(le => le <= it.start);
@@ -907,15 +997,16 @@ function renderCalendar(){
       if (it.kind === "nr"){ bars += `<span class="bar nrb" style="${style}" title="${esc(it.name)}"><span class="n">${esc(it.name)}</span></span>`; return; }
       if (it.kind === "blk"){ bars += `<button class="bar blk${spill}" data-act="edit-work" data-kind="blk" data-id="${esc(it.ids[0])}" ${writable() ? "" : "disabled"} style="${style}" title="Repairs: ${esc(it.name)} · ${range}"><span class="n">Repairs · ${esc(it.name)}</span></button>`; return; }
       const multi = it.ids.length > 1;
-      bars += `<button class="bar${spill} ${it.hold ? "hold" : ""} ${!it.end ? "open-end" : ""}" data-act="edit-stay" data-kind="${multi ? "stay-multi" : "stay"}" data-id="${esc(it.ids[0])}" data-ids="${esc(it.ids.join(","))}" ${writable() ? "" : "disabled"} style="${style}" title="${esc(it.name)}${it.hc > 1 ? ` (${it.hc})` : ""} · ${range}${it.hold ? " · on hold" : ""}"><span class="n">${esc(it.name)}${it.hc > 1 ? ` <small>×${it.hc}</small>` : ""}${it.hold ? ` <small>· hold</small>` : ""}</span>${!multi && it.end && writable() ? `<span class="grip" aria-hidden="true"></span>` : ""}</button>`;
+      bars += `<button class="bar${spill} ${it.hold ? "hold" : ""} ${!it.end ? "open-end" : ""} ${it.clash ? "clash" : ""}" data-act="edit-stay" data-kind="${multi ? "stay-multi" : "stay"}" data-id="${esc(it.ids[0])}" data-ids="${esc(it.ids.join(","))}" ${writable() ? "" : "disabled"} style="${style}" title="${esc(it.name)}${it.hc > 1 ? ` (${it.hc})` : ""} · ${range}${it.hold ? " · on hold" : ""}"><span class="n">${esc(it.name)}${it.hc > 1 ? ` <small>×${it.hc}</small>` : ""}${it.hold ? ` <small>· hold</small>` : ""}</span>${!multi && it.end && writable() ? `<span class="grip" aria-hidden="true"></span>` : ""}</button>`;
     });
-    let rowCls = "", sub = maxOf(sp) ? `sleeps ${num(sp.idealOcc)}${maxOf(sp) > num(sp.idealOcc) ? `–${maxOf(sp)}` : ""}` : "capacity not set";
+    let rowCls = isLast(sp) ? "lastrow" : "", sub = "";
     if (isHold(sp)){ rowCls = "holdrow"; sub = items.length ? (window.matchMedia("(hover: none)").matches ? "tap a name to place it" : "drag into a space") : "nobody waiting"; }
     else if (isRes(sp)){ rowCls = "res" + (F ? " dim" : ""); }
-    else if (F){ const f = fitFor(sp, F.from, F.to, F.people); rowCls = f.ok === f.n ? "fit" : f.ok ? "part" : "dim"; sub = f.ok === f.n ? "has room" : f.ok ? `${f.ok} of ${f.n} nights` : "no room"; }
+    else if (F && isLast(sp)){ rowCls += " dim"; }
+    else if (F){ const f = fitFor(sp, F.from, F.to, F.people); rowCls += f.ok === f.n ? " fit" : f.ok ? " part" : " dim"; sub = f.ok === f.n ? "has room" : f.ok ? `${f.ok} of ${f.n} nights` : ""; }
     if (isRes(sp) && !resDivider){ resDivider = true; rows += `<div class="cal-row cal-divider" aria-hidden="true"><div class="cal-name"></div><div style="width:${W}px"></div></div>`; }
     rows += `<div class="cal-row ${rowCls}" data-row="${esc(sp.id)}" style="min-height:${h}px">
-      ${isHold(sp) ? `<div class="cal-name"><b>${esc(sp.name || "Needs a space")}</b><small>${esc(sub)}</small></div>` : `<button class="cal-name" data-act="open-space" data-id="${esc(sp.id)}"><b>${esc(sp.name || "Untitled")}</b><small>${esc(sub)}</small></button>`}
+      ${isHold(sp) ? `<div class="cal-name"><b>${esc(sp.name || "Needs a space")}</b>${sub ? `<small>${esc(sub)}</small>` : ""}</div>` : `<button class="cal-name" data-act="open-space" data-id="${esc(sp.id)}"><b>${esc(sp.name || "Untitled")}</b>${sub ? `<small>${esc(sub)}</small>` : ""}</button>`}
       <div class="cal-track ${writable() ? "" : "ro"}" data-track="${esc(sp.id)}" style="width:${W}px;height:${h}px;${dayGrid}">
         <div class="gridlines">${monthLines}</div>${evTint}${band}${todayLine}${bars}</div></div>`;
   }
@@ -977,7 +1068,7 @@ document.addEventListener("pointerup", async () => {
     const sp = space(next.spaceId), span = Math.min(120, next.end ? diff(next.start, next.end) : 60), over = overbookedDays(sp, next.start, span);
     let nr = 0; for (let i = 0; i < span; i++) if (notReadyOn(sp, addDays(next.start, i))) nr++;
     const msg = d.mode === "end" ? `${prev.name} now leaves ${fmt(next.end)}` : next.spaceId !== prev.spaceId ? `Moved ${prev.name} to ${sp.name}` : `${prev.name} now ${fmt(next.start)} – ${next.end ? fmt(next.end) : "no end date"}`;
-    const warn = nr ? `${sp.name} isn't ready for ${nr} of those nights` : over.length ? `${sp.name} is over capacity on ${over.length} ${over.length === 1 ? "night" : "nights"}` : "";
+    const warn = nr ? `${sp.name} isn't ready for ${nr} of those nights` : over.length ? `${sp.name} is double booked on ${over.length} ${over.length === 1 ? "night" : "nights"}` : "";
     toast(warn ? `${msg}. ${warn}.` : msg, 8000, { label: "Undo", fn: () => save("stays", prev) });
   }
   renderCalendar();
@@ -1015,11 +1106,11 @@ function renderWork(){
 function visitorSpaces(from, to){
   const nights = diff(from, to);
   return sortedSpaces().map(sp => {
-    if (sp.private || isRes(sp) || isHold(sp) || !maxOf(sp)) return null;
+    if (sp.private || isRes(sp) || isHold(sp) || isLast(sp) || !maxOf(sp)) return null;
     const sts = staysFor(sp.id);
     if (sts.some(x => !x.end && x.start <= from)) return null; // someone's long-term home
     let free = 0;
-    for (let i = 0; i < nights; i++){ const d = addDays(from, i); if (!notReadyOn(sp, d) && !blockedOn(sp, d) && !sts.some(x => covers(x, d))) free++; }
+    for (let i = 0; i < nights; i++){ const d = addDays(from, i); if (!notReadyOn(sp, d) && !blockedOn(sp, d) && sts.filter(x => covers(x, d)).length < (isShared(sp) ? Math.max(1, maxOf(sp)) : 1)) free++; }
     return free ? { sp, free, nights } : null;
   }).filter(Boolean).sort((a, b) => b.free - a.free);
 }
@@ -1112,8 +1203,8 @@ function spaceForm(id){
     </div>
     <small class="hint" id="sp-readyhint" style="margin-top:-8px">The calendar shows it as free from this date, so you can plan who moves in.</small>
     <div class="f2">
-      <label class="f"><span>Ideal occupancy</span><input id="sp-ideal" type="number" min="0" max="50" inputmode="numeric" value="${num(sp.idealOcc)}"></label>
-      <label class="f"><span>Max occupancy</span><input id="sp-max" type="number" min="0" max="50" inputmode="numeric" value="${num(sp.maxOcc)}"></label>
+      <label class="f"><span>Sleeps normally</span><input id="sp-ideal" type="number" min="0" max="50" inputmode="numeric" value="${num(sp.idealOcc)}"></label>
+      <label class="f"><span>Most at once</span><input id="sp-max" type="number" min="0" max="50" inputmode="numeric" value="${num(sp.maxOcc)}"></label>
     </div>
     <label class="f"><span>What it would take to reach max</span><input id="sp-tomax" value="${esc(sp.toMax)}" placeholder="e.g. second bed, screen the porch" maxlength="200"></label>
     <div class="f"><span>Distance to the nearest</span>
@@ -1122,8 +1213,8 @@ function spaceForm(id){
     <div class="f"><span>Has</span><div class="checks">${AMENITIES.map(([k, v]) => `<label><input type="checkbox" id="am-${k}" ${am.has(k) ? "checked" : ""}>${esc(v)}</label>`).join("")}</div></div>
     <label class="f"><span>Description for visitors</span><textarea id="sp-blurb" maxlength="600" placeholder="What it's like, the bed, the view, the walk from the kitchen.">${esc(sp.publicBlurb)}</textarea></label>
     <label class="f"><span>Internal notes</span><textarea id="sp-notes" maxlength="2000" placeholder="Only people with access to this tool see this.">${esc(sp.notes)}</textarea></label>
-    <div class="checks"><label><input type="checkbox" id="sp-res" ${sp.residence ? "checked" : ""}>Permanent residence</label></div>
-    <small class="hint" style="margin-top:-8px">Listed last and shaded. Not offered for stays or on the visitor page.</small>
+    <label class="f"><span>How it's used</span><select id="sp-kind">${opt([["regular","One party at a time"],["shared","Shared, several parties (tent sites)"],["lastResort","Last resort only"],["residence","Permanent residence"]], sp.residence ? "residence" : kindOf(sp))}</select>
+      <small>Last resort spaces are only suggested when nothing else is free, and never shown to visitors.</small></label>
   `, footer(id ? "Save" : "Add space", id ? "delete-space" : ""), async () => {
     const name = fv("sp-name");
     if (!name){ toast("Give the space a name."); $("#sp-name").focus(); return false; }
@@ -1133,7 +1224,7 @@ function spaceForm(id){
     const body = { ...(id ? sp : {}), id: id || newId("spaces"), name, condition: cond, readyBy: USABLE.has(cond) ? "" : (validDate(fv("sp-ready")) ? fv("sp-ready") : ""),
       idealOcc: ideal, maxOcc: max, toMax: fv("sp-tomax"),
       amenities: AMENITIES.map(a => a[0]).filter(k => document.getElementById("am-" + k).checked),
-      publicBlurb: fv("sp-blurb"), notes: fv("sp-notes"), residence: document.getElementById("sp-res").checked,
+      publicBlurb: fv("sp-blurb"), notes: fv("sp-notes"), residence: fv("sp-kind") === "residence", kind: ["shared","lastResort"].includes(fv("sp-kind")) ? fv("sp-kind") : "", private: fv("sp-kind") === "lastResort" ? true : !!sp.private && fv("sp-kind") !== "regular" && fv("sp-kind") !== "shared",
       photos: S.fp ? S.fp.list.slice() : (Array.isArray(sp.photos) ? sp.photos : []) };
     DIST.forEach(([k]) => { const v = fv("sp-" + k); body[k] = v === "" ? null : Math.max(0, Math.round(num(v))); });
     if (!(await save("spaces", body))) return false;
@@ -1161,17 +1252,18 @@ function stayForm(id, preset = {}){
       <label class="f"><span>Space</span><select id="st-space">${sps.map(sp => `<option value="${esc(sp.id)}"${sp.id === st.spaceId ? " selected" : ""}>${esc(sp.name)}</option>`).join("")}</select></label>
       <label class="f"><span>Category</span><select id="st-cat">${opt(CATS, st.category)}</select></label>
     </div>
-    <div class="f3">
+    <div class="f2">
       <label class="f"><span>Arrives</span><input id="st-start" type="date" value="${esc(st.start)}"></label>
-      <label class="f"><span>Leaves</span><input id="st-end" type="date" value="${esc(st.end || "")}"></label>
-      <label class="f"><span>People</span><input id="st-hc" type="number" min="1" max="50" inputmode="numeric" value="${heads(st)}"></label>
+      <label class="f"><span>Leaves <small>(blank = no end)</small></span><input id="st-end" type="date" value="${esc(st.end || "")}"></label>
     </div>
-    <small class="hint" style="margin-top:-8px">Leave the leaving date empty for residents with no end date. The leaving day counts as free.</small>
     <label class="f" id="st-movewrap" hidden><span>Moving on</span><input id="st-movefrom" type="date" value="${TODAY}">
       <small>Nights before this date stay in ${esc(oldSp ? oldSp.name : "the current space")}. Both parts stay linked to ${esc(st.name || "this person")}.</small></label>
     <div id="st-fits" class="fits"></div>
     <div id="st-warn"></div>
-    <label class="f"><span>Status</span><select id="st-status">${opt([["confirmed","Confirmed"],["hold","On hold"]], st.status)}</select></label>
+    <div class="f2">
+      <label class="f"><span>People</span><input id="st-hc" type="number" min="1" max="50" inputmode="numeric" value="${heads(st)}"></label>
+      <label class="f"><span>Status</span><select id="st-status">${opt([["confirmed","Confirmed"],["hold","On hold"]], st.status)}</select></label>
+    </div>
     <label class="f"><span>Notes</span><textarea id="st-notes" maxlength="1000">${esc(st.notes)}</textarea></label>
   `, footer(id ? "Save" : "Book", id ? "delete-stay" : ""), async () => {
     const name = fv("st-name"), start = fv("st-start"), end = fv("st-end");
@@ -1198,25 +1290,31 @@ function stayForm(id, preset = {}){
     const box = $("#st-warn"), fits = $("#st-fits"), sp = space(spId);
     if (!sp || !validDate(start) || (end && end <= start)){ box.innerHTML = ""; fits.innerHTML = ""; return; }
     const to = end || addDays(from, 60);
-    // which spaces have room for these dates
-    const ok = sortedSpaces().filter(s => s.id !== spId && !isRes(s) && !isHold(s) && fitFor(s, from, to, hc, id).ok === diff(from, to));
-    fits.innerHTML = ok.length ? `<span class="hint">${isHold(sp) ? "Has room for these dates" : "Also has room"}${end ? "" : " for the next 60 days"}:</span>` + ok.slice(0, 8).map(s => `<button type="button" class="fitchip" data-act="pick-space" data-id="${esc(s.id)}">${esc(s.name)}</button>`).join("") : "";
+    // which spaces have room for these dates (one party per space; last resort only when nothing else fits)
+    const n = diff(from, to), fitsAll = s => fitFor(s, from, to, hc, id).ok === n;
+    let ok = sortedSpaces().filter(s => s.id !== spId && !isRes(s) && !isHold(s) && !isLast(s) && fitsAll(s)), lastOnly = false;
+    if (!ok.length){ ok = sortedSpaces().filter(s => s.id !== spId && isLast(s) && fitsAll(s)); lastOnly = ok.length > 0; }
+    const lead = lastOnly ? "Only a last-resort space is free" : isHold(sp) ? "Free for these dates" : "Also free";
+    fits.innerHTML = ok.length ? `<span class="hint">${lead}${end ? "" : " for the next 60 days"}:</span>` + ok.slice(0, 8).map(s => `<button type="button" class="fitchip${isLast(s) ? " lastchip" : ""}" data-act="pick-space" data-id="${esc(s.id)}">${esc(s.name)}</button>`).join("")
+      + (hc > 1 && !lastOnly ? `<span class="hint" style="flex-basis:100%">For ${hc} people. Check each space's notes for what a couple or second bed needs.</span>` : "") : "";
     if (isHold(sp)){ box.innerHTML = ""; return; }
     // problems in the chosen space
-    const nights = diff(from, to), bl = blocksFor(spId);
-    let over = 0, firstOver = "", nr = 0, bk = 0;
-    for (let i = 0; i < Math.min(nights, 365); i++){
+    const bl = blocksFor(spId), who = new Set();
+    let clash = 0, firstClash = "", nr = 0, bk = 0;
+    for (let i = 0; i < Math.min(n, 365); i++){
       const d = addDays(from, i);
       if (notReadyOn(sp, d)){ nr++; continue; }
       if (bl.some(b => b.start <= d && d < b.end)){ bk++; continue; }
-      const l = staysFor(spId).filter(x => x.id !== id && covers(x, d)).reduce((a, x) => a + heads(x), 0) + hc;
-      if (l > maxOf(sp)){ over++; if (!firstOver) firstOver = d; }
+      const others = partiesOn(sp, d, id);
+      if (isShared(sp) ? others.length >= Math.max(1, maxOf(sp)) : others.length){ clash++; if (!firstClash) firstClash = d; others.forEach(x => who.add(x.name)); }
     }
     const msgs = [];
     if (nr) msgs.push(`${esc(sp.name)} isn't ready for ${nr} of these nights${validDate(sp.readyBy) ? ` (expected ${fmt(sp.readyBy)})` : ""}.`);
     if (bk) msgs.push(`It's closed for repairs on ${bk} ${bk === 1 ? "night" : "nights"}.`);
-    if (over) msgs.push(`This puts more than ${maxOf(sp)} people in it on ${over} ${over === 1 ? "night" : "nights"}, from ${fmt(firstOver)}.`);
-    box.innerHTML = msgs.length ? `<div class="warnbox">${msgs.join(" ")} You can still save it.</div>` : "";
+    if (clash) msgs.push(isShared(sp) ? `All ${maxOf(sp)} sites are taken on ${clash} ${clash === 1 ? "night" : "nights"}, from ${fmt(firstClash)}.` : `${esc([...who].join(", "))} ${who.size === 1 ? "is" : "are"} already in ${esc(sp.name)} on ${clash} of these nights, from ${fmt(firstClash)}.`);
+    if (!isShared(sp) && hc > Math.max(1, maxOf(sp))) msgs.push(`${esc(sp.name)} fits at most ${Math.max(1, maxOf(sp))}.`);
+    if (isLast(sp)) msgs.push(`${esc(sp.name)} is a last-resort space.`);
+    box.innerHTML = msgs.length ? `<div class="warnbox">${msgs.join(" ")} You can still save it.</div>` : "";    box.innerHTML = msgs.length ? `<div class="warnbox">${msgs.join(" ")} You can still save it.</div>` : "";
   });
   S.modalCtx = { id };
 }
@@ -1451,6 +1549,8 @@ document.addEventListener("click", async e => {
     case "delete-event": if (armed(a) && await remove("events", S.modalCtx.id)){ closeModal(); toast("Event deleted"); } break;
     case "copy-link": try { await navigator.clipboard.writeText(a.dataset.url); toast("Link copied"); } catch { toast("Select the link and copy it."); } break;
     case "sign-out": lsSet("rb-token", ""); clearCaches(); location.reload(); break;
+    case "go-visitors": setView("visitors"); break;
+    case "go-spaces": setView("spaces"); break;
     case "demo-off": S.demo = false; S.openSpace = null; renderAll(); break;
   }
 });
@@ -1466,7 +1566,7 @@ function setFind(){
 ["fFrom","fTo","fPeople"].forEach(k => $("#" + k).addEventListener("change", setFind));
 $("#calJump").addEventListener("change", e => { const v = e.target.value; if (!validDate(v)) return;
   if (v < S.cal.start || v > addDays(S.cal.start, CAL_DAYS - 30)) S.cal.start = addDays(v, -7);
-  S.scrollToDate = v; renderCalendar(); });
+  S.scrollToDate = addDays(v, -1); e.target.value = ""; renderCalendar(); });
 $("#pubFrom").addEventListener("change", e => { if (validDate(e.target.value)){ S.pub.from = e.target.value; if (S.pub.to <= S.pub.from) S.pub.to = addDays(S.pub.from, 7); renderPublic(); } });
 $("#pubTo").addEventListener("change", e => { if (validDate(e.target.value)){ S.pub.to = e.target.value; renderPublic(); } });
 document.addEventListener("keydown", e => { if (e.key !== "Escape") return; if ($("#modalRoot").innerHTML) closeModal(); else if (S.openSpace) closeDrawer(); });
