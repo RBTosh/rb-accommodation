@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#F5F5F1" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#121513" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#F8F8F2" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#16141E" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="RB Stays">
 <link rel="apple-touch-icon" href="icon.png">
@@ -13,43 +13,47 @@
 <title>Rainbow Bridge Hawaii</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500&family=Figtree:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya:wght@500;600&family=Figtree:wght@400;500;600&display=swap">
 <style>
 /* Layout: quiet top bar (desktop tabs) / bottom tab bar on phones; photo-led card grid; side sheet for one space; modal forms; calendar scrolls in its own frame. */
 :root{
-  --bg:#F5F5F1; --surface:#FFFFFF; --sunk:#EDEEE9; --tint:#E6E8E1;
-  --ink:#1D2320; --ink-2:#555D58; --ink-3:#8C928D; --line:#E3E5DF; --line-2:#CFD3CC;
-  --accent:#A3434C; --accent-soft:#F3E4E5;
-  --ok:#3B7A56; --ok-soft:#E3EFE7; --occ:#3B6595; --occ-soft:#E3EAF4; --full:#5A4E99; --full-soft:#E9E6F4;
+  /* Rainbow Bridge brand: indigo #44405B, gold #BE974C, rose #85524E, cream #F8F8F2 */
+  --bg:#F8F8F2; --surface:#FFFFFF; --sunk:#EFEEE8; --tint:#E8E6EE;
+  --ink:#3A3650; --ink-2:#605C73; --ink-3:#94909F; --line:#E6E4DC; --line-2:#D3D0C8;
+  --brand:#44405B; --brand-ink:#F8F8F2; --gold:#B48D45; --gold-soft:#F4ECDD;
+  --accent:#85524E; --accent-soft:#F3E6E3;
+  --ok:#3B7A56; --ok-soft:#E3EFE7; --occ:#55508A; --occ-soft:#E8E6F2; --full:#6A4C8C; --full-soft:#EEE6F3;
   --idle:#80786C; --idle-soft:#EFECE6; --warn:#8F6616; --warn-soft:#F5ECD6; --crit:#AE3A2D; --crit-soft:#F7E2DE;
   --c-resident:#4A6593; --c-helper:#357D6F; --c-volunteer:#977030; --c-guest:#A65076; --c-workshop:#6A59B2;
-  --hatch:rgba(29,35,32,.06); --scrim:rgba(18,22,20,.32);
-  --f-display:"Newsreader", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  --hatch:rgba(58,54,80,.06); --scrim:rgba(30,27,45,.35);
+  --f-display:"Alegreya", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
   --f-body:"Figtree", "Avenir Next", "Segoe UI", system-ui, -apple-system, sans-serif;
   --r:14px; --r-sm:8px;
   --shadow-sm:0 1px 2px rgba(20,24,22,.05), 0 2px 8px rgba(20,24,22,.04);
   --shadow:0 2px 6px rgba(20,24,22,.06), 0 18px 40px rgba(20,24,22,.10);
 }
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
-  --bg:#121513; --surface:#1A1E1B; --sunk:#222723; --tint:#262B27;
-  --ink:#E8EBE6; --ink-2:#AFB6B0; --ink-3:#7F8781; --line:#2A302C; --line-2:#3A413C;
-  --accent:#E3848B; --accent-soft:#3A2427;
-  --ok:#78C496; --ok-soft:#1C3125; --occ:#8AAEE0; --occ-soft:#1C2939; --full:#AFA3EE; --full-soft:#29264A;
+  --bg:#16141E; --surface:#1F1C2A; --sunk:#282535; --tint:#2E2A3D;
+  --ink:#ECEAF2; --ink-2:#B5B1C4; --ink-3:#86829A; --line:#2F2C3C; --line-2:#413D52;
+  --brand:#2B2740; --brand-ink:#F1EEE4; --gold:#D4B06A; --gold-soft:#3A3122;
+  --accent:#D99A92; --accent-soft:#3B2A2B;
+  --ok:#78C496; --ok-soft:#1C3125; --occ:#A9A3DC; --occ-soft:#2A2740; --full:#C3A6E0; --full-soft:#33283F;
   --idle:#B0A899; --idle-soft:#2A2722; --warn:#E0B259; --warn-soft:#352B16; --crit:#EF8C7C; --crit-soft:#3A201C;
   --c-resident:#5E7DB0; --c-helper:#3B9585; --c-volunteer:#A98132; --c-guest:#BC5E89; --c-workshop:#7C6BCB;
-  --hatch:rgba(232,235,230,.05); --scrim:rgba(0,0,0,.55);
+  --hatch:rgba(236,234,242,.05); --scrim:rgba(0,0,0,.55);
   --shadow-sm:0 1px 2px rgba(0,0,0,.3);
   --shadow:0 2px 6px rgba(0,0,0,.3), 0 18px 40px rgba(0,0,0,.4);
   color-scheme:dark;
 }}
 :root[data-theme="dark"]{
-  --bg:#121513; --surface:#1A1E1B; --sunk:#222723; --tint:#262B27;
-  --ink:#E8EBE6; --ink-2:#AFB6B0; --ink-3:#7F8781; --line:#2A302C; --line-2:#3A413C;
-  --accent:#E3848B; --accent-soft:#3A2427;
-  --ok:#78C496; --ok-soft:#1C3125; --occ:#8AAEE0; --occ-soft:#1C2939; --full:#AFA3EE; --full-soft:#29264A;
+  --bg:#16141E; --surface:#1F1C2A; --sunk:#282535; --tint:#2E2A3D;
+  --ink:#ECEAF2; --ink-2:#B5B1C4; --ink-3:#86829A; --line:#2F2C3C; --line-2:#413D52;
+  --brand:#2B2740; --brand-ink:#F1EEE4; --gold:#D4B06A; --gold-soft:#3A3122;
+  --accent:#D99A92; --accent-soft:#3B2A2B;
+  --ok:#78C496; --ok-soft:#1C3125; --occ:#A9A3DC; --occ-soft:#2A2740; --full:#C3A6E0; --full-soft:#33283F;
   --idle:#B0A899; --idle-soft:#2A2722; --warn:#E0B259; --warn-soft:#352B16; --crit:#EF8C7C; --crit-soft:#3A201C;
   --c-resident:#5E7DB0; --c-helper:#3B9585; --c-volunteer:#A98132; --c-guest:#BC5E89; --c-workshop:#7C6BCB;
-  --hatch:rgba(232,235,230,.05); --scrim:rgba(0,0,0,.55);
+  --hatch:rgba(236,234,242,.05); --scrim:rgba(0,0,0,.55);
   --shadow-sm:0 1px 2px rgba(0,0,0,.3);
   --shadow:0 2px 6px rgba(0,0,0,.3), 0 18px 40px rgba(0,0,0,.4);
   color-scheme:dark;
@@ -68,13 +72,14 @@ button{cursor:pointer}
 /* top bar */
 .top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:saturate(1.4) blur(12px);-webkit-backdrop-filter:saturate(1.4) blur(12px);border-bottom:1px solid var(--line)}
 .top-in{display:flex;align-items:center;gap:24px;padding-block:14px;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px));max-width:1320px;margin:0 auto}
-.brand{display:flex;flex-direction:column;line-height:1.1;min-width:0}
-.brand h1{font-size:24px;white-space:nowrap}
-.brand span{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);margin-top:3px}
+.brand{display:flex;align-items:center;gap:10px;min-width:0;text-decoration:none;color:var(--ink)}
+.brand .logo{width:42px;height:42px;object-fit:contain;display:block;flex:none}
+.brand .logo-fallback{width:42px;height:42px;border-radius:21px 21px 6px 6px;background:var(--brand);color:var(--gold);display:grid;place-items:center;font-family:var(--f-display);font-size:15px;letter-spacing:.06em}
+.brand-sub{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-2);font-weight:500;white-space:nowrap}
 .tabs{display:flex;gap:4px;flex:1;justify-content:center}
 .tab{border:0;background:none;padding:8px 14px;border-radius:999px;color:var(--ink-2);font-weight:500;font-size:15px;white-space:nowrap;display:flex;flex-direction:column;align-items:center;gap:2px}
 .tab:hover{color:var(--ink);background:var(--sunk)}
-.tab[aria-selected="true"]{color:var(--ink);background:var(--tint)}
+.tab[aria-selected="true"]{color:var(--brand-ink);background:var(--brand)}
 .tab .short,.tab svg{display:none}
 .top-actions{display:flex;gap:8px}
 
@@ -217,13 +222,13 @@ button.cal-name:hover{background:var(--sunk)}
 .cal-days{position:relative;height:50px}
 .cal-days .d{position:absolute;top:20px;bottom:2px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:11px;color:var(--ink-3);line-height:1.15}
 .cal-days .d.we{color:var(--ink-2)}
-.cal-days .d.today span:last-child{background:var(--accent);color:#fff;border-radius:999px;min-width:20px;padding:0 4px;text-align:center;font-weight:600}
+.cal-days .d.today span:last-child{background:var(--brand);color:var(--brand-ink);border-radius:999px;min-width:20px;padding:0 4px;text-align:center;font-weight:600}
 .cal-days .m{position:absolute;top:4px;font-size:12px;font-weight:600;color:var(--ink-2);padding-left:6px;white-space:nowrap}
 .gridlines{position:absolute;inset:0;pointer-events:none}
 .gridlines i{position:absolute;top:0;bottom:0;border-left:1px solid var(--line);opacity:.5}
 .gridlines i.wk{opacity:1}
 .weekend{position:absolute;top:0;bottom:0;background:var(--hatch);pointer-events:none}
-.todayline{position:absolute;top:0;bottom:0;width:2px;background:var(--accent);opacity:.7;pointer-events:none;z-index:2}
+.todayline{position:absolute;top:0;bottom:0;width:2px;background:var(--gold);opacity:.9;pointer-events:none;z-index:2}
 .over{position:absolute;top:0;bottom:0;background:var(--crit-soft);border-top:2px solid var(--crit);pointer-events:none}
 .bar{position:absolute;height:26px;border-radius:999px;color:#fff;font-size:12.5px;font-weight:500;padding:0 10px;display:flex;align-items:center;gap:4px;overflow:hidden;white-space:nowrap;border:0;text-align:left;z-index:1}
 .bar:hover{filter:brightness(1.08)}
@@ -326,28 +331,37 @@ body.is-dragging,body.is-dragging *{cursor:grabbing!important;user-select:none;-
 .cal-row.holdrow .bar{background:var(--surface);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--accent) 55%,transparent)}
 .cal-row.evrow{min-height:32px}
 .cal-evs{position:relative;height:32px}
-.evbar{position:absolute;top:5px;height:22px;border:0;border-radius:6px;background:color-mix(in srgb,var(--accent) 16%,var(--surface));color:var(--ink);font-size:12.5px;font-weight:600;padding:0;overflow:hidden;overflow:clip;text-align:left}
+.evbar{position:absolute;top:5px;height:22px;border:0;border-radius:6px;background:var(--gold-soft);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--gold) 45%,transparent);color:var(--ink);font-size:12.5px;font-weight:600;padding:0;overflow:hidden;overflow:clip;text-align:left}
 .evbar .n{position:sticky;left:calc(var(--namew) + 6px);padding:0 8px;white-space:nowrap}
 .evbar small{font-weight:400;color:var(--ink-2)}
 .evbar.spill{overflow:visible}
 .evbar.spill .n{position:absolute;left:0;top:50%;transform:translateY(-50%);padding-left:6px}
-.evtint{position:absolute;top:0;bottom:0;background:color-mix(in srgb,var(--accent) 6%,transparent);pointer-events:none}
+.evtint{position:absolute;top:0;bottom:0;background:color-mix(in srgb,var(--gold) 9%,transparent);pointer-events:none}
 .linkish{border:0;background:none;padding:0;font-weight:600;color:var(--ink);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px}
 
 /* hosted: login + visitor mode */
 .login{position:fixed;inset:0;z-index:80;background:var(--bg);display:grid;place-items:center;padding:20px}
 .login-card{width:min(380px,100%);display:flex;flex-direction:column;gap:16px;padding:32px 28px;background:var(--surface);border-radius:18px;box-shadow:var(--shadow)}
 .login-card h2{font-size:30px}
+.login-logo{width:84px;height:84px;object-fit:contain;align-self:flex-start;margin-bottom:-4px}
 .login-card form{display:flex;flex-direction:column;gap:14px}
 .login-card a{color:var(--ink)}
 .visit-mode .tabs,.visit-mode .top-actions,.visit-mode #notice,.visit-mode #view-visitors > .banner{display:none!important}
 .visit-mode main{padding-bottom:60px}
 #pubLink b{word-break:break-all}
 
+/* sync state */
+.banner.sync{padding:9px 14px;font-size:14px}
+.spin{width:14px;height:14px;border-radius:50%;border:2px solid var(--line-2);border-top-color:var(--brand);animation:spin .8s linear infinite;flex:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+
 /* visitor view */
-.pub-hero{display:flex;flex-direction:column;gap:12px;padding:40px 36px;border-radius:var(--r);background:var(--surface);box-shadow:var(--shadow-sm)}
-.pub-hero h2{font-size:40px;line-height:1.08;max-width:20ch}
-.pub-hero p{margin:0;max-width:62ch;color:var(--ink-2);white-space:pre-wrap;font-size:16.5px}
+.pub-hero{display:flex;flex-direction:column;gap:12px;padding:40px 36px;border-radius:var(--r);background:var(--brand);color:var(--brand-ink)}
+.pub-hero .wordmark{width:min(300px,80%);height:auto;margin-bottom:8px}
+.pub-hero .label{color:color-mix(in srgb,var(--brand-ink) 65%,transparent)}
+.pub-hero h2{font-size:40px;line-height:1.08;max-width:20ch;color:var(--brand-ink)}
+.pub-hero p{margin:0;max-width:62ch;color:color-mix(in srgb,var(--brand-ink) 82%,transparent);white-space:pre-wrap;font-size:16.5px}
+.pub-hero b{color:var(--gold)!important}
 .avail{font-weight:600;font-size:14.5px}
 .avail.yes{color:var(--ok)}.avail.part{color:var(--warn)}
 
@@ -381,8 +395,8 @@ body.is-dragging,body.is-dragging *{cursor:grabbing!important;user-select:none;-
   .top{backdrop-filter:none;-webkit-backdrop-filter:none;background:var(--bg)}
   .top-in{padding-block:12px;gap:12px}
   .brand{flex:1}
-  .brand h1{font-size:19px;overflow:hidden;text-overflow:ellipsis}
-  .brand span{font-size:11px}
+  .brand .logo,.brand .logo-fallback{width:38px;height:38px}
+  .brand-sub{display:none}
   .top-actions .btn{padding:5px 10px;font-size:13.5px}
   .tabs{position:fixed;left:0;right:0;bottom:0;z-index:25;justify-content:space-around;gap:0;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line);padding:6px max(8px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px))}
   .tab{flex:1;border-radius:10px;padding:6px 4px;font-size:12px;color:var(--ink-3)}
@@ -410,7 +424,7 @@ body.is-dragging,body.is-dragging *{cursor:grabbing!important;user-select:none;-
 <body>
 <header class="top">
   <div class="top-in">
-    <div class="brand"><h1>Rainbow Bridge Hawaii</h1><span>Accommodation</span></div>
+    <a class="brand" href="#spaces" aria-label="Rainbow Bridge Hawaii, accommodation"><img class="logo" src="https://rainbowbridgehawaii.com/wp-content/uploads/2023/11/Rainbow-Bridge-Iris-1024x1024.png" alt="" width="40" height="40" onerror="this.replaceWith(Object.assign(document.createElement('b'),{className:'logo-fallback',textContent:'RB'}))"><span class="brand-sub">Accommodation</span></a>
     <nav class="tabs" role="tablist" aria-label="Views">
       <button class="tab" role="tab" data-view="spaces" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg><span class="long">Spaces</span><span class="short">Spaces</span></button>
       <button class="tab" role="tab" data-view="calendar" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg><span class="long">Calendar</span><span class="short">Calendar</span></button>
@@ -554,7 +568,7 @@ const S = {
 };
 const D = () => S.demo ? S.demoData : S.real;
 const space = id => D().spaces.find(s => s.id === id);
-const writable = () => S.demo || S.canWrite;
+const writable = () => S.demo || (S.canWrite && !S.stale);
 
 /* ---------- derived ---------- */
 const activeStays = () => D().stays.filter(s => s.status !== "cancelled" && validDate(s.start));
@@ -635,7 +649,8 @@ function renderView(){
 }
 function renderNotice(){
   const el = $("#notice"); let h = "";
-  if (S.demo) h = `<div class="banner"><span class="grow"><b>Example data.</b> Nothing here is saved or real.</span><button class="btn sm" data-act="demo-off">Back to the real list</button></div>`;
+  if (S.hosted && !S.visit && S.stale) h = `<div class="banner info sync"><span class="spin" aria-hidden="true"></span><span class="grow">${S.offline ? `Can't reach the sheet right now. Showing your saved copy from ${ago(S.stale)}. Editing is paused until it reconnects.` : `Showing your saved copy from ${ago(S.stale)}. Getting the latest…`}</span></div>`;
+  else if (S.demo) h = `<div class="banner"><span class="grow"><b>Example data.</b> Nothing here is saved or real.</span><button class="btn sm" data-act="demo-off">Back to the real list</button></div>`;
   else if (!S.db && S.connected) h = `<div class="banner"><span class="grow">The shared list isn't reachable in this view. Open the page signed in to see and edit it.</span><button class="btn sm" data-act="demo-on">See an example</button></div>`;
   else if (S.slow) h = `<div class="banner"><span class="grow">Still connecting. What you see may be out of date.</span></div>`;
   else if (S.db && !S.canWrite && S.loaded.size) h = `<div class="banner info"><span class="grow">You can view this list. Ask Tosh for editor access to make changes.</span></div>`;
@@ -697,7 +712,7 @@ function cardHtml(sp){
       ${dl ? `<div class="dist">${esc(dl)}</div>` : ""}
       ${cur.length ? `<div class="who">${cur.map(x => `<span class="swatch cat-${esc(x.category)}" style="margin-right:6px"></span>${esc(x.name)}`).join(", ")}</div>` : ""}
       ${wk.length || over.length ? `<div class="card-foot">
-        ${wk.length ? `<span class="chip ${blockers ? "crit" : "warn"}">${wk.length} ${wk.length === 1 ? "task" : "tasks"} · ${hrs(sumHours(wk))}</span>` : ""}
+        ${wk.length ? `<span class="chip ${blockers ? "crit" : "warn"}">${wk.length} ${wk.length === 1 ? "task" : "tasks"}${sumHours(wk) ? ` · ${hrs(sumHours(wk))}` : ""}</span>` : ""}
         ${over.length ? `<span class="chip crit">Overbooked ${fmt(over[0])}</span>` : ""}</div>` : ""}
     </div></button>`;
 }
@@ -1000,7 +1015,7 @@ function renderPublic(){
   if (S.hosted && !S.visit){ const u = location.origin + location.pathname + "?visit"; $("#pubLink").innerHTML = ` Link for visitors: <b>${esc(u)}</b> <button class="btn sm" data-act="copy-link" data-url="${esc(u)}">Copy</button>`; }
   $("#editPublicBtn").hidden = !writable();
   const set = D().settings || {};
-  $("#pubHero").innerHTML = `<div class="pub-hero"><span class="label">Rainbow Bridge Hawaii · Hāmākua Coast</span>
+  $("#pubHero").innerHTML = `<div class="pub-hero"><img class="wordmark" src="https://rainbowbridgehawaii.com/wp-content/uploads/2023/06/Rainbow-Bridge-Iris_wordmark-05-scaled.png" alt="Rainbow Bridge Hawaii" onerror="this.remove()"><span class="label">Hāmākua Coast · Hawaiʻi Island</span>
     <h2>${esc(set.publicTitle || "Places to stay at Rainbow Bridge")}</h2>
     ${set.publicIntro ? `<p>${esc(set.publicIntro)}</p>` : ""}
     ${set.contact ? `<p><b style="color:var(--ink)">To arrange a stay:</b> ${esc(set.contact)}</p>` : ""}</div>`;
@@ -1383,7 +1398,7 @@ document.addEventListener("click", async e => {
     case "edit-event": if (writable()) eventForm(id); break;
     case "delete-event": if (armed(a) && await remove("events", S.modalCtx.id)){ closeModal(); toast("Event deleted"); } break;
     case "copy-link": try { await navigator.clipboard.writeText(a.dataset.url); toast("Link copied"); } catch { toast("Select the link and copy it."); } break;
-    case "sign-out": lsSet("rb-token", ""); location.reload(); break;
+    case "sign-out": lsSet("rb-token", ""); clearCaches(); location.reload(); break;
     case "demo-off": S.demo = false; S.openSpace = null; renderAll(); break;
   }
 });
@@ -1461,18 +1476,26 @@ function subscribeAll(db){
 }
 
 /* ---------- hosted mode: GitHub Pages + Google Sheet (Apps Script) ---------- */
+const CACHE_TEAM = "rb-cache-team-v1", CACHE_PUB = "rb-cache-pub-v1";
+function readCache(k){ try { const c = JSON.parse(localStorage.getItem(k) || "null"); return c && c.data ? c : null; } catch { return null; } }
+function writeCache(k, data){ try { localStorage.setItem(k, JSON.stringify({ at: Date.now(), data })); } catch {} }
+function clearCaches(){ try { localStorage.removeItem(CACHE_TEAM); localStorage.removeItem(CACHE_PUB); } catch {} }
+const clock = t => new Date(t).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+const ago = t => { const m = Math.round((Date.now() - t) / 60000); return m < 1 ? "a moment ago" : m < 60 ? `${m} min ago` : m < 1440 ? `at ${clock(t)}` : new Date(t).toLocaleDateString([], { month: "short", day: "numeric" }) + " " + clock(t); };
 async function gasCall(body){
   const r = await fetch(S.api, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(body) });
   if (!r.ok) throw { code: "unavailable", message: "HTTP " + r.status };
   return r.json();
 }
 function authLost(){
-  lsSet("rb-token", ""); S.token = ""; S.canWrite = false;
+  lsSet("rb-token", ""); S.token = ""; S.canWrite = false; clearCaches();
   toast("Please sign in again."); showLogin();
 }
 function gasDb(){
   let data = { spaces: [], stays: [], work: [], events: [], settings: [] }, ready = false, queue = Promise.resolve(), pending = 0;
   const subs = [];
+  const cached = readCache(CACHE_TEAM);
+  if (cached){ data = cached.data; ready = true; S.stale = cached.at; }
   const snapOf = l => {
     const list = data[l.coll] || [];
     if (l.id){ const r = list.find(x => x.id === l.id); return { id: l.id, exists: !!r, data: () => r ? { ...r } : undefined, metadata: { fromCache: false, hasPendingWrites: false } }; }
@@ -1486,7 +1509,7 @@ function gasDb(){
     if (r.error) throw r;
     if (pending) return; // a save is on its way; the next load will catch up
     data = { spaces: r.spaces || [], stays: r.stays || [], work: r.work || [], events: r.events || [], settings: r.settings || [] };
-    ready = true; fireAll();
+    ready = true; S.stale = 0; S.offline = false; writeCache(CACHE_TEAM, data); fireAll();
   }
   const send = body => {
     pending++;
@@ -1501,17 +1524,17 @@ function gasDb(){
     async set(body){
       const doc = { id, ...clean(body) }, list = data[coll] || (data[coll] = []);
       const i = list.findIndex(x => x.id === id); if (i >= 0) list[i] = doc; else list.push(doc);
-      fireAll(); send({ action: "save", coll, doc });
+      writeCache(CACHE_TEAM, data); fireAll(); send({ action: "save", coll, doc });
     },
-    async delete(){ data[coll] = (data[coll] || []).filter(x => x.id !== id); fireAll(); send({ action: "delete", coll, id }); },
+    async delete(){ data[coll] = (data[coll] || []).filter(x => x.id !== id); writeCache(CACHE_TEAM, data); fireAll(); send({ action: "delete", coll, id }); },
     onSnapshot(cb){ const l = { coll, id, cb }; subs.push(l); if (ready) cb(snapOf(l)); return () => {}; },
   });
   const genId = () => (crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2) + Date.now().toString(36)).replace(/-/g, "").slice(0, 20);
   const poll = () => { if (!document.hidden && !pending && !(drag && drag.started) && S.token) load().catch(() => {}); };
-  setInterval(poll, 60000);
+  setInterval(poll, 30000);
   document.addEventListener("visibilitychange", () => { if (!document.hidden) poll(); });
   S.dbReload = () => load().catch(() => {});
-  load().catch(() => toast("Couldn't load the list. Check your connection and reload.", 6000));
+  load().catch(() => { S.offline = true; renderNotice(); if (!ready) toast("Couldn't load the list. Check your connection and reload.", 6000); });
   return {
     collection: coll => ({ doc: id => ref(coll, id || genId()), onSnapshot(cb){ const l = { coll, cb }; subs.push(l); if (ready) cb(snapOf(l)); return () => {}; } }),
     doc: path => { const [c, i] = path.split("/"); return ref(c, i); },
@@ -1532,7 +1555,7 @@ function gasAssets(){
 }
 function showLogin(){
   $("#loginRoot").innerHTML = `<div class="login"><div class="login-card">
-    <h2>Rainbow Bridge Hawaii</h2><p class="muted" style="margin:0">Accommodation</p>
+    <img class="login-logo" src="https://rainbowbridgehawaii.com/wp-content/uploads/2023/11/Rainbow-Bridge-Iris-1024x1024.png" alt="Rainbow Bridge Hawaii" onerror="this.remove()"><h2>Accommodation</h2><p class="muted" style="margin:-8px 0 0">Team sign in</p>
     <form id="loginForm" novalidate>
       <label class="f"><span>Username</span><input id="lg-user" autocomplete="username" autocapitalize="none" spellcheck="false"></label>
       <label class="f"><span>Password</span><input id="lg-pass" type="password" autocomplete="current-password"></label>
@@ -1564,12 +1587,12 @@ async function hostedBoot(cfg){
   S.photoBase = "https://drive.google.com/thumbnail?sz=w1600&id=";
   if (new URLSearchParams(location.search).has("visit")){
     S.visit = true; document.body.classList.add("visit-mode"); setView("visitors", false);
-    $("#pubBody").innerHTML = `<p class="faint">Loading…</p>`;
+    const show = d => { S.real = { spaces: d.spaces || [], stays: d.stays || [], work: d.blocks || [], events: [], settings: d.settings || {} }; ["spaces","stays","work"].forEach(k => S.loaded.add(k)); renderAll(); };
+    const c = readCache(CACHE_PUB);
+    if (c) show(c.data); else $("#pubBody").innerHTML = `<p class="faint">Loading…</p>`;
     let data; try { data = await gasCall({ action: "public" }); } catch {}
-    if (!data || data.error){ $("#pubBody").innerHTML = `<div class="none">This page couldn't load. Try again in a moment.</div>`; return; }
-    S.real = { spaces: data.spaces || [], stays: data.stays || [], work: data.blocks || [], events: [], settings: data.settings || {} };
-    ["spaces","stays","work"].forEach(k => S.loaded.add(k));
-    renderAll(); return;
+    if (!data || data.error){ if (!c) $("#pubBody").innerHTML = `<div class="none">This page couldn't load. Try again in a moment.</div>`; return; }
+    writeCache(CACHE_PUB, data); show(data); return;
   }
   S.token = lsGet("rb-token") || "";
   if (!S.token){ renderAll(); showLogin(); return; }
