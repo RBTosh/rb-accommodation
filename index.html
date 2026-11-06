@@ -1,0 +1,1578 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#F5F5F1" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#121513" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="RB Stays">
+<link rel="apple-touch-icon" href="icon.png">
+<link rel="icon" type="image/png" href="icon.png">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Rainbow Bridge Hawaii</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500&family=Figtree:wght@400;500;600&display=swap">
+<style>
+/* Layout: quiet top bar (desktop tabs) / bottom tab bar on phones; photo-led card grid; side sheet for one space; modal forms; calendar scrolls in its own frame. */
+:root{
+  --bg:#F5F5F1; --surface:#FFFFFF; --sunk:#EDEEE9; --tint:#E6E8E1;
+  --ink:#1D2320; --ink-2:#555D58; --ink-3:#8C928D; --line:#E3E5DF; --line-2:#CFD3CC;
+  --accent:#A3434C; --accent-soft:#F3E4E5;
+  --ok:#3B7A56; --ok-soft:#E3EFE7; --occ:#3B6595; --occ-soft:#E3EAF4; --full:#5A4E99; --full-soft:#E9E6F4;
+  --idle:#80786C; --idle-soft:#EFECE6; --warn:#8F6616; --warn-soft:#F5ECD6; --crit:#AE3A2D; --crit-soft:#F7E2DE;
+  --c-resident:#4A6593; --c-helper:#357D6F; --c-volunteer:#977030; --c-guest:#A65076; --c-workshop:#6A59B2;
+  --hatch:rgba(29,35,32,.06); --scrim:rgba(18,22,20,.32);
+  --f-display:"Newsreader", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  --f-body:"Figtree", "Avenir Next", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --r:14px; --r-sm:8px;
+  --shadow-sm:0 1px 2px rgba(20,24,22,.05), 0 2px 8px rgba(20,24,22,.04);
+  --shadow:0 2px 6px rgba(20,24,22,.06), 0 18px 40px rgba(20,24,22,.10);
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#121513; --surface:#1A1E1B; --sunk:#222723; --tint:#262B27;
+  --ink:#E8EBE6; --ink-2:#AFB6B0; --ink-3:#7F8781; --line:#2A302C; --line-2:#3A413C;
+  --accent:#E3848B; --accent-soft:#3A2427;
+  --ok:#78C496; --ok-soft:#1C3125; --occ:#8AAEE0; --occ-soft:#1C2939; --full:#AFA3EE; --full-soft:#29264A;
+  --idle:#B0A899; --idle-soft:#2A2722; --warn:#E0B259; --warn-soft:#352B16; --crit:#EF8C7C; --crit-soft:#3A201C;
+  --c-resident:#5E7DB0; --c-helper:#3B9585; --c-volunteer:#A98132; --c-guest:#BC5E89; --c-workshop:#7C6BCB;
+  --hatch:rgba(232,235,230,.05); --scrim:rgba(0,0,0,.55);
+  --shadow-sm:0 1px 2px rgba(0,0,0,.3);
+  --shadow:0 2px 6px rgba(0,0,0,.3), 0 18px 40px rgba(0,0,0,.4);
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#121513; --surface:#1A1E1B; --sunk:#222723; --tint:#262B27;
+  --ink:#E8EBE6; --ink-2:#AFB6B0; --ink-3:#7F8781; --line:#2A302C; --line-2:#3A413C;
+  --accent:#E3848B; --accent-soft:#3A2427;
+  --ok:#78C496; --ok-soft:#1C3125; --occ:#8AAEE0; --occ-soft:#1C2939; --full:#AFA3EE; --full-soft:#29264A;
+  --idle:#B0A899; --idle-soft:#2A2722; --warn:#E0B259; --warn-soft:#352B16; --crit:#EF8C7C; --crit-soft:#3A201C;
+  --c-resident:#5E7DB0; --c-helper:#3B9585; --c-volunteer:#A98132; --c-guest:#BC5E89; --c-workshop:#7C6BCB;
+  --hatch:rgba(232,235,230,.05); --scrim:rgba(0,0,0,.55);
+  --shadow-sm:0 1px 2px rgba(0,0,0,.3);
+  --shadow:0 2px 6px rgba(0,0,0,.3), 0 18px 40px rgba(0,0,0,.4);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--bg)}
+h1,h2,h3{font-family:var(--f-display);font-weight:500;margin:0;text-wrap:balance;letter-spacing:-.01em}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.muted{color:var(--ink-2)} .faint{color:var(--ink-3)}
+.label{font-size:12px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);font-weight:500}
+.small{font-size:14px}
+
+/* top bar */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:saturate(1.4) blur(12px);-webkit-backdrop-filter:saturate(1.4) blur(12px);border-bottom:1px solid var(--line)}
+.top-in{display:flex;align-items:center;gap:24px;padding-block:14px;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px));max-width:1320px;margin:0 auto}
+.brand{display:flex;flex-direction:column;line-height:1.1;min-width:0}
+.brand h1{font-size:24px;white-space:nowrap}
+.brand span{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);margin-top:3px}
+.tabs{display:flex;gap:4px;flex:1;justify-content:center}
+.tab{border:0;background:none;padding:8px 14px;border-radius:999px;color:var(--ink-2);font-weight:500;font-size:15px;white-space:nowrap;display:flex;flex-direction:column;align-items:center;gap:2px}
+.tab:hover{color:var(--ink);background:var(--sunk)}
+.tab[aria-selected="true"]{color:var(--ink);background:var(--tint)}
+.tab .short,.tab svg{display:none}
+.top-actions{display:flex;gap:8px}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1px solid var(--line-2);background:var(--surface);padding:8px 14px;border-radius:999px;font-weight:500;font-size:15px;line-height:1.2}
+.btn:hover{border-color:var(--ink-3)}
+.btn.primary{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.btn.primary:hover{opacity:.88}
+.btn.ghost{background:transparent;border-color:transparent;color:var(--ink-2)}
+.btn.ghost:hover{background:var(--sunk);color:var(--ink)}
+.btn.danger{color:var(--crit);border-color:transparent;background:transparent}
+.btn.danger.armed{background:var(--crit);color:#fff}
+.btn.sm{padding:6px 12px;font-size:14px}
+.btn:disabled{opacity:.45;cursor:default}
+.plus::before{content:"+";font-size:1.15em;line-height:1;margin-top:-1px}
+
+main{max-width:1320px;margin:0 auto;padding-block:28px 72px;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
+.view{display:flex;flex-direction:column;gap:22px}
+.view-h{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.view-h h2{font-size:34px;line-height:1.1}
+.banner{display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:12px 16px;border-radius:var(--r-sm);background:var(--warn-soft);font-size:15px}
+.banner.info{background:var(--sunk);color:var(--ink-2)}
+.banner .grow{flex:1;min-width:200px}
+
+/* summary */
+.summary{display:flex;flex-wrap:wrap;gap:6px 28px;color:var(--ink-2);font-size:15px}
+.summary b{color:var(--ink);font-weight:600;font-size:17px;margin-right:5px}
+.summary .alert b,.summary .alert{color:var(--crit)}
+
+.toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.toolbar .spacer{flex:1}
+.seg{display:inline-flex;gap:4px;flex-wrap:wrap}
+.seg button{border:1px solid var(--line);background:transparent;padding:6px 13px;border-radius:999px;color:var(--ink-2);font-size:14px;font-weight:500}
+.seg button:hover{border-color:var(--line-2);color:var(--ink)}
+.seg button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+input.inline{border:1px solid var(--line-2);background:var(--surface);border-radius:999px;padding:6px 12px;font-size:14px}
+
+/* cards */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:22px}
+.card{display:flex;flex-direction:column;background:var(--surface);border:0;border-radius:var(--r);overflow:hidden;text-align:left;padding:0;box-shadow:var(--shadow-sm);transition:box-shadow .2s, transform .2s}
+button.card:hover{box-shadow:var(--shadow);transform:translateY(-2px)}
+.ph{position:relative;aspect-ratio:4/3;max-width:100%;background:var(--tint);overflow:hidden}
+.ph img{width:100%;height:100%;object-fit:cover;display:block}
+.ph.empty{display:grid;place-items:center}
+.ph.empty b{font-family:var(--f-display);font-weight:400;font-size:72px;line-height:1;color:var(--line-2)}
+.ph .count{position:absolute;right:10px;bottom:10px;background:rgba(0,0,0,.5);color:#fff;font-size:12px;padding:2px 8px;border-radius:999px}
+.ph .pill{position:absolute;left:10px;top:10px;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.card-body{display:flex;flex-direction:column;gap:6px;padding:14px 16px 16px;flex:1}
+.card h3{font-size:22px;line-height:1.15}
+.cap{font-size:14.5px;color:var(--ink-2)}
+.dist{font-size:13.5px;color:var(--ink-3)}
+.who{font-size:14.5px;color:var(--ink)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:13px;padding:3px 10px;border-radius:999px;background:var(--sunk);color:var(--ink-2);white-space:nowrap;font-weight:500}
+.chip.warn{background:var(--warn-soft);color:var(--warn)}
+.chip.crit{background:var(--crit-soft);color:var(--crit)}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;padding:4px 10px;border-radius:999px;white-space:nowrap;flex:none;background:var(--surface)}
+.pill::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.st-open{color:var(--ok)} .st-part{color:var(--occ)} .st-full{color:var(--full)} .st-notready{color:var(--idle)} .st-over{color:var(--crit)}
+.pill.soft.st-open{background:var(--ok-soft)}.pill.soft.st-part{background:var(--occ-soft)}.pill.soft.st-full{background:var(--full-soft)}.pill.soft.st-notready{background:var(--idle-soft)}.pill.soft.st-over{background:var(--crit-soft)}
+.card-foot{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto;padding-top:6px}
+.swatch{width:9px;height:9px;border-radius:50%;flex:none;display:inline-block}
+.cat-resident{background:var(--c-resident)}.cat-helper{background:var(--c-helper)}.cat-volunteer{background:var(--c-volunteer)}.cat-guest{background:var(--c-guest)}.cat-workshop{background:var(--c-workshop)}
+
+.empty-state{display:flex;flex-direction:column;align-items:flex-start;gap:14px;padding:44px 36px;background:var(--surface);border-radius:var(--r);box-shadow:var(--shadow-sm);max-width:640px}
+.empty-state h2{font-size:30px;line-height:1.15}
+.empty-state p{margin:0;color:var(--ink-2);max-width:58ch}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+
+/* side sheet */
+.scrim{position:fixed;inset:0;background:var(--scrim);z-index:40;animation:fade .2s ease}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(540px,100%);background:var(--bg);z-index:41;overflow-y:auto;box-shadow:var(--shadow);padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);padding-right:env(safe-area-inset-right,0px);animation:slide .25s cubic-bezier(.2,.8,.2,1)}
+@keyframes fade{from{opacity:0}} @keyframes slide{from{transform:translateX(24px);opacity:.6}}
+.dr-top{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:8px;padding:10px 14px;background:color-mix(in srgb,var(--bg) 90%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+.dr-top .grow{flex:1}
+.gallery{position:relative;background:var(--tint);aspect-ratio:3/2;max-width:100%}
+.gallery img{width:100%;height:100%;object-fit:cover;display:block}
+.gallery .nav{position:absolute;top:50%;transform:translateY(-50%);width:38px;height:38px;border-radius:50%;border:0;background:rgba(255,255,255,.85);color:#1D2320;font-size:20px;line-height:1;display:grid;place-items:center;box-shadow:0 1px 4px rgba(0,0,0,.2)}
+.gallery .prev{left:12px}.gallery .next{right:12px}
+.gallery .idx{position:absolute;left:12px;bottom:12px;background:rgba(0,0,0,.5);color:#fff;font-size:12px;padding:2px 9px;border-radius:999px}
+.thumbs{display:flex;gap:6px;padding:10px 18px 0;overflow-x:auto}
+.thumbs button{flex:none;width:60px;height:46px;padding:0;border:2px solid transparent;border-radius:6px;overflow:hidden;background:var(--tint);opacity:.75}
+.thumbs button[aria-current="true"]{border-color:var(--ink);opacity:1}
+.thumbs img{width:100%;height:100%;object-fit:cover;display:block}
+.dr-body{display:flex;flex-direction:column;gap:26px;padding:18px 20px 48px}
+.dr-title{display:flex;flex-direction:column;gap:10px}
+.dr-title h2{font-size:34px;line-height:1.08}
+.sect{display:flex;flex-direction:column;gap:10px}
+.sect-h{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.sect-h h3{font-size:21px}
+.facts{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border-radius:var(--r-sm);overflow:hidden}
+.facts div{background:var(--surface);padding:10px 12px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.facts small{font-size:12.5px;color:var(--ink-3)}
+.facts b{font-weight:600;font-size:16px}
+.prose{margin:0;white-space:pre-wrap;font-size:15.5px;color:var(--ink)}
+.list{display:flex;flex-direction:column;background:var(--surface);border-radius:var(--r-sm);box-shadow:var(--shadow-sm);overflow:hidden}
+.li{display:flex;gap:12px;align-items:center;padding:11px 14px;border-top:1px solid var(--line);text-align:left;background:transparent;border-left:0;border-right:0;border-bottom:0;width:100%}
+.li:first-child{border-top:0}
+button.li:hover{background:var(--sunk)}
+button.li:disabled{cursor:default}
+.li .grow{flex:1;min-width:0}
+.li .t{font-weight:500}
+.li .s{font-size:13.5px;color:var(--ink-2)}
+.none{padding:14px;color:var(--ink-3);font-size:14.5px}
+.warnbox{padding:10px 14px;border-radius:var(--r-sm);background:var(--crit-soft);color:var(--crit);font-size:14.5px}
+
+/* repairs */
+.prio{font-size:12px;font-weight:600;padding:2px 8px;border-radius:999px;flex:none}
+.p-blocker{background:var(--crit-soft);color:var(--crit)}
+.p-needed{background:var(--warn-soft);color:var(--warn)}
+.p-nice{background:var(--sunk);color:var(--ink-2)}
+.wstat{border:1px solid var(--line-2);background:transparent;border-radius:999px;padding:3px 11px;font-size:13px;font-weight:500;flex:none;min-width:92px}
+.wstat.doing{border-color:var(--occ);color:var(--occ)}
+.wstat.done{border-color:var(--ok);color:var(--ok)}
+.li.done .t{text-decoration:line-through;color:var(--ink-3)}
+.wgroup{display:flex;flex-direction:column;gap:10px}
+.wgroup-h{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.wgroup-h h3{font-size:22px}
+.wgroup-h button{border:0;background:none;padding:0;text-align:left}
+.wgroup-h button:hover h3{text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:4px}
+.ready-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.ready-item{display:flex;flex-direction:column;gap:6px;padding:14px 16px;background:var(--surface);border:0;border-radius:var(--r-sm);box-shadow:var(--shadow-sm);text-align:left}
+.ready-item:hover{box-shadow:var(--shadow)}
+.ready-item b{font-family:var(--f-display);font-weight:500;font-size:20px}
+.meter{height:5px;border-radius:3px;background:var(--sunk);overflow:hidden}
+.meter i{display:block;height:100%;background:var(--ok)}
+
+/* calendar */
+.cal-frame{background:var(--surface);border-radius:var(--r);box-shadow:var(--shadow-sm);overflow-x:auto;overflow-y:hidden;position:relative}
+.cal{position:relative;min-width:max-content}
+.cal-row{display:flex;border-top:1px solid var(--line);min-height:46px}
+.cal-row:first-child{border-top:0}
+.cal-name{position:sticky;left:0;z-index:3;width:168px;flex:none;background:var(--surface);border-right:1px solid var(--line);padding:6px 14px;display:flex;flex-direction:column;justify-content:center;text-align:left;border-top:0;border-bottom:0;border-left:0}
+button.cal-name:hover{background:var(--sunk)}
+.cal-name b{font-weight:500;font-size:14.5px;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cal-name small{font-size:12px;color:var(--ink-3)}
+.cal-track{position:relative;flex:none;cursor:copy}
+.cal-track.ro{cursor:default}
+.cal-track.notready{background-image:repeating-linear-gradient(135deg,transparent 0 7px,var(--hatch) 7px 8px)}
+.cal-days{position:relative;height:50px}
+.cal-days .d{position:absolute;top:20px;bottom:2px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:11px;color:var(--ink-3);line-height:1.15}
+.cal-days .d.we{color:var(--ink-2)}
+.cal-days .d.today span:last-child{background:var(--accent);color:#fff;border-radius:999px;min-width:20px;padding:0 4px;text-align:center;font-weight:600}
+.cal-days .m{position:absolute;top:4px;font-size:12px;font-weight:600;color:var(--ink-2);padding-left:6px;white-space:nowrap}
+.gridlines{position:absolute;inset:0;pointer-events:none}
+.gridlines i{position:absolute;top:0;bottom:0;border-left:1px solid var(--line);opacity:.5}
+.gridlines i.wk{opacity:1}
+.weekend{position:absolute;top:0;bottom:0;background:var(--hatch);pointer-events:none}
+.todayline{position:absolute;top:0;bottom:0;width:2px;background:var(--accent);opacity:.7;pointer-events:none;z-index:2}
+.over{position:absolute;top:0;bottom:0;background:var(--crit-soft);border-top:2px solid var(--crit);pointer-events:none}
+.bar{position:absolute;height:26px;border-radius:999px;color:#fff;font-size:12.5px;font-weight:500;padding:0 10px;display:flex;align-items:center;gap:4px;overflow:hidden;white-space:nowrap;border:0;text-align:left;z-index:1}
+.bar:hover{filter:brightness(1.08)}
+.bar.hold{background-image:repeating-linear-gradient(135deg,rgba(255,255,255,.25) 0 5px,transparent 5px 10px)}
+.bar.open-end{border-top-right-radius:0;border-bottom-right-radius:0;-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 28px),transparent)}
+.bar .hc{font-size:11px;opacity:.85}
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13.5px;color:var(--ink-2);align-items:center}
+.legend span{display:inline-flex;align-items:center;gap:7px}
+.lg-hold{width:18px;height:10px;border-radius:999px;background:var(--ink-3);background-image:repeating-linear-gradient(135deg,rgba(255,255,255,.4) 0 3px,transparent 3px 6px)}
+.lg-over{width:18px;height:10px;background:var(--crit-soft);border-top:2px solid var(--crit)}
+.lg-nr{width:18px;height:10px;border-radius:2px;background-image:repeating-linear-gradient(135deg,transparent 0 3px,var(--ink-3) 3px 4px);opacity:.5}
+
+/* calendar availability */
+.tint{position:absolute;top:0;bottom:0;pointer-events:none}
+.tint.free{background:color-mix(in srgb,var(--ok) 15%,transparent)}
+.tint.free.proj{background:repeating-linear-gradient(90deg,color-mix(in srgb,var(--ok) 15%,transparent) 0 5px,transparent 5px 8px)}
+.tint.room{background:color-mix(in srgb,var(--ok) 6%,transparent)}
+.tint.nr{background-image:repeating-linear-gradient(135deg,transparent 0 6px,var(--line-2) 6px 7px);opacity:.7}
+.tint.over{background:var(--crit-soft);border-top:2px solid var(--crit)}
+.band{position:absolute;top:0;bottom:0;border-left:1.5px dashed var(--accent);border-right:1.5px dashed var(--accent);background:color-mix(in srgb,var(--accent) 6%,transparent);pointer-events:none;z-index:2}
+.cal-row.dim{opacity:.35}
+.cal-row.fit .cal-name{box-shadow:inset 3px 0 0 var(--ok)}
+.cal-row.part .cal-name{box-shadow:inset 3px 0 0 var(--warn)}
+.cal-row.drop .cal-track{box-shadow:inset 0 0 0 2px var(--occ)}
+.cal-row.drop .cal-name{background:var(--occ-soft)}
+.bar.blk{background:var(--ink-3);background-image:repeating-linear-gradient(135deg,rgba(255,255,255,.2) 0 5px,transparent 5px 10px)}
+.bar[data-kind="stay"]:not(:disabled){cursor:grab}
+.bar .grip{position:absolute;right:0;top:0;bottom:0;width:10px;cursor:ew-resize}
+.bar .grip::after{content:"";position:absolute;right:4px;top:8px;bottom:8px;width:2px;border-radius:1px;background:rgba(255,255,255,.6)}
+.bar.dragging{z-index:6;box-shadow:0 8px 20px rgba(0,0,0,.25);opacity:.92}
+body.is-dragging,body.is-dragging *{cursor:grabbing!important;user-select:none;-webkit-user-select:none}
+.drag-tip{position:fixed;z-index:70;pointer-events:none;background:var(--ink);color:var(--bg);font-size:13px;padding:4px 11px;border-radius:999px;white-space:nowrap;box-shadow:var(--shadow)}
+.cal-beds{position:relative;height:30px}
+.cal-beds span{position:absolute;top:0;bottom:0;display:grid;place-items:center;font-size:11.5px;font-weight:600;color:var(--ok)}
+.cal-beds span.b0{color:var(--ink-3);font-weight:400}
+.cal-beds.narrow span{font-size:9.5px}
+.cal-row.beds{min-height:30px;background:var(--sunk)}
+.cal-row.beds .cal-name{background:var(--sunk)}
+.finder{display:flex;flex-direction:column;gap:12px;padding:16px 18px;background:var(--surface);border-radius:var(--r);box-shadow:var(--shadow-sm)}
+.finder .row{gap:10px 14px}
+.finder label{display:flex;align-items:center;gap:7px;font-size:14px;color:var(--ink-2)}
+.finder h3{font-size:19px;margin-right:4px}
+.fits{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:14.5px}
+.fitchip{border:1px solid var(--ok);color:var(--ok);background:var(--ok-soft);border-radius:999px;padding:4px 12px;font-size:14px;font-weight:500}
+.fitchip.part{border-color:var(--warn);color:var(--warn);background:var(--warn-soft)}
+.fitchip:hover{filter:brightness(.96)}
+.lg-free{width:18px;height:10px;border-radius:2px;background:color-mix(in srgb,var(--ok) 15%,transparent);box-shadow:inset 0 0 0 1px var(--ok)}
+.lg-room{width:18px;height:10px;border-radius:2px;background:color-mix(in srgb,var(--ok) 6%,transparent);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--ok) 45%,transparent)}
+.lg-blk{width:18px;height:10px;border-radius:999px;background:var(--ink-3)}
+.toast{display:flex;align-items:center;gap:14px}
+.key{flex:1;min-width:0}
+.key summary{cursor:pointer;font-size:14px;color:var(--ink-2);font-weight:500;width:max-content;list-style:none}
+.key summary::-webkit-details-marker{display:none}
+.key summary::after{content:" ▾";font-size:11px}
+.key[open] summary{display:none}
+@media (max-width:720px){
+  .key[open] summary{display:block;margin-bottom:8px}
+  .finder .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .finder h3{grid-column:1 / -1}
+  .finder label{flex-direction:column;align-items:stretch;gap:4px}
+  .finder label input{width:100%!important}
+}
+.toast button{background:none;border:0;padding:0;color:var(--bg);font-weight:600;text-decoration:underline;text-underline-offset:3px}
+
+/* calendar v3: names only */
+.cal-frame{--namew:168px}
+.cal-days.slim{height:30px}
+.gridlines i{border-left:1px solid var(--line-2);opacity:1}
+.cal-track{background-color:transparent}
+.bar{background:color-mix(in srgb,var(--occ) 16%,var(--surface));color:var(--ink);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--occ) 35%,transparent);border-radius:7px;overflow:hidden;overflow:clip;padding:0}
+.bar:hover{filter:none;background:color-mix(in srgb,var(--occ) 26%,var(--surface))}
+.bar .n{position:sticky;left:calc(var(--namew) + 6px);padding:0 9px;white-space:nowrap;font-weight:500}
+.bar .n small{font-size:11.5px;color:var(--ink-2);font-weight:400}
+.bar.hold{background:var(--surface);background-image:none;box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--occ) 45%,transparent);outline:0}
+.bar.hold .n{color:var(--ink-2)}
+.bar.open-end{-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 40px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 40px),transparent)}
+.bar.blk{background:color-mix(in srgb,var(--warn) 16%,var(--surface));background-image:none;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--warn) 40%,transparent);color:var(--ink)}
+.bar.nrb{background:var(--sunk);box-shadow:none;color:var(--ink-3);font-size:12px;display:flex;align-items:center;cursor:default;background-image:repeating-linear-gradient(135deg,transparent 0 6px,var(--hatch) 6px 7px)}
+.bar .grip::after{background:color-mix(in srgb,var(--occ) 55%,transparent)}
+.cal-days .m{border-left:1px solid var(--line-2);padding-left:6px}
+.bar.spill{overflow:visible}
+.bar.spill .n{position:absolute;left:100%;top:50%;transform:translateY(-50%);padding:0 0 0 6px;color:var(--ink)}
+
+/* permanent residences */
+.res-group{display:flex;flex-direction:column;gap:14px;margin-top:34px;padding-top:22px;border-top:1px solid var(--line)}
+.card.res{background:var(--sunk);box-shadow:none}
+.card.res .ph{filter:saturate(.6);opacity:.85}
+.card.res h3{color:var(--ink-2)}
+.cal-row.res .cal-track{background-color:var(--sunk)}
+.cal-row.res .cal-name{background:var(--sunk)}
+.cal-row.res .cal-name b{color:var(--ink-2)}
+.cal-row.res .bar{background:color-mix(in srgb,var(--ink-3) 16%,var(--surface));box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--ink-3) 35%,transparent)}
+.cal-divider{min-height:10px;background:var(--sunk)}
+.cal-divider .cal-name{background:var(--sunk);justify-content:flex-end;padding-bottom:4px}
+
+/* holding row + events */
+.cal-row.holdrow .cal-track{background-color:color-mix(in srgb,var(--accent) 5%,transparent)}
+.cal-row.holdrow .cal-name{background:color-mix(in srgb,var(--accent) 7%,var(--surface))}
+.cal-row.holdrow .cal-name b{color:var(--accent)}
+.cal-row.holdrow .bar{background:var(--surface);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--accent) 55%,transparent)}
+.cal-row.evrow{min-height:32px}
+.cal-evs{position:relative;height:32px}
+.evbar{position:absolute;top:5px;height:22px;border:0;border-radius:6px;background:color-mix(in srgb,var(--accent) 16%,var(--surface));color:var(--ink);font-size:12.5px;font-weight:600;padding:0;overflow:hidden;overflow:clip;text-align:left}
+.evbar .n{position:sticky;left:calc(var(--namew) + 6px);padding:0 8px;white-space:nowrap}
+.evbar small{font-weight:400;color:var(--ink-2)}
+.evbar.spill{overflow:visible}
+.evbar.spill .n{position:absolute;left:0;top:50%;transform:translateY(-50%);padding-left:6px}
+.evtint{position:absolute;top:0;bottom:0;background:color-mix(in srgb,var(--accent) 6%,transparent);pointer-events:none}
+.linkish{border:0;background:none;padding:0;font-weight:600;color:var(--ink);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px}
+
+/* hosted: login + visitor mode */
+.login{position:fixed;inset:0;z-index:80;background:var(--bg);display:grid;place-items:center;padding:20px}
+.login-card{width:min(380px,100%);display:flex;flex-direction:column;gap:16px;padding:32px 28px;background:var(--surface);border-radius:18px;box-shadow:var(--shadow)}
+.login-card h2{font-size:30px}
+.login-card form{display:flex;flex-direction:column;gap:14px}
+.login-card a{color:var(--ink)}
+.visit-mode .tabs,.visit-mode .top-actions,.visit-mode #notice,.visit-mode #view-visitors > .banner{display:none!important}
+.visit-mode main{padding-bottom:60px}
+#pubLink b{word-break:break-all}
+
+/* visitor view */
+.pub-hero{display:flex;flex-direction:column;gap:12px;padding:40px 36px;border-radius:var(--r);background:var(--surface);box-shadow:var(--shadow-sm)}
+.pub-hero h2{font-size:40px;line-height:1.08;max-width:20ch}
+.pub-hero p{margin:0;max-width:62ch;color:var(--ink-2);white-space:pre-wrap;font-size:16.5px}
+.avail{font-weight:600;font-size:14.5px}
+.avail.yes{color:var(--ok)}.avail.part{color:var(--warn)}
+
+/* modal */
+.modal{position:fixed;inset:0;z-index:50;display:grid;place-items:center;padding:16px}
+.modal .scrim{position:absolute;z-index:0}
+.dialog{position:relative;z-index:1;width:min(560px,100%);max-height:calc(100% - 16px);overflow-y:auto;background:var(--bg);border-radius:18px;box-shadow:var(--shadow);display:flex;flex-direction:column;animation:pop .2s ease}
+@keyframes pop{from{transform:translateY(8px);opacity:.5}}
+.dialog header{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:16px 20px 8px;position:sticky;top:0;background:var(--bg);z-index:1}
+.dialog header h2{font-size:26px}
+.dialog form{display:flex;flex-direction:column;gap:16px;padding:8px 20px 18px}
+.dialog footer{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:12px 20px;border-top:1px solid var(--line);position:sticky;bottom:0;background:var(--bg)}
+.dialog footer .grow{flex:1}
+.f{display:flex;flex-direction:column;gap:6px;min-width:0}
+.f > span{font-size:14px;font-weight:500;color:var(--ink-2)}
+.f small,.hint{font-size:13px;color:var(--ink-3)}
+.f input,.f select,.f textarea{width:100%;border:1px solid var(--line-2);background:var(--surface);border-radius:10px;padding:10px 12px;font-size:16px}
+.f textarea{min-height:76px;resize:vertical;line-height:1.45}
+.f2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.f3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.unit{position:relative}
+.unit input{padding-right:34px}
+.unit::after{content:"ft";position:absolute;right:12px;bottom:11px;font-size:14px;color:var(--ink-3);pointer-events:none}
+.checks{display:flex;flex-wrap:wrap;gap:6px}
+.checks label{white-space:nowrap;display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line-2);border-radius:999px;padding:5px 12px;font-size:14px;background:var(--surface);cursor:pointer}
+.checks input{margin:0;accent-color:var(--ink)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(24px + env(safe-area-inset-bottom,0px));z-index:60;background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:999px;font-size:15px;box-shadow:var(--shadow);max-width:calc(100% - 32px)}
+
+/* phones: bottom tab bar */
+@media (max-width:720px){
+  .top{backdrop-filter:none;-webkit-backdrop-filter:none;background:var(--bg)}
+  .top-in{padding-block:12px;gap:12px}
+  .brand{flex:1}
+  .brand h1{font-size:19px;overflow:hidden;text-overflow:ellipsis}
+  .brand span{font-size:11px}
+  .top-actions .btn{padding:5px 10px;font-size:13.5px}
+  .tabs{position:fixed;left:0;right:0;bottom:0;z-index:25;justify-content:space-around;gap:0;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line);padding:6px max(8px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px))}
+  .tab{flex:1;border-radius:10px;padding:6px 4px;font-size:12px;color:var(--ink-3)}
+  .tab svg{display:block;width:22px;height:22px}
+  .tab .long{display:none} .tab .short{display:inline}
+  .tab[aria-selected="true"]{background:transparent;color:var(--ink)}
+  .tab:hover{background:transparent}
+  .top-actions{margin-left:auto}
+  main{padding-block:20px calc(110px + env(safe-area-inset-bottom,0px))}
+  .view-h h2{font-size:28px}
+  .grid{gap:16px}
+  .cal-name{width:118px;padding:6px 10px}
+  .pub-hero{padding:28px 22px}
+  .pub-hero h2{font-size:30px}
+  .modal{padding:0;place-items:end stretch}
+  .dialog{width:100%;max-height:94%;border-radius:20px 20px 0 0;padding-bottom:env(safe-area-inset-bottom,0px)}
+  .toast{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+  .dr-title h2{font-size:30px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
+</head>
+<body>
+<header class="top">
+  <div class="top-in">
+    <div class="brand"><h1>Rainbow Bridge Hawaii</h1><span>Accommodation</span></div>
+    <nav class="tabs" role="tablist" aria-label="Views">
+      <button class="tab" role="tab" data-view="spaces" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg><span class="long">Spaces</span><span class="short">Spaces</span></button>
+      <button class="tab" role="tab" data-view="calendar" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg><span class="long">Calendar</span><span class="short">Calendar</span></button>
+      <button class="tab" role="tab" data-view="repairs" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 6.5a4 4 0 0 0-5.3 5.3L4 17l3 3 5.2-5.2a4 4 0 0 0 5.3-5.3l-2.6 2.6-2.4-.6-.6-2.4z"/></svg><span class="long">Repairs &amp; Construction</span><span class="short">Repairs</span></button>
+      <button class="tab" role="tab" data-view="visitors" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 12s3.5-6.5 9.5-6.5 9.5 6.5 9.5 6.5-3.5 6.5-9.5 6.5S2.5 12 2.5 12z"/><circle cx="12" cy="12" r="2.8"/></svg><span class="long">Visitor view</span><span class="short">Visitors</span></button>
+    </nav>
+    <div class="top-actions" id="topActions" hidden>
+      <button class="btn sm plus" data-act="new-stay">Stay</button>
+      <button class="btn sm primary plus" data-act="new-space">Space</button>
+      <button class="btn sm ghost" data-act="sign-out" id="signOutBtn" hidden>Sign out</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div id="notice"></div>
+
+  <section class="view" id="view-spaces">
+    <div class="view-h"><h2>Spaces</h2><div id="spacesSummary" class="summary"></div></div>
+    <div class="toolbar" id="spacesToolbar">
+      <div class="seg" role="group" aria-label="Filter spaces">
+        <button data-filter="all" aria-pressed="true">All</button>
+        <button data-filter="open" aria-pressed="false">Room tonight</button>
+        <button data-filter="occupied" aria-pressed="false">Occupied</button>
+        <button data-filter="notready" aria-pressed="false">Not ready</button>
+      </div>
+    </div>
+    <div id="spacesGrid"></div>
+  </section>
+
+  <section class="view" id="view-calendar" hidden>
+    <div class="view-h"><h2>Calendar</h2>
+      <div class="row">
+        <button class="btn sm" data-act="cal-prev" aria-label="Earlier">‹</button>
+        <button class="btn sm" data-act="cal-today">Today</button>
+        <button class="btn sm" data-act="cal-next" aria-label="Later">›</button>
+        <input class="inline" type="date" id="calJump" aria-label="Jump to date">
+      </div>
+    </div>
+    <div class="finder">
+      <div class="row"><h3>Find room</h3>
+        <label>Arriving <input class="inline" type="date" id="fFrom"></label>
+        <label>Leaving <input class="inline" type="date" id="fTo"></label>
+        <label>People <input class="inline" type="number" id="fPeople" min="1" max="30" value="1" inputmode="numeric" style="width:70px"></label>
+        <button class="btn sm ghost" data-act="find-clear" id="fClear" hidden>Clear</button>
+      </div>
+      <div id="fResults" class="fits"></div>
+    </div>
+    <div class="toolbar">
+      <div class="seg" role="group" aria-label="Zoom">
+        <button data-zoom="weeks" aria-pressed="false">Weeks</button>
+        <button data-zoom="months" aria-pressed="true">Months</button>
+        <button data-zoom="year" aria-pressed="false">Whole year</button>
+      </div>
+      <span class="spacer"></span>
+      <button class="btn sm plus" data-act="new-event" id="newEventBtn">Event</button>
+    </div>
+    <div class="cal-frame" id="calFrame"></div>
+    <p class="hint" style="margin:0" id="calHint"></p>
+  </section>
+
+  <section class="view" id="view-repairs" hidden>
+    <div class="view-h"><h2>Repairs &amp; Construction</h2><div id="workSummary" class="summary"></div></div>
+    <div class="toolbar">
+      <div class="seg" role="group" aria-label="Show">
+        <button data-wfilter="open" aria-pressed="true">Open</button>
+        <button data-wfilter="all" aria-pressed="false">Everything</button>
+      </div>
+      <span class="spacer"></span>
+      <button class="btn sm plus" data-act="new-work" id="newWorkBtn">Task</button>
+    </div>
+    <div id="workReady"></div>
+    <div id="workList" class="view"></div>
+  </section>
+
+  <section class="view" id="view-visitors" hidden>
+    <div class="banner info"><span class="grow">Preview of the page visitors see. It lists spaces that are ready to use, aren't someone's long-term home, and have free nights in the dates below. Names, notes and repairs stay private.<span id="pubLink"></span></span>
+      <button class="btn sm" data-act="edit-public" id="editPublicBtn">Edit text</button></div>
+    <div id="pubHero"></div>
+    <div class="toolbar">
+      <span class="small muted">Arriving</span><input class="inline" type="date" id="pubFrom">
+      <span class="small muted">leaving</span><input class="inline" type="date" id="pubTo">
+    </div>
+    <div id="pubBody"></div>
+  </section>
+</main>
+
+<input type="file" id="photoInput" accept="image/jpeg,image/png,image/webp,image/gif,image/heic,image/heif" multiple hidden>
+<div id="drawerRoot"></div>
+<div id="modalRoot"></div>
+<div id="toastRoot"></div>
+<div id="loginRoot"></div>
+<div class="drag-tip" id="dragTip" hidden></div>
+
+<script>
+(() => {
+"use strict";
+/* ---------- constants ---------- */
+const CONDITIONS = [["ready","Ready"],["usable","Usable, needs work"],["construction","Under construction"],["planned","Planned"],["offline","Offline"]];
+const CATS = [["resident","Permanent resident"],["helper","Temporary helper"],["volunteer","Long-term volunteer"],["guest","Guest"],["workshop","Workshop participant"]];
+const AMENITIES = [["power","Power"],["water","Water"],["fridge","Fridge"],["bed","Bed & bedding"],["screened","Screened"],["lock","Lockable door"],["wifi","Wifi"]];
+const DIST = [["kitchenFt","Kitchen"],["bathFt","Bathroom"],["showerFt","Shower"]];
+const PRIOS = [["blocker","Blocks use"],["needed","Needed"],["nice","Nice to have"]];
+const WSTAT = [["todo","To do"],["doing","In progress"],["done","Done"]];
+const VIEWS = ["spaces","calendar","repairs","visitors"];
+const label = (list, k) => (list.find(x => x[0] === k) || [k, k || "—"])[1];
+const USABLE = new Set(["ready","usable"]);
+
+/* ---------- dates (YYYY-MM-DD) ---------- */
+const pad = n => String(n).padStart(2, "0");
+const toStr = d => `${d.getUTCFullYear()}-${pad(d.getUTCMonth()+1)}-${pad(d.getUTCDate())}`;
+const parse = s => { const [y,m,d] = s.split("-").map(Number); return new Date(Date.UTC(y, m-1, d)); };
+const now = new Date();
+const TODAY = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
+const addDays = (s, n) => { const d = parse(s); d.setUTCDate(d.getUTCDate() + n); return toStr(d); };
+const diff = (a, b) => Math.round((parse(b) - parse(a)) / 86400000);
+const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const DOW = ["Su","Mo","Tu","We","Th","Fr","Sa"];
+const fmt = s => { if (!s) return ""; const d = parse(s); return `${MON[d.getUTCMonth()]} ${d.getUTCDate()}`; };
+const validDate = s => /^\d{4}-\d{2}-\d{2}$/.test(s || "");
+
+/* ---------- helpers ---------- */
+const esc = v => String(v ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const $ = s => document.querySelector(s);
+const num = (v, d = 0) => { const n = Number(v); return Number.isFinite(n) ? n : d; };
+const hrs = h => `${Math.round(num(h) * 10) / 10} h`;
+const hasNum = v => v !== "" && v !== null && v !== undefined && Number.isFinite(Number(v));
+const ft = v => num(v) === 0 ? "in the space" : `${Math.round(num(v))} ft`;
+function lsGet(k){ try { return localStorage.getItem(k); } catch { return null; } }
+function lsSet(k, v){ try { localStorage.setItem(k, v); } catch {} }
+
+/* ---------- state ---------- */
+const S = {
+  db: null, assets: null, canWrite: false, demo: false, connected: false, loaded: new Set(),
+  real: { spaces: [], stays: [], work: [], events: [], settings: {} }, demoData: null,
+  view: "spaces", filter: "all", wfilter: "open",
+  openSpace: null, pendingOpen: null, gIdx: 0, photoTarget: null,
+  cal: { start: addDays(TODAY, -7), zoom: "months" },
+  pub: { from: TODAY, to: addDays(TODAY, 7) },
+  find: { from: "", to: "", people: 1 },
+};
+const D = () => S.demo ? S.demoData : S.real;
+const space = id => D().spaces.find(s => s.id === id);
+const writable = () => S.demo || S.canWrite;
+
+/* ---------- derived ---------- */
+const activeStays = () => D().stays.filter(s => s.status !== "cancelled" && validDate(s.start));
+const staysFor = id => activeStays().filter(s => s.spaceId === id);
+const covers = (st, day) => st.start <= day && (!st.end || day < st.end);
+const heads = st => Math.max(1, num(st.headcount, 1));
+const loadOn = (id, day) => staysFor(id).filter(st => covers(st, day)).reduce((a, st) => a + heads(st), 0);
+const maxOf = sp => Math.max(num(sp.maxOcc), num(sp.idealOcc), 0);
+function blocksFor(id){
+  return D().work.filter(w => w.spaceId === id && w.status !== "done" && validDate(w.blockStart))
+    .map(w => ({ id: w.id, name: w.task, start: w.blockStart, end: validDate(w.blockEnd) && w.blockEnd > w.blockStart ? w.blockEnd : addDays(w.blockStart, 1) }));
+}
+const notReadyOn = (sp, d) => !USABLE.has(sp.condition) && !(validDate(sp.readyBy) && d >= sp.readyBy);
+const blockedOn = (sp, d) => blocksFor(sp.id).some(b => b.start <= d && d < b.end);
+function freeOn(sp, d, excludeId){
+  if (notReadyOn(sp, d) || blockedOn(sp, d)) return 0;
+  return maxOf(sp) - staysFor(sp.id).filter(x => x.id !== excludeId && covers(x, d)).reduce((a, x) => a + heads(x), 0);
+}
+function fitFor(sp, from, to, people, excludeId){
+  const n = diff(from, to); let ok = 0;
+  for (let i = 0; i < n; i++) if (freeOn(sp, addDays(from, i), excludeId) >= people) ok++;
+  return { ok, n };
+}
+function statusOf(sp){
+  const load = loadOn(sp.id, TODAY), max = maxOf(sp);
+  if (blockedOn(sp, TODAY)) return { key: load ? "over" : "notready", text: load ? "Repairs while occupied" : "Closed for repairs", load };
+  if (load > 0 && max && load > max) return { key: "over", text: `Over capacity`, load };
+  if (load > 0 && max && load >= max) return { key: "full", text: "Full", load };
+  if (load > 0) return { key: "part", text: max ? `${load} of ${max}` : `${load} here`, load };
+  if (notReadyOn(sp, TODAY)) return { key: "notready", text: validDate(sp.readyBy) ? `Ready ~${fmt(sp.readyBy)}` : label(CONDITIONS, sp.condition), load };
+  return { key: "open", text: "Available", load };
+}
+function overbookedDays(sp, from = TODAY, days = 120){
+  const max = maxOf(sp), sts = staysFor(sp.id), bl = blocksFor(sp.id), out = [];
+  if (!max || !sts.length) return out;
+  for (let i = 0; i < days; i++){
+    const d = addDays(from, i), cap = bl.some(b => b.start <= d && d < b.end) ? 0 : max;
+    const l = sts.filter(st => covers(st, d)).reduce((a, st) => a + heads(st), 0);
+    if (l > 0 && l > cap) out.push(d);
+  }
+  return out;
+}
+function nextChange(sp){
+  const sts = staysFor(sp.id), cur = sts.filter(st => covers(st, TODAY));
+  if (cur.length){
+    if (cur.some(st => !st.end)) return "";
+    const ends = cur.map(st => st.end).sort();
+    return `Free from ${fmt(ends[ends.length - 1])}`;
+  }
+  const up = sts.filter(st => st.start > TODAY).sort((a, b) => a.start < b.start ? -1 : 1)[0];
+  return up ? `Booked from ${fmt(up.start)}` : "";
+}
+const openWork = id => D().work.filter(w => w.spaceId === id && w.status !== "done");
+const sumHours = list => list.reduce((a, w) => a + num(w.hours), 0);
+const isRes = sp => !!(sp && sp.residence);
+const isHold = sp => !!(sp && sp.holding);
+const realSpaces = () => D().spaces.filter(sp => !isHold(sp));
+const sortedSpaces = (list = D().spaces) => [...list].sort((a, b) => (isHold(b) - isHold(a)) || (isRes(a) - isRes(b)) || (num(a.order, 999) - num(b.order, 999)) || String(a.name || "").localeCompare(String(b.name || ""), undefined, { numeric: true }));
+const photoUrl = id => String(id).startsWith("data:") ? id : S.photoBase ? S.photoBase + encodeURIComponent(id) : "/_blob/" + id;
+function distLine(sp){
+  const parts = DIST.filter(([k]) => hasNum(sp[k])).map(([k, l]) => `${l} ${ft(sp[k])}`);
+  return parts.join(" · ");
+}
+
+/* ---------- shell ---------- */
+function setView(v, push = true){
+  if (v === "work") v = "repairs"; if (v === "outsiders") v = "visitors";
+  if (!VIEWS.includes(v)) v = "spaces";
+  S.view = v;
+  document.querySelectorAll(".tab").forEach(t => t.setAttribute("aria-selected", String(t.dataset.view === v)));
+  VIEWS.forEach(k => { $("#view-" + k).hidden = k !== v; });
+  if (push && location.hash !== "#" + v){ try { history.replaceState(null, "", "#" + v); } catch { location.hash = v; } }
+  renderView(); window.scrollTo(0, 0);
+}
+function renderAll(){ renderNotice(); renderView(); renderDrawer(); $("#topActions").hidden = !writable(); }
+function renderView(){
+  ({ spaces: renderSpaces, calendar: renderCalendar, repairs: renderWork, visitors: renderPublic })[S.view]();
+}
+function renderNotice(){
+  const el = $("#notice"); let h = "";
+  if (S.demo) h = `<div class="banner"><span class="grow"><b>Example data.</b> Nothing here is saved or real.</span><button class="btn sm" data-act="demo-off">Back to the real list</button></div>`;
+  else if (!S.db && S.connected) h = `<div class="banner"><span class="grow">The shared list isn't reachable in this view. Open the page signed in to see and edit it.</span><button class="btn sm" data-act="demo-on">See an example</button></div>`;
+  else if (S.slow) h = `<div class="banner"><span class="grow">Still connecting. What you see may be out of date.</span></div>`;
+  else if (S.db && !S.canWrite && S.loaded.size) h = `<div class="banner info"><span class="grow">You can view this list. Ask Tosh for editor access to make changes.</span></div>`;
+  el.innerHTML = h; el.style.marginBottom = h ? "18px" : "";
+}
+
+/* ---------- spaces ---------- */
+function photoBlock(sp, withPill){
+  const ph = Array.isArray(sp.photos) ? sp.photos : [];
+  const pill = withPill ? `<span class="pill st-${withPill.key}">${esc(withPill.text)}</span>` : "";
+  if (!ph.length) return `<div class="ph empty"><b>${esc((sp.name || "?").trim().charAt(0).toUpperCase())}</b>${pill}</div>`;
+  return `<div class="ph"><img src="${esc(photoUrl(ph[0]))}" alt="${esc(sp.name)}" loading="lazy" onerror="this.parentNode.classList.add('empty');this.remove()">${ph.length > 1 ? `<span class="count">${ph.length}</span>` : ""}${pill}</div>`;
+}
+function renderSummary(){
+  const sps = realSpaces(); let people = 0, beds = 0, notReady = 0, overSp = 0;
+  sps.forEach(sp => {
+    const l = loadOn(sp.id, TODAY); people += l;
+    if (isRes(sp)) {} else if (!notReadyOn(sp, TODAY) && !blockedOn(sp, TODAY)) beds += Math.max(0, num(sp.idealOcc) - l); else notReady++;
+    if (overbookedDays(sp, TODAY, 90).length) overSp++;
+  });
+  $("#spacesSummary").innerHTML = `<span><b>${people}</b>here tonight</span><span><b>${beds}</b>open ${beds === 1 ? "bed" : "beds"}</span><span><b>${notReady}</b>not ready</span>${overSp ? `<span class="alert"><b>${overSp}</b>overbooked ahead</span>` : ""}`;
+}
+function renderSpaces(){
+  const all = D().spaces, grid = $("#spacesGrid");
+  document.querySelectorAll("[data-filter]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.filter === S.filter)));
+  if (!all.length){
+    $("#spacesSummary").innerHTML = ""; $("#spacesToolbar").hidden = true;
+    if (!S.connected || (S.db && !S.loaded.has("spaces"))){ grid.innerHTML = `<p class="faint">Loading…</p>`; return; }
+    grid.innerHTML = `<div class="empty-state"><span class="label">No spaces yet</span>
+      <h2>Every carport, cabin, dome and cob house gets a card here</h2>
+      <p>Photos, how many it sleeps and at most, how far it is to the kitchen, bathroom and shower, what repairs it needs, and who is in it on any date.</p>
+      <div class="row">${writable() ? `<button class="btn primary plus" data-act="new-space">Add the first space</button>` : ""}<button class="btn" data-act="demo-on">See an example</button></div></div>`;
+    return;
+  }
+  $("#spacesToolbar").hidden = false; renderSummary();
+  const list = sortedSpaces(realSpaces()).filter(sp => {
+    const st = statusOf(sp);
+    if (S.filter === "open") return !isRes(sp) && freeOn(sp, TODAY) > 0;
+    if (S.filter === "occupied") return st.load > 0;
+    if (S.filter === "notready") return notReadyOn(sp, TODAY) || blockedOn(sp, TODAY);
+    return true;
+  });
+  const main = list.filter(sp => !isRes(sp) && !isHold(sp)), homes = list.filter(isRes);
+  const waiting = D().spaces.filter(isHold).flatMap(h => staysFor(h.id)).filter(x => !x.end || x.end > TODAY).sort((a, b) => a.start < b.start ? -1 : 1);
+  const waitHtml = waiting.length ? `<div class="banner"><span class="grow"><b>Still need a space:</b> ${waiting.map(x => `<button class="linkish" data-act="edit-stay" data-id="${esc(x.id)}">${esc(x.name)}</button> <span class="faint">${fmt(x.start)} – ${x.end ? fmt(x.end) : "no end date"}</span>`).join(" · ")}</span></div>` : "";
+  grid.innerHTML = waitHtml + (!list.length ? `<p class="faint">No spaces match.</p>` :
+    (main.length ? `<div class="grid">${main.map(cardHtml).join("")}</div>` : "") +
+    (homes.length ? `<div class="res-group"><div class="grid">${homes.map(cardHtml).join("")}</div></div>` : ""));
+}
+function cardHtml(sp){
+  const st = statusOf(sp), cur = staysFor(sp.id).filter(x => covers(x, TODAY));
+  const wk = openWork(sp.id), blockers = wk.some(w => w.priority === "blocker");
+  const over = overbookedDays(sp, TODAY, 90), nc = nextChange(sp), dl = distLine(sp);
+  return `<button class="card${isRes(sp) ? " res" : ""}" data-act="open-space" data-id="${esc(sp.id)}">
+    ${photoBlock(sp, st)}
+    <div class="card-body">
+      <h3>${esc(sp.name || "Untitled space")}</h3>
+      <div class="cap">${maxOf(sp) ? `Sleeps ${num(sp.idealOcc)}${maxOf(sp) > num(sp.idealOcc) ? `, up to ${maxOf(sp)}` : ""}` : "Capacity not set"}${nc ? ` · ${esc(nc)}` : ""}</div>
+      ${dl ? `<div class="dist">${esc(dl)}</div>` : ""}
+      ${cur.length ? `<div class="who">${cur.map(x => `<span class="swatch cat-${esc(x.category)}" style="margin-right:6px"></span>${esc(x.name)}`).join(", ")}</div>` : ""}
+      ${wk.length || over.length ? `<div class="card-foot">
+        ${wk.length ? `<span class="chip ${blockers ? "crit" : "warn"}">${wk.length} ${wk.length === 1 ? "task" : "tasks"} · ${hrs(sumHours(wk))}</span>` : ""}
+        ${over.length ? `<span class="chip crit">Overbooked ${fmt(over[0])}</span>` : ""}</div>` : ""}
+    </div></button>`;
+}
+
+/* ---------- side sheet ---------- */
+function openSpace(id){ S.openSpace = id; S.gIdx = 0; renderDrawer(); }
+function closeDrawer(){ S.openSpace = null; S.pendingOpen = null; renderDrawer(); }
+function renderDrawer(){
+  const root = $("#drawerRoot"), sp = S.openSpace && space(S.openSpace);
+  if (!sp){ root.innerHTML = ""; if (S.openSpace !== S.pendingOpen) S.openSpace = null; document.body.style.overflow = ""; return; }
+  if (S.pendingOpen === sp.id) S.pendingOpen = null;
+  const fresh = !root.innerHTML;
+  document.body.style.overflow = "hidden";
+  const ph = Array.isArray(sp.photos) ? sp.photos : [];
+  if (S.gIdx >= ph.length) S.gIdx = Math.max(0, ph.length - 1);
+  const st = statusOf(sp), w = writable();
+  const sts = staysFor(sp.id).filter(x => !x.end || x.end > TODAY).sort((a, b) => a.start < b.start ? -1 : 1);
+  const past = staysFor(sp.id).filter(x => x.end && x.end <= TODAY).length;
+  const work = D().work.filter(x => x.spaceId === sp.id).sort(workSort), ow = openWork(sp.id);
+  const over = overbookedDays(sp, TODAY, 120);
+  const am = Array.isArray(sp.amenities) ? sp.amenities.filter(a => AMENITIES.some(x => x[0] === a)) : [];
+  const keepScroll = !fresh && root.querySelector(".drawer") ? root.querySelector(".drawer").scrollTop : 0;
+  root.innerHTML = `<div class="scrim" data-act="close-drawer" style="${fresh ? "" : "animation:none"}"></div>
+  <aside class="drawer" role="dialog" aria-modal="true" aria-label="${esc(sp.name)}" style="${fresh ? "" : "animation:none"}">
+    <div class="dr-top"><button class="btn ghost sm" data-act="close-drawer">Close</button><span class="grow"></span>
+      ${w ? `<button class="btn sm plus" data-act="new-stay" data-space="${esc(sp.id)}">Stay</button><button class="btn sm" data-act="edit-space" data-id="${esc(sp.id)}">Edit</button>` : ""}</div>
+    ${ph.length ? `<div class="gallery"><img src="${esc(photoUrl(ph[S.gIdx]))}" alt="${esc(sp.name)}, photo ${S.gIdx + 1}">
+      ${ph.length > 1 ? `<button class="nav prev" data-act="g-prev" aria-label="Previous photo">‹</button><button class="nav next" data-act="g-next" aria-label="Next photo">›</button><span class="idx">${S.gIdx + 1} / ${ph.length}</span>` : ""}</div>
+      ${ph.length > 1 ? `<div class="thumbs">${ph.map((p, i) => `<button data-act="g-go" data-i="${i}" aria-current="${i === S.gIdx}" aria-label="Photo ${i + 1}"><img src="${esc(photoUrl(p))}" alt="" loading="lazy"></button>`).join("")}</div>` : ""}` : ""}
+    <div class="dr-body">
+      <div class="dr-title">
+        <h2>${esc(sp.name || "Untitled space")}</h2>
+        <div class="chips"><span class="pill soft st-${st.key}">${esc(st.key === "part" ? `${st.text} here now` : st.text)}</span>${st.key !== "notready" ? `<span class="chip">${esc(label(CONDITIONS, sp.condition))}</span>` : ""}</div>
+        ${w && (S.assets || S.demo) ? `<div class="row"><button class="btn sm plus" data-act="add-photos" data-id="${esc(sp.id)}">Photos</button>
+          ${ph.length > 1 ? `<button class="btn sm ghost" data-act="cover-photo" data-id="${esc(sp.id)}" ${S.gIdx === 0 ? "disabled" : ""}>Make cover</button>` : ""}
+          ${ph.length ? `<button class="btn sm danger" data-act="remove-photo" data-id="${esc(sp.id)}">Remove photo</button>` : ""}</div>` : ""}
+      </div>
+      ${over.length ? `<div class="warnbox">Over capacity on ${over.length} ${over.length === 1 ? "night" : "nights"} ahead, from ${fmt(over[0])}.</div>` : ""}
+
+      <section class="sect">
+        <div class="facts"><div><small>Ideal</small><b>${maxOf(sp) ? num(sp.idealOcc) : "—"}</b></div><div><small>Max</small><b>${maxOf(sp) || "—"}</b></div><div><small>Here tonight</small><b>${st.load}</b></div></div>
+        ${sp.toMax ? `<p class="prose small muted">To reach max: ${esc(sp.toMax)}</p>` : ""}
+        ${DIST.some(([k]) => hasNum(sp[k])) ? `<div class="facts">${DIST.map(([k, l]) => `<div><small>${l}</small><b>${hasNum(sp[k]) ? esc(ft(sp[k])) : "—"}</b></div>`).join("")}</div>` : ""}
+        ${am.length ? `<div class="chips">${am.map(a => `<span class="chip">${esc(label(AMENITIES, a))}</span>`).join("")}</div>` : ""}
+      </section>
+
+      <section class="sect"><div class="sect-h"><h3>Stays</h3>${past ? `<span class="hint">${past} past</span>` : ""}</div>
+        <div class="list">${sts.length ? sts.map(x => `<button class="li" data-act="edit-stay" data-id="${esc(x.id)}" ${w ? "" : "disabled"}>
+          <span class="swatch cat-${esc(x.category)}"></span>
+          <span class="grow"><span class="t">${esc(x.name)}</span>${heads(x) > 1 ? ` <span class="faint">×${heads(x)}</span>` : ""}<br><span class="s">${esc(label(CATS, x.category))} · ${fmt(x.start)} – ${x.end ? fmt(x.end) : "no end date"}${x.status === "hold" ? " · on hold" : ""}</span></span>
+          ${covers(x, TODAY) ? `<span class="chip">Here now</span>` : ""}</button>`).join("") : `<div class="none">No current or upcoming stays.</div>`}</div>
+      </section>
+
+      <section class="sect"><div class="sect-h"><h3>Repairs &amp; construction</h3>${w ? `<button class="btn sm plus" data-act="new-work" data-space="${esc(sp.id)}">Task</button>` : ""}</div>
+        ${ow.length ? `<span class="hint">${ow.length} open · ${hrs(sumHours(ow))} estimated</span>` : ""}
+        <div class="list">${work.length ? work.map(x => workRow(x)).join("") : `<div class="none">Nothing listed.</div>`}</div>
+      </section>
+
+      ${sp.publicBlurb ? `<section class="sect"><div class="sect-h"><h3>For visitors</h3></div><p class="prose">${esc(sp.publicBlurb)}</p></section>` : ""}
+      ${sp.notes ? `<section class="sect"><div class="sect-h"><h3>Internal notes</h3></div><p class="prose">${esc(sp.notes)}</p></section>` : ""}
+    </div>
+  </aside>`;
+  if (keepScroll) root.querySelector(".drawer").scrollTop = keepScroll;
+}
+function workSort(a, b){
+  const so = { doing: 0, todo: 1, done: 2 }, po = { blocker: 0, needed: 1, nice: 2 };
+  return (so[a.status] ?? 1) - (so[b.status] ?? 1) || (po[a.priority] ?? 1) - (po[b.priority] ?? 1) || String(a.task).localeCompare(String(b.task));
+}
+function workRow(wi){
+  const w = writable();
+  return `<div class="li ${wi.status === "done" ? "done" : ""}">
+    <span class="grow"><span class="t">${esc(wi.task)}</span><br><span class="s"><span class="prio p-${esc(wi.priority || "needed")}">${esc(label(PRIOS, wi.priority || "needed"))}</span> ${num(wi.hours) ? hrs(wi.hours) : "no estimate"}${wi.who ? " · " + esc(wi.who) : ""}${validDate(wi.blockStart) && wi.status !== "done" ? ` · closes the space ${fmt(wi.blockStart)} – ${fmt(wi.blockEnd || addDays(wi.blockStart, 1))}` : ""}${wi.notes ? " · " + esc(wi.notes) : ""}</span></span>
+    ${w ? `<button class="btn ghost sm" data-act="edit-work" data-id="${esc(wi.id)}" aria-label="Edit ${esc(wi.task)}">Edit</button>` : ""}
+    <button class="wstat ${esc(wi.status || "todo")}" data-act="cycle-work" data-id="${esc(wi.id)}" ${w ? "" : "disabled"} title="Change status">${esc(label(WSTAT, wi.status || "todo"))}</button>
+  </div>`;
+}
+
+/* ---------- calendar ---------- */
+const CAL_DAYS = 380; // a little over a year from the start date
+const NAME_W = () => window.innerWidth < 720 ? 118 : 168;
+function cellW(){
+  const z = S.cal.zoom, n = window.innerWidth < 720;
+  if (z === "weeks") return n ? 34 : 44;
+  if (z === "months") return n ? 12 : 16;
+  const frame = $("#calFrame"), avail = (frame && frame.clientWidth ? frame.clientWidth : window.innerWidth - 40) - NAME_W();
+  return Math.max(2.5, avail / CAL_DAYS);
+}
+const finderActive = () => validDate(S.find.from) && validDate(S.find.to) && S.find.to > S.find.from;
+function renderFinder(){
+  const el = $("#fResults");
+  $("#fFrom").value = S.find.from; $("#fTo").value = S.find.to; $("#fPeople").value = S.find.people;
+  $("#fClear").hidden = !S.find.from && !S.find.to;
+  if (!finderActive()){ el.innerHTML = `<span class="hint">Pick dates to see which spaces have room.</span>`; return; }
+  const { from, to, people } = S.find;
+  const res = sortedSpaces(realSpaces()).filter(sp => !isRes(sp)).map(sp => ({ sp, ...fitFor(sp, from, to, people) }));
+  const full = res.filter(r => r.n && r.ok === r.n), part = res.filter(r => r.ok > 0 && r.ok < r.n).sort((a, b) => b.ok - a.ok);
+  let h = full.length
+    ? `<span>Room for ${people} ${people === 1 ? "person" : "people"}, ${fmt(from)} – ${fmt(to)}:</span>` + full.map(r => `<button class="fitchip" data-act="find-book" data-id="${esc(r.sp.id)}" title="Book ${esc(r.sp.name)} for these dates">${esc(r.sp.name)}${!USABLE.has(r.sp.condition) ? " · once ready" : ""}</button>`).join("")
+    : `<span>Nothing has room for ${people === 1 ? "one person" : people + " people"} on all ${diff(from, to)} nights.</span>`;
+  if (part.length) h += `<span class="hint" style="margin-left:8px">Partly free:</span>` + part.slice(0, 6).map(r => `<button class="fitchip part" data-act="open-space" data-id="${esc(r.sp.id)}">${esc(r.sp.name)} · ${r.ok} of ${r.n} nights</button>`).join("");
+  el.innerHTML = h;
+}
+// Merge back-to-back stays of the same person in one space into one block
+function blocksForRow(sts){
+  const out = [];
+  [...sts].sort((a, b) => a.start < b.start ? -1 : a.start > b.start ? 1 : 0).forEach(x => {
+    const last = out[out.length - 1], key = String(x.name || "").trim().toLowerCase();
+    if (last && last.key === key && last.end && last.end === x.start && heads(x) === last.hc){
+      last.end = x.end; last.ids.push(x.id); last.hold = last.hold && x.status === "hold";
+    } else out.push({ key, name: x.name, hc: heads(x), start: x.start, end: x.end, ids: [x.id], hold: x.status === "hold" });
+  });
+  return out;
+}
+function renderCalendar(){
+  if (drag && drag.started){ S.calDirty = true; return; }
+  S.calDirty = false;
+  document.querySelectorAll("[data-zoom]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.zoom === S.cal.zoom)));
+  $("#calJump").value = S.cal.start;
+  const touch = window.matchMedia("(hover: none)").matches;
+  $("#calHint").textContent = !writable() ? "" : touch
+    ? "Tap an empty spot to book it. Tap a name to change dates or move the person."
+    : "Click an empty spot to book it. Drag a name to another row to move someone, or drag its right edge to change the leaving day.";
+  renderFinder();
+  $("#newEventBtn").hidden = !writable();
+  const frame = $("#calFrame"), sps = sortedSpaces();
+  if (!sps.length){ frame.innerHTML = `<div class="none">Add spaces to see them here.</div>`; return; }
+  const days = CAL_DAYS, cw = cellW(), start = S.cal.start, end = addDays(start, days), W = Math.round(days * cw);
+  S.cw = cw;
+  const F = finderActive() ? S.find : null;
+  const x = d => diff(start, d) * cw;
+  // header: months always; day numbers when there is room
+  let months = "", dayCells = "", monthLines = "";
+  for (let i = 0; i < days; i++){
+    const d = addDays(start, i), dt = parse(d), dom = dt.getUTCDate(), dow = dt.getUTCDay();
+    const nextFirst = i === 0 ? (() => { for (let k = 1; k < days; k++) if (parse(addDays(start, k)).getUTCDate() === 1) return k; return days; })() : 0;
+    if (dom === 1 || (i === 0 && nextFirst * cw > 70)){
+      months += `<span class="m" style="left:${i * cw}px">${MON[dt.getUTCMonth()]}${dt.getUTCMonth() === 0 || i === 0 ? " " + dt.getUTCFullYear() : ""}</span>`;
+      if (dom === 1) monthLines += `<i style="left:${i * cw}px"></i>`;
+    }
+    const show = cw >= 30 || (cw >= 12 && (dom === 1 || dom % 7 === 1)) || d === TODAY;
+    if (cw >= 12 && show) dayCells += `<span class="d ${d === TODAY ? "today" : ""}" style="left:${i * cw}px;width:${Math.max(cw, 20)}px">${cw >= 30 ? `<span>${DOW[dow]}</span>` : ""}<span>${dom}</span></span>`;
+  }
+  const ti = diff(start, TODAY);
+  const todayLine = ti >= 0 && ti < days ? `<span class="todayline" style="left:${ti * cw + cw / 2 - 1}px"></span>` : "";
+  const firstMon = (8 - parse(start).getUTCDay()) % 7, period = S.cal.zoom === "weeks" ? cw : 7 * cw;
+  const dayGrid = S.cal.zoom === "year" ? "" : `background-image:repeating-linear-gradient(90deg,var(--line) 0 1px,transparent 1px ${period}px);background-position-x:${S.cal.zoom === "weeks" ? 0 : firstMon * cw}px;`;
+  let band = "";
+  if (F){ const l = Math.max(0, diff(start, F.from)), r = Math.min(days, diff(start, F.to)); if (r > l) band = `<span class="band" style="left:${l * cw}px;width:${(r - l) * cw}px"></span>`; }
+  const evs = (D().events || []).filter(ev => validDate(ev.start) && validDate(ev.last) && ev.last >= ev.start && ev.start < end && addDays(ev.last, 1) > start);
+  const evSpans = evs.map(ev => { const l = Math.max(0, diff(start, ev.start)), r = Math.min(days, diff(start, ev.last) + 1); return { ev, l, r }; }).filter(o => o.r > o.l);
+  const evTint = evSpans.map(o => `<span class="evtint" style="left:${o.l * cw}px;width:${(o.r - o.l) * cw}px"></span>`).join("");
+  const evRow = evSpans.length ? `<div class="cal-row evrow"><div class="cal-name"><small>Events</small></div><div class="cal-evs" style="width:${W}px">${evSpans.map(o => `<button class="evbar${(o.r - o.l) * cw < String(o.ev.name).length * 8 + 110 ? " spill" : ""}" data-act="edit-event" data-id="${esc(o.ev.id)}" ${writable() ? "" : "disabled"} style="left:${o.l * cw}px;width:${Math.max(8, (o.r - o.l) * cw)}px" title="${esc(o.ev.name)} · ${fmt(o.ev.start)} – ${fmt(o.ev.last)}"><span class="n">${esc(o.ev.name)} <small>${fmt(o.ev.start)} – ${fmt(o.ev.last)}</small></span></button>`).join("")}</div></div>` : "";
+  let rows = "", resDivider = false;
+  for (const sp of sps){
+    const sts = staysFor(sp.id).filter(s => s.start < end && (!s.end || s.end > start));
+    const items = blocksForRow(sts).map(b => ({ kind: "stay", ...b }));
+    blocksFor(sp.id).filter(b => b.start < end && b.end > start).forEach(b => items.push({ kind: "blk", name: b.name, start: b.start, end: b.end, ids: [b.id] }));
+    if (!USABLE.has(sp.condition)){
+      const nrEnd = validDate(sp.readyBy) ? sp.readyBy : "";
+      if (!nrEnd || nrEnd > start) items.push({ kind: "nr", name: nrEnd ? `Not ready · expected ${fmt(nrEnd)}` : label(CONDITIONS, sp.condition), start: start, end: nrEnd, ids: [] });
+    }
+    items.sort((a, b) => a.start < b.start ? -1 : a.start > b.start ? 1 : 0);
+    const lanes = [];
+    items.forEach(it => {
+      let li = lanes.findIndex(le => le <= it.start);
+      if (li < 0){ li = lanes.length; lanes.push(""); }
+      lanes[li] = it.end || "9999-12-31"; it.lane = li;
+    });
+    const h = Math.max(46, Math.max(1, lanes.length) * 30 + 12);
+    let bars = "";
+    const laneNext = (it) => { const nx = items.filter(o => o !== it && o.lane === it.lane && o.start >= (it.end || "9999")).sort((a, b) => a.start < b.start ? -1 : 1)[0]; return nx ? Math.min(days, diff(start, nx.start)) * cw : W; };
+    items.forEach(it => {
+      const l = Math.max(0, diff(start, it.start)), r = it.end ? Math.min(days, diff(start, it.end)) : days;
+      if (r <= l) return;
+      const textW = String(it.name || "").length * 7.3 + (it.hc > 1 ? 24 : 0) + (it.hold ? 38 : 0) + 18, barW = (r - l) * cw - 2;
+      const spill = barW < textW && laneNext(it) - r * cw >= textW + 4 ? " spill" : "";
+      const style = `left:${l * cw + 1}px;width:${Math.max(6, (r - l) * cw - 2)}px;top:${8 + it.lane * 30}px`;
+      const range = `${fmt(it.start)} – ${it.end ? fmt(it.end) : "no end date"}`;
+      if (it.kind === "nr"){ bars += `<span class="bar nrb" style="${style}" title="${esc(it.name)}"><span class="n">${esc(it.name)}</span></span>`; return; }
+      if (it.kind === "blk"){ bars += `<button class="bar blk${spill}" data-act="edit-work" data-kind="blk" data-id="${esc(it.ids[0])}" ${writable() ? "" : "disabled"} style="${style}" title="Repairs: ${esc(it.name)} · ${range}"><span class="n">Repairs · ${esc(it.name)}</span></button>`; return; }
+      const multi = it.ids.length > 1;
+      bars += `<button class="bar${spill} ${it.hold ? "hold" : ""} ${!it.end ? "open-end" : ""}" data-act="edit-stay" data-kind="${multi ? "stay-multi" : "stay"}" data-id="${esc(it.ids[0])}" data-ids="${esc(it.ids.join(","))}" ${writable() ? "" : "disabled"} style="${style}" title="${esc(it.name)}${it.hc > 1 ? ` (${it.hc})` : ""} · ${range}${it.hold ? " · on hold" : ""}"><span class="n">${esc(it.name)}${it.hc > 1 ? ` <small>×${it.hc}</small>` : ""}${it.hold ? ` <small>· hold</small>` : ""}</span>${!multi && it.end && writable() ? `<span class="grip" aria-hidden="true"></span>` : ""}</button>`;
+    });
+    let rowCls = "", sub = maxOf(sp) ? `sleeps ${num(sp.idealOcc)}${maxOf(sp) > num(sp.idealOcc) ? `–${maxOf(sp)}` : ""}` : "capacity not set";
+    if (isHold(sp)){ rowCls = "holdrow"; sub = items.length ? "drag into a space" : "nobody waiting"; }
+    else if (isRes(sp)){ rowCls = "res" + (F ? " dim" : ""); }
+    else if (F){ const f = fitFor(sp, F.from, F.to, F.people); rowCls = f.ok === f.n ? "fit" : f.ok ? "part" : "dim"; sub = f.ok === f.n ? "has room" : f.ok ? `${f.ok} of ${f.n} nights` : "no room"; }
+    if (isRes(sp) && !resDivider){ resDivider = true; rows += `<div class="cal-row cal-divider" aria-hidden="true"><div class="cal-name"></div><div style="width:${W}px"></div></div>`; }
+    rows += `<div class="cal-row ${rowCls}" data-row="${esc(sp.id)}" style="min-height:${h}px">
+      ${isHold(sp) ? `<div class="cal-name"><b>${esc(sp.name || "Needs a space")}</b><small>${esc(sub)}</small></div>` : `<button class="cal-name" data-act="open-space" data-id="${esc(sp.id)}"><b>${esc(sp.name || "Untitled")}</b><small>${esc(sub)}</small></button>`}
+      <div class="cal-track ${writable() ? "" : "ro"}" data-track="${esc(sp.id)}" style="width:${W}px;height:${h}px;${dayGrid}">
+        <div class="gridlines">${monthLines}</div>${evTint}${band}${todayLine}${bars}</div></div>`;
+  }
+  const keep = S.scrollToDate ? null : frame.scrollLeft;
+  frame.style.setProperty("--namew", NAME_W() + "px");
+  frame.innerHTML = `<div class="cal">
+    <div class="cal-row cal-headrow"><div class="cal-name"><span class="label">Space</span></div><div class="cal-days ${cw >= 12 ? "" : "slim"}" style="width:${W}px">${months}${dayCells}</div></div>
+    ${evRow}
+    ${rows}</div>`;
+  if (S.scrollToDate){ frame.scrollLeft = Math.max(0, x(S.scrollToDate) - 3 * cw - 8); S.scrollToDate = null; }
+  else frame.scrollLeft = keep;
+}
+
+/* ---------- drag to move / extend (mouse) ---------- */
+let drag = null, suppressClick = false;
+document.addEventListener("pointerdown", e => {
+  if (e.pointerType !== "mouse" || e.button !== 0 || !writable()) return;
+  const bar = e.target.closest('.bar[data-kind="stay"]'); if (!bar || bar.disabled) return;
+  const st = D().stays.find(x => x.id === bar.dataset.id); if (!st) return;
+  e.preventDefault();
+  drag = { bar, st, x0: e.clientX, y0: e.clientY, mode: e.target.closest(".grip") ? "end" : "move", started: false, days: 0, target: st.spaceId, width: parseFloat(bar.style.width) };
+});
+document.addEventListener("pointermove", e => {
+  if (!drag) return;
+  const dx = e.clientX - drag.x0, dy = e.clientY - drag.y0;
+  if (!drag.started){ if (Math.hypot(dx, dy) < 5) return; drag.started = true; drag.bar.classList.add("dragging"); document.body.classList.add("is-dragging"); }
+  const cw = S.cw || cellW(); drag.days = Math.round(dx / cw);
+  let tip;
+  if (drag.mode === "end"){
+    const ne = addDays(drag.st.end, drag.days);
+    drag.days = ne <= drag.st.start ? diff(drag.st.end, addDays(drag.st.start, 1)) : drag.days;
+    drag.bar.style.width = Math.max(cw - 2, drag.width + drag.days * cw) + "px";
+    tip = `Leaves ${fmt(addDays(drag.st.end, drag.days))}`;
+  } else {
+    drag.bar.style.transform = `translate(${drag.days * cw}px, ${dy}px)`;
+    drag.bar.style.pointerEvents = "none";
+    const el = document.elementFromPoint(e.clientX, e.clientY);
+    drag.bar.style.pointerEvents = "";
+    const row = el && el.closest(".cal-row[data-row]");
+    document.querySelectorAll(".cal-row.drop").forEach(r => r.classList.remove("drop"));
+    if (row){ drag.target = row.dataset.row; if (drag.target !== drag.st.spaceId) row.classList.add("drop"); }
+    const ns = addDays(drag.st.start, drag.days), sp = space(drag.target);
+    tip = `${sp ? sp.name : ""} · ${fmt(ns)} – ${drag.st.end ? fmt(addDays(drag.st.end, drag.days)) : "no end date"}`;
+  }
+  const t = $("#dragTip"); t.hidden = false; t.textContent = tip; t.style.left = (e.clientX + 14) + "px"; t.style.top = (e.clientY + 16) + "px";
+});
+document.addEventListener("pointerup", async () => {
+  if (!drag) return;
+  const d = drag; drag = null;
+  document.body.classList.remove("is-dragging"); $("#dragTip").hidden = true;
+  document.querySelectorAll(".cal-row.drop").forEach(r => r.classList.remove("drop"));
+  if (!d.started) return;
+  suppressClick = true; setTimeout(() => { suppressClick = false; }, 0);
+  const prev = { ...d.st }; let next;
+  if (d.mode === "end") next = { ...prev, end: addDays(prev.end, d.days) };
+  else next = { ...prev, spaceId: d.target, start: addDays(prev.start, d.days), end: prev.end ? addDays(prev.end, d.days) : "" };
+  if (next.spaceId === prev.spaceId && next.start === prev.start && next.end === prev.end){ renderCalendar(); return; }
+  if (await save("stays", next)){
+    const sp = space(next.spaceId), span = Math.min(120, next.end ? diff(next.start, next.end) : 60), over = overbookedDays(sp, next.start, span);
+    let nr = 0; for (let i = 0; i < span; i++) if (notReadyOn(sp, addDays(next.start, i))) nr++;
+    const msg = d.mode === "end" ? `${prev.name} now leaves ${fmt(next.end)}` : next.spaceId !== prev.spaceId ? `Moved ${prev.name} to ${sp.name}` : `${prev.name} now ${fmt(next.start)} – ${next.end ? fmt(next.end) : "no end date"}`;
+    const warn = nr ? `${sp.name} isn't ready for ${nr} of those nights` : over.length ? `${sp.name} is over capacity on ${over.length} ${over.length === 1 ? "night" : "nights"}` : "";
+    toast(warn ? `${msg}. ${warn}.` : msg, 8000, { label: "Undo", fn: () => save("stays", prev) });
+  }
+  renderCalendar();
+});
+
+/* ---------- repairs & construction ---------- */
+function renderWork(){
+  document.querySelectorAll("[data-wfilter]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.wfilter === S.wfilter)));
+  $("#newWorkBtn").hidden = !writable() || !D().spaces.length;
+  const all = D().work, open = all.filter(w => w.status !== "done"), blockers = open.filter(w => w.priority === "blocker");
+  $("#workSummary").innerHTML = D().spaces.length ? `<span><b>${open.length}</b>open</span><span><b>${Math.round(sumHours(open))}</b>hours estimated</span><span class="${blockers.length ? "alert" : ""}"><b>${blockers.length}</b>blocking use</span>` : "";
+  const nr = D().spaces.filter(sp => !USABLE.has(sp.condition) && sp.condition !== "offline").map(sp => {
+    const b = D().work.filter(w => w.spaceId === sp.id && w.priority === "blocker");
+    const left = sumHours(b.filter(w => w.status !== "done")), done = sumHours(b.filter(w => w.status === "done"));
+    return { sp, left, n: b.filter(w => w.status !== "done").length, pct: left + done ? done / (left + done) : 0 };
+  }).sort((a, b) => a.left - b.left).slice(0, 6);
+  $("#workReady").innerHTML = nr.length ? `<div class="sect"><div class="sect-h"><h3>Closest to ready</h3><span class="hint">Hours left on tasks that block use</span></div>
+    <div class="ready-list">${nr.map(x => `<button class="ready-item" data-act="open-space" data-id="${esc(x.sp.id)}"><b>${esc(x.sp.name)}</b>
+      <span class="small">${x.n ? `${hrs(x.left)} · ${x.n} ${x.n === 1 ? "task" : "tasks"}` : "No blocking tasks listed"}</span>
+      <span class="meter"><i style="width:${Math.round(x.pct * 100)}%"></i></span><span class="hint">${validDate(x.sp.readyBy) ? `Expected ${fmt(x.sp.readyBy)}` : esc(label(CONDITIONS, x.sp.condition))} · would sleep ${num(x.sp.idealOcc)}</span></button>`).join("")}</div></div>` : "";
+  const list = $("#workList");
+  if (!D().spaces.length){ list.innerHTML = `<p class="faint">Add spaces first, then list the repairs and construction each one needs.</p>`; return; }
+  const shown = S.wfilter === "open" ? open : all;
+  if (!shown.length){ list.innerHTML = `<div class="none">${all.length ? "Nothing open." : "No tasks yet."}</div>`; return; }
+  list.innerHTML = sortedSpaces().map(sp => {
+    const items = shown.filter(w => w.spaceId === sp.id).sort(workSort);
+    if (!items.length) return "";
+    return `<div class="wgroup"><div class="wgroup-h"><button data-act="open-space" data-id="${esc(sp.id)}"><h3>${esc(sp.name)}</h3></button>
+      <span class="hint">${hrs(sumHours(items.filter(w => w.status !== "done")))} open · ${esc(label(CONDITIONS, sp.condition))}</span></div>
+      <div class="list">${items.map(workRow).join("")}</div></div>`;
+  }).join("");
+}
+
+/* ---------- visitor view ---------- */
+function visitorSpaces(from, to){
+  const nights = diff(from, to);
+  return sortedSpaces().map(sp => {
+    if (sp.private || isRes(sp) || isHold(sp) || !maxOf(sp)) return null;
+    const sts = staysFor(sp.id);
+    if (sts.some(x => !x.end && x.start <= from)) return null; // someone's long-term home
+    let free = 0;
+    for (let i = 0; i < nights; i++){ const d = addDays(from, i); if (!notReadyOn(sp, d) && !blockedOn(sp, d) && !sts.some(x => covers(x, d))) free++; }
+    return free ? { sp, free, nights } : null;
+  }).filter(Boolean).sort((a, b) => b.free - a.free);
+}
+function renderPublic(){
+  $("#pubFrom").value = S.pub.from; $("#pubTo").value = S.pub.to;
+  if (S.hosted && !S.visit){ const u = location.origin + location.pathname + "?visit"; $("#pubLink").innerHTML = ` Link for visitors: <b>${esc(u)}</b> <button class="btn sm" data-act="copy-link" data-url="${esc(u)}">Copy</button>`; }
+  $("#editPublicBtn").hidden = !writable();
+  const set = D().settings || {};
+  $("#pubHero").innerHTML = `<div class="pub-hero"><span class="label">Rainbow Bridge Hawaii · Hāmākua Coast</span>
+    <h2>${esc(set.publicTitle || "Places to stay at Rainbow Bridge")}</h2>
+    ${set.publicIntro ? `<p>${esc(set.publicIntro)}</p>` : ""}
+    ${set.contact ? `<p><b style="color:var(--ink)">To arrange a stay:</b> ${esc(set.contact)}</p>` : ""}</div>`;
+  const from = S.pub.from, to = S.pub.to > from ? S.pub.to : addDays(from, 1);
+  const list = visitorSpaces(from, to);
+  $("#pubBody").innerHTML = list.length ? `<div class="grid">${list.map(({ sp, free, nights }) => {
+    const am = (sp.amenities || []).filter(a => AMENITIES.some(x => x[0] === a)), dl = distLine(sp);
+    return `<div class="card">${photoBlock(sp)}<div class="card-body">
+      <h3>${esc(sp.name)}</h3>
+      <div class="cap">Sleeps ${num(sp.idealOcc)}${maxOf(sp) > num(sp.idealOcc) ? `, up to ${maxOf(sp)}` : ""}</div>
+      <div class="avail ${free === nights ? "yes" : "part"}">${free === nights ? `Free for all ${nights} ${nights === 1 ? "night" : "nights"}` : `${free} of ${nights} nights free`}</div>
+      ${sp.publicBlurb ? `<p class="prose muted small">${esc(sp.publicBlurb)}</p>` : ""}
+      ${dl ? `<div class="dist">${esc(dl)}</div>` : ""}
+      ${am.length ? `<div class="chips">${am.map(a => `<span class="chip">${esc(label(AMENITIES, a))}</span>`).join("")}</div>` : ""}
+    </div></div>`; }).join("")}</div>` : `<div class="none">Nothing free for these dates.</div>`;
+}
+
+/* ---------- modals ---------- */
+let modalSubmit = null;
+function openModal(title, bodyHtml, footHtml, onSubmit, onInput){
+  modalSubmit = onSubmit;
+  $("#modalRoot").innerHTML = `<div class="modal"><div class="scrim" data-act="close-modal"></div>
+    <div class="dialog" role="dialog" aria-modal="true" aria-label="${esc(title)}">
+      <header><h2>${esc(title)}</h2><button class="btn ghost sm" data-act="close-modal">Cancel</button></header>
+      <form id="mform" novalidate>${bodyHtml}</form><footer>${footHtml}</footer></div></div>`;
+  const f = $("#mform");
+  f.addEventListener("submit", e => { e.preventDefault(); doSubmit(); });
+  if (onInput){ f.addEventListener("input", onInput); f.addEventListener("change", onInput); onInput(); }
+  if (window.innerWidth > 720){ const first = f.querySelector("input,select,textarea"); if (first) setTimeout(() => first.focus(), 30); }
+}
+async function doSubmit(){
+  if (!modalSubmit) return;
+  const btn = $("#msave"); if (btn) btn.disabled = true;
+  try { if (await modalSubmit() !== false) closeModal(); } finally { if (btn) btn.disabled = false; }
+}
+function closeModal(){ $("#modalRoot").innerHTML = ""; modalSubmit = null; }
+const opt = (list, cur) => list.map(([k, v]) => `<option value="${k}"${k === cur ? " selected" : ""}>${esc(v)}</option>`).join("");
+const fv = id => { const el = document.getElementById(id); return el ? el.value.trim() : ""; };
+const footer = (save, del) => `${del ? `<button class="btn danger" type="button" data-act="${del}">Delete</button>` : ""}<span class="grow"></span>
+  <button class="btn" type="button" data-act="close-modal">Cancel</button><button class="btn primary" id="msave" type="button" data-act="modal-save">${esc(save)}</button>`;
+
+function spaceForm(id){
+  const sp = id ? space(id) : { condition: "ready", idealOcc: 1, maxOcc: 1, amenities: [] };
+  if (!sp) return;
+  const am = new Set(sp.amenities || []);
+  openModal(id ? "Edit space" : "New space", `
+    <label class="f"><span>Name</span><input id="sp-name" value="${esc(sp.name)}" placeholder="e.g. Carport 2, Ohia cabin, Dome 1" maxlength="80"></label>
+    <div class="f2">
+      <label class="f"><span>Condition</span><select id="sp-cond">${opt(CONDITIONS, sp.condition)}</select></label>
+      <label class="f" id="sp-readywrap"><span>Expected ready</span><input id="sp-ready" type="date" value="${esc(sp.readyBy || "")}"></label>
+    </div>
+    <small class="hint" id="sp-readyhint" style="margin-top:-8px">The calendar shows it as free from this date, so you can plan who moves in.</small>
+    <div class="f2">
+      <label class="f"><span>Ideal occupancy</span><input id="sp-ideal" type="number" min="0" max="50" inputmode="numeric" value="${num(sp.idealOcc)}"></label>
+      <label class="f"><span>Max occupancy</span><input id="sp-max" type="number" min="0" max="50" inputmode="numeric" value="${num(sp.maxOcc)}"></label>
+    </div>
+    <label class="f"><span>What it would take to reach max</span><input id="sp-tomax" value="${esc(sp.toMax)}" placeholder="e.g. second bed, screen the porch" maxlength="200"></label>
+    <div class="f"><span>Distance to the nearest</span>
+      <div class="f3">${DIST.map(([k, l]) => `<label class="f"><small>${l}</small><span class="unit"><input id="sp-${k}" type="number" min="0" step="10" inputmode="numeric" value="${hasNum(sp[k]) ? num(sp[k]) : ""}"></span></label>`).join("")}</div>
+      <small>Feet, roughly. 0 means it's in the space. Leave blank if unknown.</small></div>
+    <div class="f"><span>Has</span><div class="checks">${AMENITIES.map(([k, v]) => `<label><input type="checkbox" id="am-${k}" ${am.has(k) ? "checked" : ""}>${esc(v)}</label>`).join("")}</div></div>
+    <label class="f"><span>Description for visitors</span><textarea id="sp-blurb" maxlength="600" placeholder="What it's like, the bed, the view, the walk from the kitchen.">${esc(sp.publicBlurb)}</textarea></label>
+    <label class="f"><span>Internal notes</span><textarea id="sp-notes" maxlength="2000" placeholder="Only people with access to this tool see this.">${esc(sp.notes)}</textarea></label>
+    <div class="checks"><label><input type="checkbox" id="sp-res" ${sp.residence ? "checked" : ""}>Permanent residence</label></div>
+    <small class="hint" style="margin-top:-8px">Listed last and shaded. Not offered for stays or on the visitor page.</small>
+  `, footer(id ? "Save" : "Add space", id ? "delete-space" : ""), async () => {
+    const name = fv("sp-name");
+    if (!name){ toast("Give the space a name."); $("#sp-name").focus(); return false; }
+    const ideal = Math.max(0, Math.round(num(fv("sp-ideal")))), max = Math.max(ideal, Math.round(num(fv("sp-max"))));
+    const cond = fv("sp-cond");
+    const body = { ...(id ? sp : {}), id: id || newId("spaces"), name, condition: cond, readyBy: USABLE.has(cond) ? "" : (validDate(fv("sp-ready")) ? fv("sp-ready") : ""),
+      idealOcc: ideal, maxOcc: max, toMax: fv("sp-tomax"),
+      amenities: AMENITIES.map(a => a[0]).filter(k => document.getElementById("am-" + k).checked),
+      publicBlurb: fv("sp-blurb"), notes: fv("sp-notes"), residence: document.getElementById("sp-res").checked,
+      photos: Array.isArray(sp.photos) ? sp.photos : [] };
+    DIST.forEach(([k]) => { const v = fv("sp-" + k); body[k] = v === "" ? null : Math.max(0, Math.round(num(v))); });
+    if (!(await save("spaces", body))) return false;
+    toast(id ? "Saved" : "Space added");
+    if (!id){ S.pendingOpen = body.id; openSpace(body.id); }
+  }, () => {
+    const ready = USABLE.has(fv("sp-cond"));
+    $("#sp-readywrap").style.visibility = ready ? "hidden" : ""; $("#sp-readyhint").hidden = ready;
+  });
+  S.modalCtx = { id };
+}
+
+function stayForm(id, preset = {}){
+  const st = id ? D().stays.find(x => x.id === id) : { category: "guest", headcount: 1, status: "confirmed", start: TODAY, end: addDays(TODAY, 7), ...preset };
+  if (!st) return;
+  const sps = sortedSpaces();
+  if (!sps.length){ toast("Add a space first."); return; }
+  if (!st.spaceId) st.spaceId = sps[0].id;
+  const oldSp = id ? space(st.spaceId) : null;
+  openModal(id ? "Edit stay" : "New stay", `
+    <label class="f"><span>Who</span><input id="st-name" value="${esc(st.name)}" placeholder="Person, couple or group" maxlength="80"></label>
+    <div class="f2">
+      <label class="f"><span>Space</span><select id="st-space">${sps.map(sp => `<option value="${esc(sp.id)}"${sp.id === st.spaceId ? " selected" : ""}>${esc(sp.name)}</option>`).join("")}</select></label>
+      <label class="f"><span>Category</span><select id="st-cat">${opt(CATS, st.category)}</select></label>
+    </div>
+    <div class="f3">
+      <label class="f"><span>Arrives</span><input id="st-start" type="date" value="${esc(st.start)}"></label>
+      <label class="f"><span>Leaves</span><input id="st-end" type="date" value="${esc(st.end || "")}"></label>
+      <label class="f"><span>People</span><input id="st-hc" type="number" min="1" max="50" inputmode="numeric" value="${heads(st)}"></label>
+    </div>
+    <small class="hint" style="margin-top:-8px">Leave the leaving date empty for residents with no end date. The leaving day counts as free.</small>
+    <label class="f" id="st-movewrap" hidden><span>Moving on</span><input id="st-movefrom" type="date" value="${TODAY}">
+      <small>Nights before this date stay in ${esc(oldSp ? oldSp.name : "the current space")}. Both parts stay linked to ${esc(st.name || "this person")}.</small></label>
+    <div id="st-fits" class="fits"></div>
+    <div id="st-warn"></div>
+    <label class="f"><span>Status</span><select id="st-status">${opt([["confirmed","Confirmed"],["hold","On hold"]], st.status)}</select></label>
+    <label class="f"><span>Notes</span><textarea id="st-notes" maxlength="1000">${esc(st.notes)}</textarea></label>
+  `, footer(id ? "Save" : "Book", id ? "delete-stay" : ""), async () => {
+    const name = fv("st-name"), start = fv("st-start"), end = fv("st-end");
+    if (!name){ toast("Add who is staying."); $("#st-name").focus(); return false; }
+    if (!validDate(start)){ toast("Pick an arrival date."); return false; }
+    if (end && end <= start){ toast("Leaving has to be after arriving."); return false; }
+    const body = { ...(id ? st : {}), id: id || newId("stays"), name, spaceId: fv("st-space"), category: fv("st-cat"), start, end: end || "",
+      headcount: Math.max(1, Math.round(num(fv("st-hc"), 1))), status: fv("st-status"), notes: fv("st-notes") };
+    const mf = fv("st-movefrom");
+    if (!$("#st-movewrap").hidden && validDate(mf) && mf > start && (!end || mf < end)){
+      const toSp = space(body.spaceId);
+      if (!(await save("stays", { ...body, spaceId: st.spaceId, end: mf }))) return false;
+      if (!(await save("stays", { ...body, id: newId("stays"), start: mf }))) return false;
+      toast(`${name} moves to ${toSp ? toSp.name : "the new space"} on ${fmt(mf)}`);
+      return;
+    }
+    if (!(await save("stays", body))) return false;
+    toast(id ? (body.spaceId !== st.spaceId ? `Moved to ${space(body.spaceId).name}` : "Stay updated") : "Booked");
+  }, () => {
+    const spId = fv("st-space"), start = fv("st-start"), end = fv("st-end"), hc = Math.max(1, num(fv("st-hc"), 1));
+    const moving = !!id && spId !== st.spaceId && st.start < TODAY && (!st.end || st.end > TODAY);
+    $("#st-movewrap").hidden = !moving;
+    const from = moving && validDate(fv("st-movefrom")) && fv("st-movefrom") > start ? fv("st-movefrom") : start;
+    const box = $("#st-warn"), fits = $("#st-fits"), sp = space(spId);
+    if (!sp || !validDate(start) || (end && end <= start)){ box.innerHTML = ""; fits.innerHTML = ""; return; }
+    const to = end || addDays(from, 60);
+    // which spaces have room for these dates
+    const ok = sortedSpaces().filter(s => s.id !== spId && !isRes(s) && !isHold(s) && fitFor(s, from, to, hc, id).ok === diff(from, to));
+    fits.innerHTML = ok.length ? `<span class="hint">Also has room${end ? "" : " for the next 60 days"}:</span>` + ok.slice(0, 8).map(s => `<button type="button" class="fitchip" data-act="pick-space" data-id="${esc(s.id)}">${esc(s.name)}</button>`).join("") : "";
+    if (isHold(sp)){ box.innerHTML = ""; return; }
+    // problems in the chosen space
+    const nights = diff(from, to), bl = blocksFor(spId);
+    let over = 0, firstOver = "", nr = 0, bk = 0;
+    for (let i = 0; i < Math.min(nights, 365); i++){
+      const d = addDays(from, i);
+      if (notReadyOn(sp, d)){ nr++; continue; }
+      if (bl.some(b => b.start <= d && d < b.end)){ bk++; continue; }
+      const l = staysFor(spId).filter(x => x.id !== id && covers(x, d)).reduce((a, x) => a + heads(x), 0) + hc;
+      if (l > maxOf(sp)){ over++; if (!firstOver) firstOver = d; }
+    }
+    const msgs = [];
+    if (nr) msgs.push(`${esc(sp.name)} isn't ready for ${nr} of these nights${validDate(sp.readyBy) ? ` (expected ${fmt(sp.readyBy)})` : ""}.`);
+    if (bk) msgs.push(`It's closed for repairs on ${bk} ${bk === 1 ? "night" : "nights"}.`);
+    if (over) msgs.push(`This puts more than ${maxOf(sp)} people in it on ${over} ${over === 1 ? "night" : "nights"}, from ${fmt(firstOver)}.`);
+    box.innerHTML = msgs.length ? `<div class="warnbox">${msgs.join(" ")} You can still save it.</div>` : "";
+  });
+  S.modalCtx = { id };
+}
+
+function workForm(id, preset = {}){
+  const wi = id ? D().work.find(x => x.id === id) : { priority: "needed", status: "todo", ...preset };
+  if (!wi) return;
+  const sps = sortedSpaces(realSpaces());
+  if (!wi.spaceId) wi.spaceId = sps[0] && sps[0].id;
+  const hasBlock = validDate(wi.blockStart);
+  openModal(id ? "Edit task" : "New task", `
+    <label class="f"><span>Task</span><input id="w-task" value="${esc(wi.task)}" placeholder="e.g. Install window screens" maxlength="140"></label>
+    <div class="f2">
+      <label class="f"><span>Space</span><select id="w-space">${sps.map(sp => `<option value="${esc(sp.id)}"${sp.id === wi.spaceId ? " selected" : ""}>${esc(sp.name)}</option>`).join("")}</select></label>
+      <label class="f"><span>Estimated hours</span><input id="w-hours" type="number" min="0" step="0.5" inputmode="decimal" value="${wi.hours ?? ""}"></label>
+    </div>
+    <div class="f3">
+      <label class="f"><span>Priority</span><select id="w-prio">${opt(PRIOS, wi.priority)}</select></label>
+      <label class="f"><span>Status</span><select id="w-status">${opt(WSTAT, wi.status)}</select></label>
+      <label class="f"><span>Who</span><input id="w-who" value="${esc(wi.who)}" maxlength="60"></label>
+    </div>
+    <div class="checks"><label><input type="checkbox" id="w-block" ${hasBlock ? "checked" : ""}>Nobody can stay there during this work</label></div>
+    <div class="f2" id="w-blockwrap">
+      <label class="f"><span>Closed from</span><input id="w-bstart" type="date" value="${esc(wi.blockStart || "")}"></label>
+      <label class="f"><span>Open again</span><input id="w-bend" type="date" value="${esc(wi.blockEnd || "")}"></label>
+    </div>
+    <div id="w-warn"></div>
+    <label class="f"><span>Notes</span><textarea id="w-notes" maxlength="1000" placeholder="Materials, measurements, what's holding it up">${esc(wi.notes)}</textarea></label>
+  `, footer(id ? "Save" : "Add task", id ? "delete-work" : ""), async () => {
+    const task = fv("w-task");
+    if (!task){ toast("Describe the task."); $("#w-task").focus(); return false; }
+    const blk = document.getElementById("w-block").checked, bs = fv("w-bstart"), be = fv("w-bend");
+    if (blk && !validDate(bs)){ toast("Pick when the space closes for this work."); return false; }
+    if (blk && validDate(be) && be <= bs){ toast("It has to open again after it closes."); return false; }
+    const body = { ...(id ? wi : {}), id: id || newId("work"), task, spaceId: fv("w-space"), hours: Math.max(0, num(fv("w-hours"))),
+      priority: fv("w-prio"), status: fv("w-status"), who: fv("w-who"), notes: fv("w-notes"),
+      blockStart: blk ? bs : "", blockEnd: blk ? (validDate(be) ? be : addDays(bs, Math.max(1, Math.ceil(num(fv("w-hours")) / 8)))) : "" };
+    if (!(await save("work", body))) return false;
+    toast(id ? "Saved" : "Task added");
+  }, () => {
+    const blk = document.getElementById("w-block").checked;
+    $("#w-blockwrap").hidden = !blk;
+    const box = $("#w-warn"), bs = fv("w-bstart"), be = fv("w-bend") || (validDate(bs) ? addDays(bs, 1) : "");
+    if (!blk || !validDate(bs) || be <= bs){ box.innerHTML = blk ? `<small class="hint">The calendar shows the space closed for these dates. Without an end date it uses the hour estimate at 8 hours a day.</small>` : ""; return; }
+    const who = staysFor(fv("w-space")).filter(x => x.start < be && (!x.end || x.end > bs));
+    box.innerHTML = who.length ? `<div class="warnbox">${who.map(x => esc(x.name)).join(", ")} ${who.length === 1 ? "is" : "are"} booked there during those dates. Move ${who.length === 1 ? "them" : "them"} first: open the stay and pick another space, or use Find room on the calendar.</div>` : `<small class="hint">Nobody is booked there during those dates.</small>`;
+  });
+  S.modalCtx = { id };
+}
+
+function eventForm(id){
+  const ev = id ? (D().events || []).find(x => x.id === id) : { start: TODAY, last: TODAY };
+  if (!ev) return;
+  openModal(id ? "Edit event" : "New event", `
+    <label class="f"><span>Name</span><input id="ev-name" value="${esc(ev.name)}" placeholder="e.g. PDC, Lucid dreaming workshop" maxlength="80"></label>
+    <div class="f2">
+      <label class="f"><span>First day</span><input id="ev-start" type="date" value="${esc(ev.start)}"></label>
+      <label class="f"><span>Last day</span><input id="ev-last" type="date" value="${esc(ev.last)}"></label>
+    </div>
+    <small class="hint" style="margin-top:-8px">Shown across the top of the calendar so you can plan stays around it.</small>
+  `, footer(id ? "Save" : "Add event", id ? "delete-event" : ""), async () => {
+    const name = fv("ev-name"), start = fv("ev-start"), last = fv("ev-last");
+    if (!name){ toast("Name the event."); return false; }
+    if (!validDate(start) || !validDate(last) || last < start){ toast("Check the dates."); return false; }
+    if (!(await save("events", { ...ev, id: id || newId("events"), name, start, last }))) return false;
+    toast(id ? "Saved" : "Event added");
+  });
+  S.modalCtx = { id };
+}
+
+function publicForm(){
+  const set = D().settings || {};
+  openModal("Visitor page text", `
+    <label class="f"><span>Heading</span><input id="pb-title" value="${esc(set.publicTitle || "Places to stay at Rainbow Bridge")}" maxlength="90"></label>
+    <label class="f"><span>Intro</span><textarea id="pb-intro" maxlength="1200" placeholder="A few lines on staying at RB: how rustic it is, shared kitchen and bathrooms, what to bring.">${esc(set.publicIntro)}</textarea></label>
+    <label class="f"><span>How to arrange a stay</span><input id="pb-contact" value="${esc(set.contact)}" placeholder="e.g. Message Madeleine with your dates" maxlength="200"></label>
+  `, footer("Save"), async () => {
+    if (!(await save("settings", { ...set, id: "main", publicTitle: fv("pb-title"), publicIntro: fv("pb-intro"), contact: fv("pb-contact") }))) return false;
+    toast("Saved");
+  });
+}
+
+/* ---------- data layer (swap this block to move hosts) ---------- */
+function newId(coll){ return (S.demo || !S.db) ? "x" + Math.random().toString(36).slice(2, 12) : S.db.collection(coll).doc().id; }
+async function save(coll, obj){
+  const { id, ...body } = obj; body.updatedAt = new Date().toISOString();
+  if (S.demo){
+    if (coll === "settings") S.demoData.settings = body;
+    else { const arr = S.demoData[coll], i = arr.findIndex(x => x.id === id), rec = { id, ...body }; if (i >= 0) arr[i] = rec; else arr.push(rec); }
+    renderAll(); return true;
+  }
+  if (!S.db){ toast("The shared list isn't reachable right now."); return false; }
+  try { await S.db.collection(coll).doc(id).set(body); return true; } catch (e){ return writeError(e); }
+}
+async function remove(coll, id){
+  if (S.demo){ S.demoData[coll] = S.demoData[coll].filter(x => x.id !== id); renderAll(); return true; }
+  try { await S.db.collection(coll).doc(id).delete(); return true; } catch (e){ return writeError(e); }
+}
+function writeError(e){
+  const c = e && e.code;
+  if (c === "invalid_argument" && S.canWriteUnknown){ S.canWrite = false; renderAll(); toast("You can view this list but not change it."); }
+  else if (c === "quota_exceeded") toast("Storage is full. Delete old stays or tasks to make room.");
+  else if (c === "resource_exhausted") toast("Too many changes at once. Try again in a moment.");
+  else if (c === "revoked") toast("Your access changed. Reload to continue.");
+  else toast("That didn't save. Check your connection and try again.");
+  return false;
+}
+
+/* ---------- photos ---------- */
+async function shrink(file){
+  try {
+    const bmp = await createImageBitmap(file), scale = Math.min(1, 1800 / Math.max(bmp.width, bmp.height));
+    const c = document.createElement("canvas"); c.width = Math.round(bmp.width * scale); c.height = Math.round(bmp.height * scale);
+    c.getContext("2d").drawImage(bmp, 0, 0, c.width, c.height);
+    return (await new Promise(r => c.toBlob(r, "image/jpeg", 0.84))) || file;
+  } catch { return ["image/jpeg","image/png","image/webp","image/gif"].includes(file.type) ? file : null; }
+}
+async function addPhotos(files){
+  const sp = space(S.photoTarget); if (!sp || !files.length) return;
+  toast(`Uploading ${files.length} ${files.length === 1 ? "photo" : "photos"}…`, 60000);
+  const ids = []; let failed = 0;
+  for (const f of files){
+    const blob = await shrink(f); if (!blob){ failed++; continue; }
+    if (S.demo){ ids.push(await new Promise(r => { const fr = new FileReader(); fr.onload = () => r(fr.result); fr.readAsDataURL(blob); })); continue; }
+    try { ids.push((await S.assets.upload(blob, { type: blob.type || "image/jpeg" })).id); }
+    catch (e){ failed++; if (e && e.code === "quota_or_state"){ toast("Photo storage is full. Remove some photos first."); break; } }
+  }
+  if (ids.length){
+    const cur = space(sp.id) || sp;
+    if (await save("spaces", { ...cur, photos: [...(cur.photos || []), ...ids] })){ S.gIdx = (cur.photos || []).length; renderDrawer(); }
+  }
+  toast(failed ? `${ids.length} added, ${failed} couldn't be read. Try JPEG or PNG.` : `${ids.length} ${ids.length === 1 ? "photo" : "photos"} added`);
+}
+async function removePhoto(sp){
+  const ph = [...(sp.photos || [])], gone = ph.splice(S.gIdx, 1)[0];
+  if (!(await save("spaces", { ...sp, photos: ph }))) return;
+  if (!S.demo && S.assets && gone){ try { await S.assets.delete(gone); } catch {} }
+  S.gIdx = Math.max(0, S.gIdx - 1); renderDrawer(); toast("Photo removed");
+}
+
+/* ---------- toast & confirm ---------- */
+let toastT, toastAction = null;
+function toast(msg, ms = 2600, action){
+  toastAction = action || null;
+  const r = $("#toastRoot"); r.innerHTML = `<div class="toast" role="status"><span>${esc(msg)}</span>${action ? `<button data-act="toast-action">${esc(action.label)}</button>` : ""}</div>`;
+  clearTimeout(toastT); toastT = setTimeout(() => { r.innerHTML = ""; }, ms);
+}
+function armed(btn){
+  if (btn.classList.contains("armed")) return true;
+  btn.classList.add("armed"); const t = btn.textContent; btn.textContent = "Tap again to confirm";
+  setTimeout(() => { btn.classList.remove("armed"); btn.textContent = t; }, 4000);
+  return false;
+}
+
+/* ---------- events ---------- */
+document.addEventListener("click", async e => {
+  if (suppressClick){ e.preventDefault(); e.stopPropagation(); return; }
+  const tab = e.target.closest(".tab"); if (tab){ setView(tab.dataset.view); return; }
+  const fb = e.target.closest("[data-filter]"); if (fb){ S.filter = fb.dataset.filter; renderSpaces(); return; }
+  const zb = e.target.closest("[data-zoom]"); if (zb){
+    const fr = $("#calFrame"), mid = S.cw ? addDays(S.cal.start, Math.floor((fr.scrollLeft + 1) / S.cw)) : TODAY;
+    S.cal.zoom = zb.dataset.zoom; lsSet("rb-acc-zoom", S.cal.zoom); S.scrollToDate = mid < S.cal.start ? S.cal.start : addDays(mid, 3); renderCalendar(); return; }
+  const wf = e.target.closest("[data-wfilter]"); if (wf){ S.wfilter = wf.dataset.wfilter; renderWork(); return; }
+  const a = e.target.closest("[data-act]");
+  if (!a){
+    const tr = e.target.closest("[data-track]");
+    if (tr && writable()){
+      const r = tr.getBoundingClientRect(), d = addDays(S.cal.start, Math.max(0, Math.floor((e.clientX - r.left) / (S.cw || cellW()))));
+      stayForm(null, { spaceId: tr.dataset.track, start: d, end: addDays(d, 7) });
+    }
+    return;
+  }
+  const act = a.dataset.act, id = a.dataset.id;
+  switch (act){
+    case "open-space": openSpace(id); break;
+    case "close-drawer": closeDrawer(); break;
+    case "g-prev": case "g-next": { const n = (space(S.openSpace).photos || []).length; S.gIdx = (S.gIdx + (act === "g-next" ? 1 : -1) + n) % n; renderDrawer(); break; }
+    case "g-go": S.gIdx = Number(a.dataset.i); renderDrawer(); break;
+    case "new-space": spaceForm(null); break;
+    case "edit-space": spaceForm(id); break;
+    case "new-stay": stayForm(null, { spaceId: a.dataset.space || S.openSpace || undefined }); break;
+    case "edit-stay": {
+      if (!writable()) break;
+      let sid = id; const ids = (a.dataset.ids || "").split(",").filter(Boolean);
+      if (ids.length > 1){
+        const tr = a.closest("[data-track]"), r = tr.getBoundingClientRect(), d = addDays(S.cal.start, Math.floor((e.clientX - r.left) / S.cw));
+        const hit = D().stays.find(x => ids.includes(x.id) && covers(x, d)); if (hit) sid = hit.id;
+      }
+      stayForm(sid); break; }
+    case "new-work": workForm(null, { spaceId: a.dataset.space || S.openSpace || undefined }); break;
+    case "edit-work": workForm(id); break;
+    case "cycle-work": {
+      const wi = D().work.find(x => x.id === id); if (!wi) break;
+      const order = ["todo","doing","done"], nx = order[(order.indexOf(wi.status || "todo") + 1) % 3];
+      if (await save("work", { ...wi, status: nx })) toast(`Marked ${label(WSTAT, nx).toLowerCase()}`);
+      break; }
+    case "edit-public": publicForm(); break;
+    case "close-modal": closeModal(); break;
+    case "modal-save": doSubmit(); break;
+    case "delete-space": {
+      if (!armed(a)) break; const sid = S.modalCtx.id, sp = space(sid);
+      const linked = D().stays.filter(x => x.spaceId === sid).length + D().work.filter(x => x.spaceId === sid).length;
+      if (linked){ toast(`Move or delete its ${linked} stays and tasks first.`); break; }
+      if (await remove("spaces", sid)){
+        if (!S.demo && S.assets) for (const p of (sp.photos || [])){ try { await S.assets.delete(p); } catch {} }
+        closeModal(); closeDrawer(); toast("Space deleted"); }
+      break; }
+    case "delete-stay": if (armed(a) && await remove("stays", S.modalCtx.id)){ closeModal(); toast("Stay deleted"); } break;
+    case "delete-work": if (armed(a) && await remove("work", S.modalCtx.id)){ closeModal(); toast("Task deleted"); } break;
+    case "add-photos": S.photoTarget = id; $("#photoInput").value = ""; $("#photoInput").click(); break;
+    case "cover-photo": { const sp = space(id), ph = [...(sp.photos || [])], [p] = ph.splice(S.gIdx, 1); ph.unshift(p); if (await save("spaces", { ...sp, photos: ph })){ S.gIdx = 0; renderDrawer(); toast("Cover photo set"); } break; }
+    case "remove-photo": if (armed(a)) await removePhoto(space(id)); break;
+    case "cal-prev": case "cal-next": {
+      const fr = $("#calFrame"), step = Math.max(200, (fr.clientWidth - NAME_W()) * 0.8);
+      if (act === "cal-prev" && fr.scrollLeft < 4){ S.cal.start = addDays(S.cal.start, -30); S.scrollToDate = S.cal.start; renderCalendar(); }
+      else fr.scrollBy({ left: act === "cal-next" ? step : -step, behavior: "smooth" });
+      break; }
+    case "cal-today": S.cal.start = addDays(TODAY, -7); S.scrollToDate = S.cal.start; renderCalendar(); break;
+    case "demo-on": S.demo = true; S.demoData = makeDemo(); renderAll(); break;
+    case "pick-space": { const sel = $("#st-space"); if (sel){ sel.value = id; sel.dispatchEvent(new Event("change", { bubbles: true })); } break; }
+    case "find-book": stayForm(null, { spaceId: id, start: S.find.from, end: S.find.to, headcount: S.find.people }); break;
+    case "find-clear": S.find = { from: "", to: "", people: 1 }; renderCalendar(); break;
+    case "toast-action": if (toastAction){ const f = toastAction.fn; toastAction = null; $("#toastRoot").innerHTML = ""; if (await f()) toast("Undone"); } break;
+    case "new-event": eventForm(null); break;
+    case "edit-event": if (writable()) eventForm(id); break;
+    case "delete-event": if (armed(a) && await remove("events", S.modalCtx.id)){ closeModal(); toast("Event deleted"); } break;
+    case "copy-link": try { await navigator.clipboard.writeText(a.dataset.url); toast("Link copied"); } catch { toast("Select the link and copy it."); } break;
+    case "sign-out": if (S.sb) await S.sb.auth.signOut(); location.reload(); break;
+    case "demo-off": S.demo = false; S.openSpace = null; renderAll(); break;
+  }
+});
+$("#photoInput").addEventListener("change", e => { const fs = [...e.target.files]; if (fs.length) addPhotos(fs); });
+function setFind(){
+  const f = $("#fFrom").value, t = $("#fTo").value;
+  S.find.from = validDate(f) ? f : ""; S.find.to = validDate(t) ? t : "";
+  S.find.people = Math.max(1, Math.round(num($("#fPeople").value, 1)));
+  if (S.find.from && (!S.find.to || S.find.to <= S.find.from)) S.find.to = addDays(S.find.from, 7);
+  if (S.find.from){ if (S.find.from < S.cal.start || S.find.to > addDays(S.cal.start, CAL_DAYS)) S.cal.start = addDays(S.find.from, -7); S.scrollToDate = S.find.from; }
+  renderCalendar();
+}
+["fFrom","fTo","fPeople"].forEach(k => $("#" + k).addEventListener("change", setFind));
+$("#calJump").addEventListener("change", e => { const v = e.target.value; if (!validDate(v)) return;
+  if (v < S.cal.start || v > addDays(S.cal.start, CAL_DAYS - 30)) S.cal.start = addDays(v, -7);
+  S.scrollToDate = v; renderCalendar(); });
+$("#pubFrom").addEventListener("change", e => { if (validDate(e.target.value)){ S.pub.from = e.target.value; if (S.pub.to <= S.pub.from) S.pub.to = addDays(S.pub.from, 7); renderPublic(); } });
+$("#pubTo").addEventListener("change", e => { if (validDate(e.target.value)){ S.pub.to = e.target.value; renderPublic(); } });
+document.addEventListener("keydown", e => { if (e.key !== "Escape") return; if ($("#modalRoot").innerHTML) closeModal(); else if (S.openSpace) closeDrawer(); });
+window.addEventListener("hashchange", () => setView(location.hash.slice(1), false));
+let rT; window.addEventListener("resize", () => { clearTimeout(rT); rT = setTimeout(() => { if (S.view === "calendar") renderCalendar(); }, 150); });
+
+/* ---------- example data (never saved) ---------- */
+function makeDemo(){
+  const T = TODAY;
+  return {
+    spaces: [
+      { id: "d1", name: "Carport A", condition: "ready", idealOcc: 1, maxOcc: 2, toMax: "Second cot and a curtain divider", kitchenFt: 250, bathFt: 60, showerFt: 120, amenities: ["power","bed"], notes: "Tarp on the mauka side needs re-tying after storms.", photos: [] },
+      { id: "d2", name: "Lehua Cabin", condition: "ready", idealOcc: 2, maxOcc: 3, toMax: "Single bed along the east wall", kitchenFt: 150, bathFt: 40, showerFt: 40, amenities: ["power","water","bed","screened","lock"], publicBlurb: "A quiet wooden cabin under the mango trees. Queen bed, screened windows, outdoor shower close by.", photos: [] },
+      { id: "d3", name: "Dome 1", condition: "usable", idealOcc: 2, maxOcc: 2, kitchenFt: 400, bathFt: 80, showerFt: 300, amenities: ["power","bed"], publicBlurb: "Round aircrete dome with a skylight. Cool in the afternoon, very quiet at night.", photos: [] },
+      { id: "d4", name: "Dome 2", condition: "construction", readyBy: addDays(T, 18), idealOcc: 2, maxOcc: 4, toMax: "Loft platform over the entry", kitchenFt: 420, bathFt: 90, showerFt: 320, amenities: [], photos: [] },
+      { id: "d5", name: "Cob House", condition: "planned", idealOcc: 2, maxOcc: 2, amenities: [], notes: "Foundation stones staged.", photos: [] },
+      { id: "d6", name: "Carport B", condition: "usable", idealOcc: 1, maxOcc: 1, kitchenFt: 260, bathFt: 70, showerFt: 130, amenities: ["power"], photos: [] },
+    ],
+    stays: [
+      { id: "s1", spaceId: "d1", name: "Resident (example)", category: "resident", start: addDays(T, -200), end: "", headcount: 1, status: "confirmed" },
+      { id: "s2", spaceId: "d1", name: "Visiting couple (example)", category: "guest", start: addDays(T, 4), end: addDays(T, 7), headcount: 2, status: "confirmed" },
+      { id: "s3", spaceId: "d2", name: "Kitchen helper (example)", category: "helper", start: addDays(T, -6), end: addDays(T, 9), headcount: 1, status: "confirmed" },
+      { id: "s4", spaceId: "d2", name: "Workshop pair (example)", category: "workshop", start: addDays(T, 12), end: addDays(T, 16), headcount: 2, status: "hold" },
+      { id: "s5", spaceId: "d3", name: "Volunteer (example)", category: "volunteer", start: addDays(T, -40), end: addDays(T, 50), headcount: 1, status: "confirmed" },
+      { id: "s6", spaceId: "d6", name: "Helper (example)", category: "helper", start: addDays(T, 2), end: addDays(T, 23), headcount: 1, status: "confirmed" },
+    ],
+    work: [
+      { id: "w1", spaceId: "d3", task: "Install window screens", hours: 6, priority: "needed", status: "todo" },
+      { id: "w2", spaceId: "d4", task: "Interior lime plaster", hours: 24, priority: "blocker", status: "doing", who: "Build crew" },
+      { id: "w3", spaceId: "d4", task: "Hang and seal door", hours: 4, priority: "blocker", status: "todo" },
+      { id: "w4", spaceId: "d4", task: "Pour entry slab", hours: 8, priority: "blocker", status: "done" },
+      { id: "w5", spaceId: "d2", task: "Re-hang north gutter", hours: 2, priority: "nice", status: "todo" },
+      { id: "w8", spaceId: "d2", task: "Replace roof panels", hours: 24, priority: "needed", status: "todo", blockStart: addDays(T, 17), blockEnd: addDays(T, 20) },
+      { id: "w6", spaceId: "d5", task: "Site prep and foundation", hours: 40, priority: "blocker", status: "todo" },
+      { id: "w7", spaceId: "d6", task: "Run power to the back corner", hours: 3, priority: "needed", status: "todo" },
+    ],
+    events: [{ id: "e1", name: "Workshop (example)", start: addDays(T, 12), last: addDays(T, 16) }],
+    settings: { publicTitle: "Places to stay at Rainbow Bridge", publicIntro: "Accommodation here is simple and close to the land. Kitchen and bathrooms are shared. Bring a headlamp and rain gear.", contact: "Message us with your dates and we'll find you a spot." },
+  };
+}
+
+/* ---------- boot ---------- */
+{ const z = lsGet("rb-acc-zoom"); if (["weeks","months","year"].includes(z)) S.cal.zoom = z;
+  setView(location.hash.slice(1) || "spaces", false); renderAll(); }
+function subscribeAll(db){
+  const timer = setTimeout(() => { if (S.loaded.size < 3){ S.slow = true; renderNotice(); } }, 10000);
+  const onErr = () => { clearTimeout(timer); S.slow = false; renderAll(); };
+  db.collection("events").onSnapshot(snap => { S.real.events = snap.docs.map(d => ({ id: d.id, ...d.data() })); if (!S.demo && S.view === "calendar") renderCalendar(); }, () => {});
+  for (const coll of ["spaces","stays","work"]){
+    db.collection(coll).onSnapshot(snap => {
+      S.real[coll] = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      if (!snap.metadata.fromCache) S.loaded.add(coll);
+      if (S.loaded.size >= 3){ clearTimeout(timer); S.slow = false; }
+      if (!S.demo) renderAll();
+    }, onErr);
+  }
+  db.doc("settings/main").onSnapshot(snap => { S.real.settings = snap.exists ? { ...snap.data() } : {}; if (!S.demo && S.view === "visitors") renderPublic(); }, () => {});
+  renderAll();
+}
+
+/* ---------- hosted mode: GitHub Pages + Supabase ---------- */
+function supaDb(sb){
+  let rows = [], ready = false; const subs = [];
+  const snapOf = l => {
+    if (l.id){ const r = rows.find(x => x.coll === l.coll && x.id === l.id); return { id: l.id, exists: !!r, data: () => r ? r.data : undefined, metadata: { fromCache: false, hasPendingWrites: false } }; }
+    const docs = rows.filter(x => x.coll === l.coll).map(r => ({ id: r.id, exists: true, data: () => r.data }));
+    return { docs, size: docs.length, empty: !docs.length, metadata: { fromCache: false, hasPendingWrites: false } };
+  };
+  const fireAll = () => subs.forEach(l => l.cb(snapOf(l)));
+  async function load(){
+    const all = [];
+    for (let from = 0; ; from += 1000){
+      const { data, error } = await sb.from("docs").select("coll,id,data").range(from, from + 999);
+      if (error) throw error;
+      all.push(...data); if (data.length < 1000) break;
+    }
+    rows = all; ready = true; fireAll();
+  }
+  let t; const reload = () => { clearTimeout(t); t = setTimeout(() => load().catch(e => console.warn(e)), 300); };
+  const asErr = e => ({ code: e && (e.code === "42501" || /row-level security|permission|JWT/i.test(e.message || "")) ? "invalid_argument" : "unavailable", message: e && e.message });
+  const ref = (coll, id) => ({ id,
+    async set(body){
+      const { error } = await sb.from("docs").upsert({ coll, id, data: body, updated_at: new Date().toISOString() });
+      if (error) throw asErr(error);
+      const i = rows.findIndex(x => x.coll === coll && x.id === id), r = { coll, id, data: body };
+      if (i >= 0) rows[i] = r; else rows.push(r); fireAll();
+    },
+    async delete(){
+      const { error } = await sb.from("docs").delete().eq("coll", coll).eq("id", id);
+      if (error) throw asErr(error);
+      rows = rows.filter(x => !(x.coll === coll && x.id === id)); fireAll();
+    },
+    onSnapshot(cb){ const l = { coll, id, cb }; subs.push(l); if (ready) cb(snapOf(l)); return () => {}; },
+  });
+  const genId = () => (crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2) + Date.now().toString(36)).replace(/-/g, "").slice(0, 20);
+  sb.channel("docs-changes").on("postgres_changes", { event: "*", schema: "public", table: "docs" }, reload).subscribe();
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) reload(); });
+  load().catch(e => { console.error(e); toast("Couldn't load the list. Check your connection and reload."); });
+  return {
+    collection: coll => ({ doc: id => ref(coll, id || genId()), onSnapshot(cb){ const l = { coll, cb }; subs.push(l); if (ready) cb(snapOf(l)); return () => {}; } }),
+    doc: path => { const [c, i] = path.split("/"); return ref(c, i); },
+  };
+}
+function supaAssets(sb){
+  return {
+    async upload(blob, opts){
+      const type = (opts && opts.type) || blob.type || "image/jpeg";
+      const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${type.includes("png") ? "png" : type.includes("webp") ? "webp" : "jpg"}`;
+      const { error } = await sb.storage.from("photos").upload(path, blob, { contentType: type, upsert: false });
+      if (error) throw { code: "upstream_error", message: error.message };
+      return { id: path, url: photoUrl(path) };
+    },
+    async delete(id){ await sb.storage.from("photos").remove([id]); return { deleted: true }; },
+  };
+}
+function showLogin(sb){
+  $("#loginRoot").innerHTML = `<div class="login"><div class="login-card">
+    <h2>Rainbow Bridge Hawaii</h2><p class="muted" style="margin:0">Accommodation</p>
+    <form id="loginForm" novalidate>
+      <label class="f"><span>Email</span><input id="lg-email" type="email" autocomplete="username" inputmode="email"></label>
+      <label class="f"><span>Password</span><input id="lg-pass" type="password" autocomplete="current-password"></label>
+      <div id="lg-err"></div>
+      <button class="btn primary" id="lg-btn" type="submit">Sign in</button>
+    </form>
+    <p class="hint" style="margin:0">Visiting? <a href="?visit">See places to stay</a></p></div></div>`;
+  $("#loginForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    const btn = $("#lg-btn"); btn.disabled = true; $("#lg-err").innerHTML = "";
+    const { error } = await sb.auth.signInWithPassword({ email: $("#lg-email").value.trim(), password: $("#lg-pass").value });
+    btn.disabled = false;
+    if (error){ $("#lg-err").innerHTML = `<div class="warnbox">That email and password didn't match. Ask Tosh if you need an account.</div>`; return; }
+    $("#loginRoot").innerHTML = ""; startTeam(sb);
+  });
+}
+function startTeam(sb){
+  S.sb = sb; S.db = supaDb(sb); S.assets = supaAssets(sb); S.canWrite = true; S.canWriteUnknown = false;
+  $("#signOutBtn").hidden = false;
+  subscribeAll(S.db);
+}
+async function hostedBoot(cfg){
+  S.connected = true; S.hosted = true;
+  if (!cfg.url || !cfg.key || /PASTE/.test(cfg.url + cfg.key)){
+    $("#notice").innerHTML = `<div class="banner"><span class="grow">Almost there: open <b>config.js</b> and paste your Supabase project URL and key.</span></div>`; return;
+  }
+  const url = cfg.url.replace(/\/+$/, "");
+  S.photoBase = url + "/storage/v1/object/public/photos/";
+  const sb = window.supabase.createClient(url, cfg.key);
+  if (new URLSearchParams(location.search).has("visit")){
+    S.visit = true; document.body.classList.add("visit-mode"); setView("visitors", false);
+    const { data, error } = await sb.rpc("public_availability");
+    if (error || !data){ $("#pubBody").innerHTML = `<div class="none">This page couldn't load. Try again in a moment.</div>`; return; }
+    S.real = { spaces: data.spaces || [], stays: data.stays || [], work: data.blocks || [], events: [], settings: data.settings || {} };
+    ["spaces","stays","work"].forEach(k => S.loaded.add(k));
+    renderAll(); return;
+  }
+  const { data } = await sb.auth.getSession();
+  if (!data || !data.session){ renderAll(); showLogin(sb); return; }
+  startTeam(sb);
+}
+
+(async () => {
+  if (window.RB_CONFIG && window.supabase){ hostedBoot(window.RB_CONFIG); return; }
+  if (!window.claude || typeof window.claude.use !== "function"){ S.connected = true; renderAll(); return; }
+  const [db, assets, user] = await Promise.all([window.claude.use("db"), window.claude.use("assets"), window.claude.use("user")]);
+  S.connected = true; S.db = db; S.assets = assets;
+  if (!db){ renderAll(); return; }
+  let cw = null; try { cw = user ? await user.can("data.write") : null; } catch {}
+  S.canWrite = cw !== false; S.canWriteUnknown = cw === null;
+  subscribeAll(db);
+})();
+})();
+</script>
+
+</body>
+</html>
