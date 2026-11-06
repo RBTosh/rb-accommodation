@@ -355,6 +355,17 @@ body.is-dragging,body.is-dragging *{cursor:grabbing!important;user-select:none;-
 .spin{width:14px;height:14px;border-radius:50%;border:2px solid var(--line-2);border-top-color:var(--brand);animation:spin .8s linear infinite;flex:none}
 @keyframes spin{to{transform:rotate(360deg)}}
 
+/* photos in the space form */
+.pstrip{display:flex;flex-wrap:wrap;gap:8px}
+.pthumb{position:relative;width:96px;height:72px;border-radius:8px;overflow:hidden;background:var(--tint);flex:none}
+.pthumb img{width:100%;height:100%;object-fit:cover;display:block}
+.pthumb.loading{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--ink-2)}
+.pbtn{position:absolute;top:4px;width:26px;height:26px;border-radius:50%;border:0;background:rgba(0,0,0,.55);color:#fff;font-size:14px;line-height:1;display:grid;place-items:center;padding:0}
+.pbtn.star{left:4px}.pbtn.star.on{background:var(--gold);color:#1E1B28}.pbtn.x{right:4px;font-size:17px}
+.padd{width:96px;height:72px;border:1.5px dashed var(--line-2);border-radius:8px;background:transparent;color:var(--ink-2);font-size:12.5px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;flex:none}
+.padd span{font-size:22px;line-height:1}
+.padd:hover{border-color:var(--ink-3);color:var(--ink)}
+
 /* visitor view */
 .pub-hero{display:flex;flex-direction:column;gap:12px;padding:40px 36px;border-radius:var(--r);background:var(--brand);color:var(--brand-ink)}
 .pub-hero .wordmark{width:min(300px,80%);height:auto;margin-bottom:8px}
@@ -424,11 +435,11 @@ body.is-dragging,body.is-dragging *{cursor:grabbing!important;user-select:none;-
 <body>
 <header class="top">
   <div class="top-in">
-    <a class="brand" href="#spaces" aria-label="Rainbow Bridge Hawaii, accommodation"><img class="logo" src="https://rainbowbridgehawaii.com/wp-content/uploads/2023/11/Rainbow-Bridge-Iris-1024x1024.png" alt="" width="40" height="40" onerror="this.replaceWith(Object.assign(document.createElement('b'),{className:'logo-fallback',textContent:'RB'}))"><span class="brand-sub">Accommodation</span></a>
+    <a class="brand" href="#calendar" aria-label="Rainbow Bridge Hawaii, calendar"><img class="logo" src="https://rainbowbridgehawaii.com/wp-content/uploads/2023/11/Rainbow-Bridge-Iris-1024x1024.png" alt="" width="40" height="40" onerror="this.replaceWith(Object.assign(document.createElement('b'),{className:'logo-fallback',textContent:'RB'}))"></a>
     <nav class="tabs" role="tablist" aria-label="Views">
-      <button class="tab" role="tab" data-view="spaces" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg><span class="long">Spaces</span><span class="short">Spaces</span></button>
-      <button class="tab" role="tab" data-view="calendar" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg><span class="long">Calendar</span><span class="short">Calendar</span></button>
-      <button class="tab" role="tab" data-view="repairs" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 6.5a4 4 0 0 0-5.3 5.3L4 17l3 3 5.2-5.2a4 4 0 0 0 5.3-5.3l-2.6 2.6-2.4-.6-.6-2.4z"/></svg><span class="long">Repairs &amp; Construction</span><span class="short">Repairs</span></button>
+      <button class="tab" role="tab" data-view="calendar" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg><span class="long">Calendar</span><span class="short">Calendar</span></button>
+      <button class="tab" role="tab" data-view="spaces" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg><span class="long">Spaces</span><span class="short">Spaces</span></button>
+      <button class="tab" role="tab" data-view="repairs" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 6.5a4 4 0 0 0-5.3 5.3L4 17l3 3 5.2-5.2a4 4 0 0 0 5.3-5.3l-2.6 2.6-2.4-.6-.6-2.4z"/></svg><span class="long">Repairs</span><span class="short">Repairs</span></button>
       <button class="tab" role="tab" data-view="visitors" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2.5 12s3.5-6.5 9.5-6.5 9.5 6.5 9.5 6.5-3.5 6.5-9.5 6.5S2.5 12 2.5 12z"/><circle cx="12" cy="12" r="2.8"/></svg><span class="long">Visitor view</span><span class="short">Visitors</span></button>
     </nav>
     <div class="top-actions" id="topActions" hidden>
@@ -442,7 +453,7 @@ body.is-dragging,body.is-dragging *{cursor:grabbing!important;user-select:none;-
 <main>
   <div id="notice"></div>
 
-  <section class="view" id="view-spaces">
+  <section class="view" id="view-spaces" hidden>
     <div class="view-h"><h2>Spaces</h2><div id="spacesSummary" class="summary"></div></div>
     <div class="toolbar" id="spacesToolbar">
       <div class="seg" role="group" aria-label="Filter spaces">
@@ -455,7 +466,7 @@ body.is-dragging,body.is-dragging *{cursor:grabbing!important;user-select:none;-
     <div id="spacesGrid"></div>
   </section>
 
-  <section class="view" id="view-calendar" hidden>
+  <section class="view" id="view-calendar">
     <div class="view-h"><h2>Calendar</h2>
       <div class="row">
         <button class="btn sm" data-act="cal-prev" aria-label="Earlier">‹</button>
@@ -464,6 +475,18 @@ body.is-dragging,body.is-dragging *{cursor:grabbing!important;user-select:none;-
         <input class="inline" type="date" id="calJump" aria-label="Jump to date">
       </div>
     </div>
+    <div class="toolbar">
+      <div class="seg" role="group" aria-label="Zoom">
+        <button data-zoom="week" aria-pressed="false">Week</button>
+        <button data-zoom="month" aria-pressed="true">Month</button>
+        <button data-zoom="quarter" aria-pressed="false">3 months</button>
+        <button data-zoom="year" aria-pressed="false">Year</button>
+      </div>
+      <span class="spacer"></span>
+      <button class="btn sm plus" data-act="new-event" id="newEventBtn">Event</button>
+    </div>
+    <div class="cal-frame" id="calFrame"></div>
+    <p class="hint" style="margin:0" id="calHint"></p>
     <div class="finder">
       <div class="row"><h3>Find room</h3>
         <label>Arriving <input class="inline" type="date" id="fFrom"></label>
@@ -473,21 +496,10 @@ body.is-dragging,body.is-dragging *{cursor:grabbing!important;user-select:none;-
       </div>
       <div id="fResults" class="fits"></div>
     </div>
-    <div class="toolbar">
-      <div class="seg" role="group" aria-label="Zoom">
-        <button data-zoom="weeks" aria-pressed="false">Weeks</button>
-        <button data-zoom="months" aria-pressed="true">Months</button>
-        <button data-zoom="year" aria-pressed="false">Whole year</button>
-      </div>
-      <span class="spacer"></span>
-      <button class="btn sm plus" data-act="new-event" id="newEventBtn">Event</button>
-    </div>
-    <div class="cal-frame" id="calFrame"></div>
-    <p class="hint" style="margin:0" id="calHint"></p>
   </section>
 
   <section class="view" id="view-repairs" hidden>
-    <div class="view-h"><h2>Repairs &amp; Construction</h2><div id="workSummary" class="summary"></div></div>
+    <div class="view-h"><h2>Repairs</h2><div id="workSummary" class="summary"></div></div>
     <div class="toolbar">
       <div class="seg" role="group" aria-label="Show">
         <button data-wfilter="open" aria-pressed="true">Open</button>
@@ -512,7 +524,7 @@ body.is-dragging,body.is-dragging *{cursor:grabbing!important;user-select:none;-
   </section>
 </main>
 
-<input type="file" id="photoInput" accept="image/jpeg,image/png,image/webp,image/gif,image/heic,image/heif" multiple hidden>
+<input type="file" id="photoInput" accept="image/*" multiple hidden>
 <div id="drawerRoot"></div>
 <div id="modalRoot"></div>
 <div id="toastRoot"></div>
@@ -562,7 +574,8 @@ const S = {
   real: { spaces: [], stays: [], work: [], events: [], settings: {} }, demoData: null,
   view: "spaces", filter: "all", wfilter: "open",
   openSpace: null, pendingOpen: null, gIdx: 0, photoTarget: null,
-  cal: { start: addDays(TODAY, -7), zoom: "months" },
+  cal: { start: addDays(TODAY, -7), zoom: "month" },
+  scrollToDate: addDays(TODAY, -2),
   pub: { from: TODAY, to: addDays(TODAY, 7) },
   find: { from: "", to: "", people: 1 },
 };
@@ -636,7 +649,7 @@ function distLine(sp){
 /* ---------- shell ---------- */
 function setView(v, push = true){
   if (v === "work") v = "repairs"; if (v === "outsiders") v = "visitors";
-  if (!VIEWS.includes(v)) v = "spaces";
+  if (!VIEWS.includes(v)) v = "calendar";
   S.view = v;
   document.querySelectorAll(".tab").forEach(t => t.setAttribute("aria-selected", String(t.dataset.view === v)));
   VIEWS.forEach(k => { $("#view-" + k).hidden = k !== v; });
@@ -766,7 +779,7 @@ function renderDrawer(){
           ${covers(x, TODAY) ? `<span class="chip">Here now</span>` : ""}</button>`).join("") : `<div class="none">No current or upcoming stays.</div>`}</div>
       </section>
 
-      <section class="sect"><div class="sect-h"><h3>Repairs &amp; construction</h3>${w ? `<button class="btn sm plus" data-act="new-work" data-space="${esc(sp.id)}">Task</button>` : ""}</div>
+      <section class="sect"><div class="sect-h"><h3>Repairs</h3>${w ? `<button class="btn sm plus" data-act="new-work" data-space="${esc(sp.id)}">Task</button>` : ""}</div>
         ${ow.length ? `<span class="hint">${ow.length} open · ${hrs(sumHours(ow))} estimated</span>` : ""}
         <div class="list">${work.length ? work.map(x => workRow(x)).join("") : `<div class="none">Nothing listed.</div>`}</div>
       </section>
@@ -793,12 +806,11 @@ function workRow(wi){
 /* ---------- calendar ---------- */
 const CAL_DAYS = 380; // a little over a year from the start date
 const NAME_W = () => window.innerWidth < 720 ? 118 : 168;
+const ZOOM_SPAN = { week: 7, month: 31, quarter: 92, year: CAL_DAYS }, ZOOM_MIN = { week: 40, month: 22, quarter: 7, year: 2.5 };
 function cellW(){
-  const z = S.cal.zoom, n = window.innerWidth < 720;
-  if (z === "weeks") return n ? 34 : 44;
-  if (z === "months") return n ? 12 : 16;
+  const z = ZOOM_SPAN[S.cal.zoom] ? S.cal.zoom : "month";
   const frame = $("#calFrame"), avail = (frame && frame.clientWidth ? frame.clientWidth : window.innerWidth - 40) - NAME_W();
-  return Math.max(2.5, avail / CAL_DAYS);
+  return Math.max(ZOOM_MIN[z], avail / ZOOM_SPAN[z]);
 }
 const finderActive = () => validDate(S.find.from) && validDate(S.find.to) && S.find.to > S.find.from;
 function renderFinder(){
@@ -853,12 +865,13 @@ function renderCalendar(){
       if (dom === 1) monthLines += `<i style="left:${i * cw}px"></i>`;
     }
     const show = cw >= 30 || (cw >= 12 && (dom === 1 || dom % 7 === 1)) || d === TODAY;
-    if (cw >= 12 && show) dayCells += `<span class="d ${d === TODAY ? "today" : ""}" style="left:${i * cw}px;width:${Math.max(cw, 20)}px">${cw >= 30 ? `<span>${DOW[dow]}</span>` : ""}<span>${dom}</span></span>`;
+    if (cw >= 12 && show) dayCells += `<span class="d ${d === TODAY ? "today" : ""}" style="left:${i * cw}px;width:${Math.max(cw, 20)}px">${cw >= 30 ? `<span>${cw >= 90 ? ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][dow] : DOW[dow]}</span>` : ""}<span>${dom}</span></span>`;
   }
   const ti = diff(start, TODAY);
   const todayLine = ti >= 0 && ti < days ? `<span class="todayline" style="left:${ti * cw + cw / 2 - 1}px"></span>` : "";
-  const firstMon = (8 - parse(start).getUTCDay()) % 7, period = S.cal.zoom === "weeks" ? cw : 7 * cw;
-  const dayGrid = S.cal.zoom === "year" ? "" : `background-image:repeating-linear-gradient(90deg,var(--line) 0 1px,transparent 1px ${period}px);background-position-x:${S.cal.zoom === "weeks" ? 0 : firstMon * cw}px;`;
+  const daily = S.cal.zoom === "week" || S.cal.zoom === "month";
+  const firstMon = (8 - parse(start).getUTCDay()) % 7, period = daily ? cw : 7 * cw;
+  const dayGrid = S.cal.zoom === "year" ? "" : `background-image:repeating-linear-gradient(90deg,var(--line) 0 1px,transparent 1px ${period}px);background-position-x:${daily ? 0 : firstMon * cw}px;`;
   let band = "";
   if (F){ const l = Math.max(0, diff(start, F.from)), r = Math.min(days, diff(start, F.to)); if (r > l) band = `<span class="band" style="left:${l * cw}px;width:${(r - l) * cw}px"></span>`; }
   const evs = (D().events || []).filter(ev => validDate(ev.start) && validDate(ev.last) && ev.last >= ev.start && ev.start < end && addDays(ev.last, 1) > start);
@@ -1051,7 +1064,34 @@ async function doSubmit(){
   const btn = $("#msave"); if (btn) btn.disabled = true;
   try { if (await modalSubmit() !== false) closeModal(); } finally { if (btn) btn.disabled = false; }
 }
-function closeModal(){ $("#modalRoot").innerHTML = ""; modalSubmit = null; }
+function closeModal(){
+  if (S.fp && !S.fp.saved && !S.demo && S.assets) S.fp.added.forEach(p => { try { S.assets.delete(p); } catch {} });
+  S.fp = null; $("#modalRoot").innerHTML = ""; modalSubmit = null;
+}
+function renderFormPhotos(){
+  const el = $("#sp-photos"); if (!el || !S.fp) return;
+  const canUp = !!(S.assets || S.demo);
+  el.innerHTML = S.fp.list.map((p, i) => `<div class="pthumb"><img src="${esc(photoUrl(p))}" alt="Photo ${i + 1}"><button type="button" class="pbtn star${i === 0 ? " on" : ""}" data-act="fp-cover" data-i="${i}" aria-label="${i === 0 ? "Cover photo" : "Make this the cover"}">★</button><button type="button" class="pbtn x" data-act="fp-remove" data-i="${i}" aria-label="Remove photo">×</button></div>`).join("")
+    + (S.fp.uploading ? `<div class="pthumb loading"><span class="spin" aria-hidden="true"></span><small>Uploading ${S.fp.uploading}</small></div>` : "")
+    + (canUp ? `<button type="button" class="padd" data-act="fp-add"><span>+</span>Add photos</button>` : `<small class="hint">Photos can be added once the page is connected.</small>`);
+}
+async function addFormPhotos(files){
+  if (!S.fp) return;
+  const fp = S.fp; let failed = 0;
+  fp.uploading += files.length; renderFormPhotos();
+  for (const f of files){
+    try {
+      const blob = await shrink(f);
+      if (!blob) throw 0;
+      let pid;
+      if (S.demo) pid = await new Promise(r => { const fr = new FileReader(); fr.onload = () => r(fr.result); fr.readAsDataURL(blob); });
+      else pid = (await S.assets.upload(blob, { type: blob.type || "image/jpeg" })).id;
+      fp.list.push(pid); fp.added.push(pid);
+    } catch { failed++; }
+    fp.uploading--; if (S.fp === fp) renderFormPhotos();
+  }
+  if (failed) toast(`${failed} ${failed === 1 ? "photo" : "photos"} couldn't be added. Try JPEG or PNG.`);
+}
 const opt = (list, cur) => list.map(([k, v]) => `<option value="${k}"${k === cur ? " selected" : ""}>${esc(v)}</option>`).join("");
 const fv = id => { const el = document.getElementById(id); return el ? el.value.trim() : ""; };
 const footer = (save, del) => `${del ? `<button class="btn danger" type="button" data-act="${del}">Delete</button>` : ""}<span class="grow"></span>
@@ -1061,8 +1101,11 @@ function spaceForm(id){
   const sp = id ? space(id) : { condition: "ready", idealOcc: 1, maxOcc: 1, amenities: [] };
   if (!sp) return;
   const am = new Set(sp.amenities || []);
+  const orig = Array.isArray(sp.photos) ? sp.photos.slice() : [];
+  S.fp = { list: orig.slice(), original: orig, added: [], uploading: 0, saved: false };
   openModal(id ? "Edit space" : "New space", `
     <label class="f"><span>Name</span><input id="sp-name" value="${esc(sp.name)}" placeholder="e.g. Carport 2, Ohia cabin, Dome 1" maxlength="80"></label>
+    <div class="f"><span>Photos</span><div class="pstrip" id="sp-photos"></div><small>The first photo is the cover. Tap ★ on another to make it the cover.</small></div>
     <div class="f2">
       <label class="f"><span>Condition</span><select id="sp-cond">${opt(CONDITIONS, sp.condition)}</select></label>
       <label class="f" id="sp-readywrap"><span>Expected ready</span><input id="sp-ready" type="date" value="${esc(sp.readyBy || "")}"></label>
@@ -1084,18 +1127,21 @@ function spaceForm(id){
   `, footer(id ? "Save" : "Add space", id ? "delete-space" : ""), async () => {
     const name = fv("sp-name");
     if (!name){ toast("Give the space a name."); $("#sp-name").focus(); return false; }
+    if (S.fp && S.fp.uploading){ toast("Wait a moment for the photos to finish uploading."); return false; }
     const ideal = Math.max(0, Math.round(num(fv("sp-ideal")))), max = Math.max(ideal, Math.round(num(fv("sp-max"))));
     const cond = fv("sp-cond");
     const body = { ...(id ? sp : {}), id: id || newId("spaces"), name, condition: cond, readyBy: USABLE.has(cond) ? "" : (validDate(fv("sp-ready")) ? fv("sp-ready") : ""),
       idealOcc: ideal, maxOcc: max, toMax: fv("sp-tomax"),
       amenities: AMENITIES.map(a => a[0]).filter(k => document.getElementById("am-" + k).checked),
       publicBlurb: fv("sp-blurb"), notes: fv("sp-notes"), residence: document.getElementById("sp-res").checked,
-      photos: Array.isArray(sp.photos) ? sp.photos : [] };
+      photos: S.fp ? S.fp.list.slice() : (Array.isArray(sp.photos) ? sp.photos : []) };
     DIST.forEach(([k]) => { const v = fv("sp-" + k); body[k] = v === "" ? null : Math.max(0, Math.round(num(v))); });
     if (!(await save("spaces", body))) return false;
+    if (S.fp){ const gone = S.fp.original.filter(p => !S.fp.list.includes(p)); S.fp.saved = true; if (!S.demo && S.assets) gone.forEach(p => { try { S.assets.delete(p); } catch {} }); }
     toast(id ? "Saved" : "Space added");
     if (!id){ S.pendingOpen = body.id; openSpace(body.id); }
   }, () => {
+    if (!$("#sp-photos").dataset.ready){ $("#sp-photos").dataset.ready = "1"; renderFormPhotos(); }
     const ready = USABLE.has(fv("sp-cond"));
     $("#sp-readywrap").style.visibility = ready ? "hidden" : ""; $("#sp-readyhint").hidden = ready;
   });
@@ -1332,7 +1378,10 @@ document.addEventListener("click", async e => {
   const fb = e.target.closest("[data-filter]"); if (fb){ S.filter = fb.dataset.filter; renderSpaces(); return; }
   const zb = e.target.closest("[data-zoom]"); if (zb){
     const fr = $("#calFrame"), mid = S.cw ? addDays(S.cal.start, Math.floor((fr.scrollLeft + 1) / S.cw)) : TODAY;
-    S.cal.zoom = zb.dataset.zoom; lsSet("rb-acc-zoom", S.cal.zoom); S.scrollToDate = mid < S.cal.start ? S.cal.start : addDays(mid, 3); renderCalendar(); return; }
+    const right = S.cw ? addDays(S.cal.start, Math.floor((fr.scrollLeft + fr.clientWidth - NAME_W()) / S.cw)) : TODAY;
+    S.cal.zoom = zb.dataset.zoom; lsSet("rb-acc-zoom", S.cal.zoom);
+    S.scrollToDate = (TODAY >= mid && TODAY <= right) ? addDays(TODAY, S.cal.zoom === "week" ? -1 : -2) : (mid < S.cal.start ? S.cal.start : addDays(mid, 3));
+    renderCalendar(); return; }
   const wf = e.target.closest("[data-wfilter]"); if (wf){ S.wfilter = wf.dataset.wfilter; renderWork(); return; }
   const a = e.target.closest("[data-act]");
   if (!a){
@@ -1381,6 +1430,9 @@ document.addEventListener("click", async e => {
     case "delete-stay": if (armed(a) && await remove("stays", S.modalCtx.id)){ closeModal(); toast("Stay deleted"); } break;
     case "delete-work": if (armed(a) && await remove("work", S.modalCtx.id)){ closeModal(); toast("Task deleted"); } break;
     case "add-photos": S.photoTarget = id; $("#photoInput").value = ""; $("#photoInput").click(); break;
+    case "fp-add": S.photoTarget = "__form__"; $("#photoInput").value = ""; $("#photoInput").click(); break;
+    case "fp-cover": if (S.fp){ const k = Number(a.dataset.i), [p] = S.fp.list.splice(k, 1); S.fp.list.unshift(p); renderFormPhotos(); } break;
+    case "fp-remove": if (S.fp){ S.fp.list.splice(Number(a.dataset.i), 1); renderFormPhotos(); } break;
     case "cover-photo": { const sp = space(id), ph = [...(sp.photos || [])], [p] = ph.splice(S.gIdx, 1); ph.unshift(p); if (await save("spaces", { ...sp, photos: ph })){ S.gIdx = 0; renderDrawer(); toast("Cover photo set"); } break; }
     case "remove-photo": if (armed(a)) await removePhoto(space(id)); break;
     case "cal-prev": case "cal-next": {
@@ -1388,7 +1440,7 @@ document.addEventListener("click", async e => {
       if (act === "cal-prev" && fr.scrollLeft < 4){ S.cal.start = addDays(S.cal.start, -30); S.scrollToDate = S.cal.start; renderCalendar(); }
       else fr.scrollBy({ left: act === "cal-next" ? step : -step, behavior: "smooth" });
       break; }
-    case "cal-today": S.cal.start = addDays(TODAY, -7); S.scrollToDate = S.cal.start; renderCalendar(); break;
+    case "cal-today": S.cal.start = addDays(TODAY, -7); S.scrollToDate = addDays(TODAY, S.cal.zoom === "week" ? -1 : -2); renderCalendar(); break;
     case "demo-on": S.demo = true; S.demoData = makeDemo(); renderAll(); break;
     case "pick-space": { const sel = $("#st-space"); if (sel){ sel.value = id; sel.dispatchEvent(new Event("change", { bubbles: true })); } break; }
     case "find-book": stayForm(null, { spaceId: id, start: S.find.from, end: S.find.to, headcount: S.find.people }); break;
@@ -1402,7 +1454,7 @@ document.addEventListener("click", async e => {
     case "demo-off": S.demo = false; S.openSpace = null; renderAll(); break;
   }
 });
-$("#photoInput").addEventListener("change", e => { const fs = [...e.target.files]; if (fs.length) addPhotos(fs); });
+$("#photoInput").addEventListener("change", e => { const fs = [...e.target.files]; if (!fs.length) return; if (S.photoTarget === "__form__") addFormPhotos(fs); else addPhotos(fs); });
 function setFind(){
   const f = $("#fFrom").value, t = $("#fTo").value;
   S.find.from = validDate(f) ? f : ""; S.find.to = validDate(t) ? t : "";
@@ -1457,8 +1509,8 @@ function makeDemo(){
 }
 
 /* ---------- boot ---------- */
-{ const z = lsGet("rb-acc-zoom"); if (["weeks","months","year"].includes(z)) S.cal.zoom = z;
-  setView(location.hash.slice(1) || "spaces", false); renderAll(); }
+{ const z = ({ weeks: "week", months: "month" })[lsGet("rb-acc-zoom")] || lsGet("rb-acc-zoom"); if (["week","month","quarter","year"].includes(z)) S.cal.zoom = z;
+  setView(location.hash.slice(1) || "calendar", false); renderAll(); }
 function subscribeAll(db){
   const timer = setTimeout(() => { if (S.loaded.size < 3){ S.slow = true; renderNotice(); } }, 10000);
   const onErr = () => { clearTimeout(timer); S.slow = false; renderAll(); };
