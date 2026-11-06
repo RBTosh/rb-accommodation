@@ -405,7 +405,6 @@ body.is-dragging,body.is-dragging *{cursor:grabbing!important;user-select:none;-
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
 <script src="config.js"></script>
 </head>
 <body>
@@ -1384,7 +1383,7 @@ document.addEventListener("click", async e => {
     case "edit-event": if (writable()) eventForm(id); break;
     case "delete-event": if (armed(a) && await remove("events", S.modalCtx.id)){ closeModal(); toast("Event deleted"); } break;
     case "copy-link": try { await navigator.clipboard.writeText(a.dataset.url); toast("Link copied"); } catch { toast("Select the link and copy it."); } break;
-    case "sign-out": if (S.sb) await S.sb.auth.signOut(); location.reload(); break;
+    case "sign-out": lsSet("rb-token", ""); location.reload(); break;
     case "demo-off": S.demo = false; S.openSpace = null; renderAll(); break;
   }
 });
@@ -1461,66 +1460,81 @@ function subscribeAll(db){
   renderAll();
 }
 
-/* ---------- hosted mode: GitHub Pages + Supabase ---------- */
-function supaDb(sb){
-  let rows = [], ready = false; const subs = [];
+/* ---------- hosted mode: GitHub Pages + Google Sheet (Apps Script) ---------- */
+async function gasCall(body){
+  const r = await fetch(S.api, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(body) });
+  if (!r.ok) throw { code: "unavailable", message: "HTTP " + r.status };
+  return r.json();
+}
+function authLost(){
+  lsSet("rb-token", ""); S.token = ""; S.canWrite = false;
+  toast("Please sign in again."); showLogin();
+}
+function gasDb(){
+  let data = { spaces: [], stays: [], work: [], events: [], settings: [] }, ready = false, queue = Promise.resolve(), pending = 0;
+  const subs = [];
   const snapOf = l => {
-    if (l.id){ const r = rows.find(x => x.coll === l.coll && x.id === l.id); return { id: l.id, exists: !!r, data: () => r ? r.data : undefined, metadata: { fromCache: false, hasPendingWrites: false } }; }
-    const docs = rows.filter(x => x.coll === l.coll).map(r => ({ id: r.id, exists: true, data: () => r.data }));
+    const list = data[l.coll] || [];
+    if (l.id){ const r = list.find(x => x.id === l.id); return { id: l.id, exists: !!r, data: () => r ? { ...r } : undefined, metadata: { fromCache: false, hasPendingWrites: false } }; }
+    const docs = list.map(r => ({ id: r.id, exists: true, data: () => { const { id, ...rest } = r; return rest; } }));
     return { docs, size: docs.length, empty: !docs.length, metadata: { fromCache: false, hasPendingWrites: false } };
   };
   const fireAll = () => subs.forEach(l => l.cb(snapOf(l)));
   async function load(){
-    const all = [];
-    for (let from = 0; ; from += 1000){
-      const { data, error } = await sb.from("docs").select("coll,id,data").range(from, from + 999);
-      if (error) throw error;
-      all.push(...data); if (data.length < 1000) break;
-    }
-    rows = all; ready = true; fireAll();
+    const r = await gasCall({ action: "all", token: S.token });
+    if (r.error === "auth") return authLost();
+    if (r.error) throw r;
+    if (pending) return; // a save is on its way; the next load will catch up
+    data = { spaces: r.spaces || [], stays: r.stays || [], work: r.work || [], events: r.events || [], settings: r.settings || [] };
+    ready = true; fireAll();
   }
-  let t; const reload = () => { clearTimeout(t); t = setTimeout(() => load().catch(e => console.warn(e)), 300); };
-  const asErr = e => ({ code: e && (e.code === "42501" || /row-level security|permission|JWT/i.test(e.message || "")) ? "invalid_argument" : "unavailable", message: e && e.message });
+  const send = body => {
+    pending++;
+    queue = queue.then(() => gasCall({ ...body, token: S.token }))
+      .then(r => { if (r && r.error === "auth") authLost(); else if (r && r.error) throw r; })
+      .catch(() => { toast("A change didn't save. Reloading the list.", 5000); pending = 0; load().catch(() => {}); })
+      .finally(() => { pending = Math.max(0, pending - 1); });
+    return queue;
+  };
+  const clean = body => { const o = {}; Object.keys(body).forEach(k => { if (k[0] !== "_") o[k] = body[k]; }); return o; };
   const ref = (coll, id) => ({ id,
     async set(body){
-      const { error } = await sb.from("docs").upsert({ coll, id, data: body, updated_at: new Date().toISOString() });
-      if (error) throw asErr(error);
-      const i = rows.findIndex(x => x.coll === coll && x.id === id), r = { coll, id, data: body };
-      if (i >= 0) rows[i] = r; else rows.push(r); fireAll();
+      const doc = { id, ...clean(body) }, list = data[coll] || (data[coll] = []);
+      const i = list.findIndex(x => x.id === id); if (i >= 0) list[i] = doc; else list.push(doc);
+      fireAll(); send({ action: "save", coll, doc });
     },
-    async delete(){
-      const { error } = await sb.from("docs").delete().eq("coll", coll).eq("id", id);
-      if (error) throw asErr(error);
-      rows = rows.filter(x => !(x.coll === coll && x.id === id)); fireAll();
-    },
+    async delete(){ data[coll] = (data[coll] || []).filter(x => x.id !== id); fireAll(); send({ action: "delete", coll, id }); },
     onSnapshot(cb){ const l = { coll, id, cb }; subs.push(l); if (ready) cb(snapOf(l)); return () => {}; },
   });
   const genId = () => (crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2) + Date.now().toString(36)).replace(/-/g, "").slice(0, 20);
-  sb.channel("docs-changes").on("postgres_changes", { event: "*", schema: "public", table: "docs" }, reload).subscribe();
-  document.addEventListener("visibilitychange", () => { if (!document.hidden) reload(); });
-  load().catch(e => { console.error(e); toast("Couldn't load the list. Check your connection and reload."); });
+  const poll = () => { if (!document.hidden && !pending && !(drag && drag.started) && S.token) load().catch(() => {}); };
+  setInterval(poll, 60000);
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) poll(); });
+  S.dbReload = () => load().catch(() => {});
+  load().catch(() => toast("Couldn't load the list. Check your connection and reload.", 6000));
   return {
     collection: coll => ({ doc: id => ref(coll, id || genId()), onSnapshot(cb){ const l = { coll, cb }; subs.push(l); if (ready) cb(snapOf(l)); return () => {}; } }),
     doc: path => { const [c, i] = path.split("/"); return ref(c, i); },
   };
 }
-function supaAssets(sb){
+function gasAssets(){
   return {
     async upload(blob, opts){
-      const type = (opts && opts.type) || blob.type || "image/jpeg";
-      const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${type.includes("png") ? "png" : type.includes("webp") ? "webp" : "jpg"}`;
-      const { error } = await sb.storage.from("photos").upload(path, blob, { contentType: type, upsert: false });
-      if (error) throw { code: "upstream_error", message: error.message };
-      return { id: path, url: photoUrl(path) };
+      const b64 = await new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(String(fr.result).split(",")[1]); fr.onerror = rej; fr.readAsDataURL(blob); });
+      const r = await gasCall({ action: "upload", token: S.token, b64, mime: (opts && opts.type) || blob.type || "image/jpeg", name: `rb-${Date.now()}.jpg` });
+      if (r.error === "auth"){ authLost(); throw { code: "not_granted" }; }
+      if (r.error) throw { code: "upstream_error", message: r.message };
+      if (r.shared === false) toast("Photo saved, but Google blocked public sharing, so visitors may not see it.", 6000);
+      return { id: r.id, url: photoUrl(r.id) };
     },
-    async delete(id){ await sb.storage.from("photos").remove([id]); return { deleted: true }; },
+    async delete(id){ await gasCall({ action: "deletePhoto", token: S.token, id }); return { deleted: true }; },
   };
 }
-function showLogin(sb){
+function showLogin(){
   $("#loginRoot").innerHTML = `<div class="login"><div class="login-card">
     <h2>Rainbow Bridge Hawaii</h2><p class="muted" style="margin:0">Accommodation</p>
     <form id="loginForm" novalidate>
-      <label class="f"><span>Email</span><input id="lg-email" type="email" autocomplete="username" inputmode="email"></label>
+      <label class="f"><span>Username</span><input id="lg-user" autocomplete="username" autocapitalize="none" spellcheck="false"></label>
       <label class="f"><span>Password</span><input id="lg-pass" type="password" autocomplete="current-password"></label>
       <div id="lg-err"></div>
       <button class="btn primary" id="lg-btn" type="submit">Sign in</button>
@@ -1528,41 +1542,42 @@ function showLogin(sb){
     <p class="hint" style="margin:0">Visiting? <a href="?visit">See places to stay</a></p></div></div>`;
   $("#loginForm").addEventListener("submit", async e => {
     e.preventDefault();
-    const btn = $("#lg-btn"); btn.disabled = true; $("#lg-err").innerHTML = "";
-    const { error } = await sb.auth.signInWithPassword({ email: $("#lg-email").value.trim(), password: $("#lg-pass").value });
-    btn.disabled = false;
-    if (error){ $("#lg-err").innerHTML = `<div class="warnbox">That email and password didn't match. Ask Tosh if you need an account.</div>`; return; }
-    $("#loginRoot").innerHTML = ""; startTeam(sb);
+    const btn = $("#lg-btn"); btn.disabled = true; btn.textContent = "Signing in…"; $("#lg-err").innerHTML = "";
+    let r; try { r = await gasCall({ action: "login", user: $("#lg-user").value, pass: $("#lg-pass").value }); } catch { r = { error: "net" }; }
+    btn.disabled = false; btn.textContent = "Sign in";
+    if (!r || !r.token){ $("#lg-err").innerHTML = `<div class="warnbox">${r && r.error === "net" ? "Couldn't reach the server. Check your connection." : "That username and password didn't match."}</div>`; return; }
+    S.token = r.token; lsSet("rb-token", r.token);
+    $("#loginRoot").innerHTML = ""; startTeam();
   });
 }
-function startTeam(sb){
-  S.sb = sb; S.db = supaDb(sb); S.assets = supaAssets(sb); S.canWrite = true; S.canWriteUnknown = false;
-  $("#signOutBtn").hidden = false;
-  subscribeAll(S.db);
+function startTeam(){
+  if (!S.db){ S.db = gasDb(); S.assets = gasAssets(); subscribeAll(S.db); } else if (S.dbReload) S.dbReload();
+  S.canWrite = true; S.canWriteUnknown = false;
+  $("#signOutBtn").hidden = false; renderAll();
 }
 async function hostedBoot(cfg){
   S.connected = true; S.hosted = true;
-  if (!cfg.url || !cfg.key || /PASTE/.test(cfg.url + cfg.key)){
-    $("#notice").innerHTML = `<div class="banner"><span class="grow">Almost there: open <b>config.js</b> and paste your Supabase project URL and key.</span></div>`; return;
+  if (!cfg.api || /PASTE/.test(cfg.api)){
+    $("#notice").innerHTML = `<div class="banner"><span class="grow">Almost there: open <b>config.js</b> and paste the web app address from your Google Sheet's script.</span></div>`; return;
   }
-  const url = cfg.url.replace(/\/+$/, "");
-  S.photoBase = url + "/storage/v1/object/public/photos/";
-  const sb = window.supabase.createClient(url, cfg.key);
+  S.api = cfg.api.trim();
+  S.photoBase = "https://drive.google.com/thumbnail?sz=w1600&id=";
   if (new URLSearchParams(location.search).has("visit")){
     S.visit = true; document.body.classList.add("visit-mode"); setView("visitors", false);
-    const { data, error } = await sb.rpc("public_availability");
-    if (error || !data){ $("#pubBody").innerHTML = `<div class="none">This page couldn't load. Try again in a moment.</div>`; return; }
+    $("#pubBody").innerHTML = `<p class="faint">Loading…</p>`;
+    let data; try { data = await gasCall({ action: "public" }); } catch {}
+    if (!data || data.error){ $("#pubBody").innerHTML = `<div class="none">This page couldn't load. Try again in a moment.</div>`; return; }
     S.real = { spaces: data.spaces || [], stays: data.stays || [], work: data.blocks || [], events: [], settings: data.settings || {} };
     ["spaces","stays","work"].forEach(k => S.loaded.add(k));
     renderAll(); return;
   }
-  const { data } = await sb.auth.getSession();
-  if (!data || !data.session){ renderAll(); showLogin(sb); return; }
-  startTeam(sb);
+  S.token = lsGet("rb-token") || "";
+  if (!S.token){ renderAll(); showLogin(); return; }
+  startTeam();
 }
 
 (async () => {
-  if (window.RB_CONFIG && window.supabase){ hostedBoot(window.RB_CONFIG); return; }
+  if (window.RB_CONFIG){ hostedBoot(window.RB_CONFIG); return; }
   if (!window.claude || typeof window.claude.use !== "function"){ S.connected = true; renderAll(); return; }
   const [db, assets, user] = await Promise.all([window.claude.use("db"), window.claude.use("assets"), window.claude.use("user")]);
   S.connected = true; S.db = db; S.assets = assets;
