@@ -1510,7 +1510,7 @@ function makeDemo(){
 
 /* ---------- boot ---------- */
 { const z = ({ weeks: "week", months: "month" })[lsGet("rb-acc-zoom")] || lsGet("rb-acc-zoom"); if (["week","month","quarter","year"].includes(z)) S.cal.zoom = z;
-  setView(location.hash.slice(1) || "calendar", false); renderAll(); }
+  setView("calendar", true); renderAll(); }
 function subscribeAll(db){
   const timer = setTimeout(() => { if (S.loaded.size < 3){ S.slow = true; renderNotice(); } }, 10000);
   const onErr = () => { clearTimeout(timer); S.slow = false; renderAll(); };
