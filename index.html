@@ -650,10 +650,13 @@ const notReadyOn = (sp, d) => !USABLE.has(sp.condition) && !(validDate(sp.readyB
 const blockedOn = (sp, d) => blocksFor(sp.id).some(b => b.start <= d && d < b.end);
 const partiesOn = (sp, d, excludeId) => staysFor(sp.id).filter(x => x.id !== excludeId && covers(x, d));
 // One party per space. A party is one booking (a person, a couple). Shared spaces take several parties up to their number of sites.
+// Last-resort spaces (the Dream Temple) can hold several people from different bookings, up to their most-at-once.
+const peopleIn = list => list.reduce((a, x) => a + heads(x), 0);
 function roomOn(sp, d, people = 1, excludeId){
   if (isRes(sp) || isHold(sp) || notReadyOn(sp, d) || blockedOn(sp, d)) return false;
   const others = partiesOn(sp, d, excludeId);
   if (isShared(sp)) return others.length < Math.max(1, maxOf(sp));
+  if (isLast(sp)) return peopleIn(others) + people <= Math.max(1, maxOf(sp));
   return !others.length && people <= Math.max(1, maxOf(sp));
 }
 const freeOn = (sp, d, excludeId) => roomOn(sp, d, 1, excludeId) ? 1 : 0;
@@ -671,7 +674,7 @@ function clashDays(sp, from = TODAY, days = 120){
     const d = addDays(from, i), here = sts.filter(st => covers(st, d));
     if (!here.length) continue;
     const blocked = bl.some(b => b.start <= d && d < b.end);
-    const tooMany = isShared(sp) ? here.length > Math.max(1, maxOf(sp)) : here.length > 1;
+    const tooMany = isShared(sp) ? here.length > Math.max(1, maxOf(sp)) : isLast(sp) ? peopleIn(here) > Math.max(1, maxOf(sp)) : here.length > 1;
     if (blocked || tooMany) out.push(d);
   }
   return out;
@@ -1054,7 +1057,8 @@ function renderCalendar(){
       const st = items.filter(it => it.kind === "stay"), bk = items.filter(it => it.kind === "blk");
       st.forEach(a => {
         const others = st.filter(b => b !== a && ov(a, b));
-        if (bk.some(b => ov(a, b)) || (isShared(sp) ? others.length >= Math.max(1, maxOf(sp)) : others.length)) a.clash = true;
+        const tooMany = isShared(sp) ? others.length >= Math.max(1, maxOf(sp)) : isLast(sp) ? a.hc + others.reduce((n, b) => n + b.hc, 0) > Math.max(1, maxOf(sp)) : others.length > 0;
+        if (bk.some(b => ov(a, b)) || tooMany) a.clash = true;
       });
     }
     const lanes = [];
@@ -1383,12 +1387,12 @@ function stayForm(id, preset = {}){
       if (notReadyOn(sp, d)){ nr++; continue; }
       if (bl.some(b => b.start <= d && d < b.end)){ bk++; continue; }
       const others = partiesOn(sp, d, id);
-      if (isShared(sp) ? others.length >= Math.max(1, maxOf(sp)) : others.length){ clash++; if (!firstClash) firstClash = d; others.forEach(x => who.add(x.name)); }
+      if (isShared(sp) ? others.length >= Math.max(1, maxOf(sp)) : isLast(sp) ? peopleIn(others) + hc > Math.max(1, maxOf(sp)) : others.length){ clash++; if (!firstClash) firstClash = d; others.forEach(x => who.add(x.name)); }
     }
     const msgs = [];
     if (nr) msgs.push(`${esc(sp.name)} isn't ready for ${nr} of these nights${validDate(sp.readyBy) ? ` (expected ${fmt(sp.readyBy)})` : ""}.`);
     if (bk) msgs.push(`It's closed for repairs on ${bk} ${bk === 1 ? "night" : "nights"}.`);
-    if (clash) msgs.push(isShared(sp) ? `All ${maxOf(sp)} sites are taken on ${clash} ${clash === 1 ? "night" : "nights"}, from ${fmt(firstClash)}.` : `${esc([...who].join(", "))} ${who.size === 1 ? "is" : "are"} already in ${esc(sp.name)} on ${clash} of these nights, from ${fmt(firstClash)}.`);
+    if (clash) msgs.push(isLast(sp) ? `That's more than ${maxOf(sp)} people in ${esc(sp.name)} on ${clash} ${clash === 1 ? "night" : "nights"}, from ${fmt(firstClash)}.` : isShared(sp) ? `All ${maxOf(sp)} sites are taken on ${clash} ${clash === 1 ? "night" : "nights"}, from ${fmt(firstClash)}.` : `${esc([...who].join(", "))} ${who.size === 1 ? "is" : "are"} already in ${esc(sp.name)} on ${clash} of these nights, from ${fmt(firstClash)}.`);
     if (!isShared(sp) && hc > Math.max(1, maxOf(sp))) msgs.push(`${esc(sp.name)} fits at most ${Math.max(1, maxOf(sp))}.`);
     if (isLast(sp)) msgs.push(`${esc(sp.name)} is a last-resort space.`);
     box.innerHTML = msgs.length ? `<div class="warnbox">${msgs.join(" ")} You can still save it.</div>` : "";    box.innerHTML = msgs.length ? `<div class="warnbox">${msgs.join(" ")} You can still save it.</div>` : "";
