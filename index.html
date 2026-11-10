@@ -1135,6 +1135,12 @@ function cellW(){
   const frame = $("#calFrame"), avail = (frame && frame.clientWidth ? frame.clientWidth : window.innerWidth - 40) - NAME_W();
   return Math.max(ZOOM_MIN[z], avail / ZOOM_SPAN[z]);
 }
+// Tent sites still open on the busiest night of a date range
+function sitesLeft(sp, from, to){
+  let left = Math.max(1, maxOf(sp));
+  for (let i = 0, n = diff(from, to); i < n; i++) left = Math.min(left, Math.max(1, maxOf(sp)) - partiesOn(sp, addDays(from, i)).length);
+  return Math.max(0, left);
+}
 // Homes with nobody in them on any of these nights (the resident is travelling)
 function resAwayFor(from, to){
   const n = diff(from, to);
@@ -1154,7 +1160,7 @@ function renderFinder(){
   const full = res.filter(r => r.n && r.ok === r.n), part = res.filter(r => r.ok > 0 && r.ok < r.n).sort((a, b) => b.ok - a.ok);
   const last = full.length ? [] : sortedSpaces(realSpaces()).filter(isLast).map(sp => ({ sp, ...fitFor(sp, from, to, people) })).filter(r => r.n && r.ok === r.n);
   let h = full.length
-    ? `<span>Room for ${people} ${people === 1 ? "person" : "people"}, ${fmt(from)} – ${fmt(to)}:</span>` + full.map(r => `<button class="fitchip" data-act="find-book" data-id="${esc(r.sp.id)}" title="Book ${esc(r.sp.name)} for these dates">${esc(r.sp.name)}${!USABLE.has(r.sp.condition) ? " · once ready" : ""}</button>`).join("")
+    ? `<span>Room for ${people} ${people === 1 ? "person" : "people"}, ${fmt(from)} – ${fmt(to)}:</span>` + full.map(r => `<button class="fitchip" data-act="find-book" data-id="${esc(r.sp.id)}" title="Book ${esc(r.sp.name)} for these dates">${esc(r.sp.name)}${isShared(r.sp) ? ` · ${sitesLeft(r.sp, from, to)} ${sitesLeft(r.sp, from, to) === 1 ? "site" : "sites"}` : ""}${!USABLE.has(r.sp.condition) ? " · once ready" : ""}</button>`).join("")
     : `<span>Nothing has room for ${people === 1 ? "one person" : people + " people"} on all ${diff(from, to)} nights.</span>`;
   const homes = resAwayFor(from, to);
   if (homes.length) h += `<span class="hint" style="margin-left:8px">Resident away:</span>` + homes.map(sp => `<button class="fitchip lastchip" data-act="find-book" data-id="${esc(sp.id)}">${esc(sp.name)}</button>`).join("");
@@ -1508,7 +1514,7 @@ function renderEventDrawer(){
   };
   const sect = (title, html, n) => html ? `<section class="sect"><div class="sect-h"><h3>${title}</h3>${n !== undefined ? `<span class="hint">${n}</span>` : ""}</div>${html}</section>` : "";
   const roles = ROLES.map(([k, t]) => { const list = i.roster.filter(x => x.r.role === k).sort((a, b) => a.r.name.localeCompare(b.r.name)); return list.length ? sect(t, `<div class="list">${list.map(rrow).join("")}</div>`, list.reduce((a, x) => a + x.heads, 0)) : ""; }).join("");
-  const chips = (list, cls) => list.map(s => `<button class="fitchip${cls || ""}" data-act="event-book" data-ev="${esc(ev.id)}" data-id="${esc(s.id)}"${w ? "" : " disabled"}>${esc(s.name)}</button>`).join("");
+  const chips = (list, cls) => list.map(s => `<button class="fitchip${cls || ""}" data-act="event-book" data-ev="${esc(ev.id)}" data-id="${esc(s.id)}"${w ? "" : " disabled"}>${esc(s.name)}${isShared(s) ? ` · ${plural(sitesLeft(s, i.from, i.to), "site", "sites")}` : ""}</button>`).join("");
   const room = past ? "" : sect("Room left", `<div class="fits">${i.free.length ? chips(i.free) : `<span class="hint">No space is free for every night.</span>`}
     ${i.homes.length ? `<span class="hint" style="margin-left:6px">Resident away:</span>${chips(i.homes, " lastchip")}` : ""}
     ${i.last.length ? `<span class="hint" style="margin-left:6px">Last resort:</span>${chips(i.last, " lastchip")}` : ""}</div>
