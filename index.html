@@ -11,6 +11,7 @@
 <link rel="icon" type="image/png" href="icon.png">
 <style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
 <title>Rainbow Bridge Hawaii</title>
+<meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alegreya:wght@500;600&family=Figtree:wght@400;500;600&display=swap">
@@ -24,7 +25,7 @@
   --accent:#85524E; --accent-soft:#F3E6E3;
   --ok:#3B7A56; --ok-soft:#E3EFE7; --occ:#55508A; --occ-soft:#E8E6F2; --full:#6A4C8C; --full-soft:#EEE6F3;
   --idle:#80786C; --idle-soft:#EFECE6; --warn:#8F6616; --warn-soft:#F5ECD6; --crit:#AE3A2D; --crit-soft:#F7E2DE;
-  --c-resident:#4A6593; --c-helper:#357D6F; --c-volunteer:#977030; --c-guest:#A65076; --c-workshop:#6A59B2;
+  --c-resident:#4A6593; --c-helper:#357D6F; --c-volunteer:#977030; --c-guest:#A65076; --c-workshop:#6A59B2; --c-short:#B9733A;
   --hatch:rgba(58,54,80,.06); --scrim:rgba(30,27,45,.35);
   --f-display:"Alegreya", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
   --f-body:"Figtree", "Avenir Next", "Segoe UI", system-ui, -apple-system, sans-serif;
@@ -39,7 +40,7 @@
   --accent:#D99A92; --accent-soft:#3B2A2B;
   --ok:#78C496; --ok-soft:#1C3125; --occ:#A9A3DC; --occ-soft:#2A2740; --full:#C3A6E0; --full-soft:#33283F;
   --idle:#B0A899; --idle-soft:#2A2722; --warn:#E0B259; --warn-soft:#352B16; --crit:#EF8C7C; --crit-soft:#3A201C;
-  --c-resident:#5E7DB0; --c-helper:#3B9585; --c-volunteer:#A98132; --c-guest:#BC5E89; --c-workshop:#7C6BCB;
+  --c-resident:#5E7DB0; --c-helper:#3B9585; --c-volunteer:#A98132; --c-guest:#BC5E89; --c-workshop:#7C6BCB; --c-short:#D08E55;
   --hatch:rgba(236,234,242,.05); --scrim:rgba(0,0,0,.55);
   --shadow-sm:0 1px 2px rgba(0,0,0,.3);
   --shadow:0 2px 6px rgba(0,0,0,.3), 0 18px 40px rgba(0,0,0,.4);
@@ -52,7 +53,7 @@
   --accent:#D99A92; --accent-soft:#3B2A2B;
   --ok:#78C496; --ok-soft:#1C3125; --occ:#A9A3DC; --occ-soft:#2A2740; --full:#C3A6E0; --full-soft:#33283F;
   --idle:#B0A899; --idle-soft:#2A2722; --warn:#E0B259; --warn-soft:#352B16; --crit:#EF8C7C; --crit-soft:#3A201C;
-  --c-resident:#5E7DB0; --c-helper:#3B9585; --c-volunteer:#A98132; --c-guest:#BC5E89; --c-workshop:#7C6BCB;
+  --c-resident:#5E7DB0; --c-helper:#3B9585; --c-volunteer:#A98132; --c-guest:#BC5E89; --c-workshop:#7C6BCB; --c-short:#D08E55;
   --hatch:rgba(236,234,242,.05); --scrim:rgba(0,0,0,.55);
   --shadow-sm:0 1px 2px rgba(0,0,0,.3);
   --shadow:0 2px 6px rgba(0,0,0,.3), 0 18px 40px rgba(0,0,0,.4);
@@ -421,6 +422,56 @@ body.is-dragging,body.is-dragging *{cursor:grabbing!important;user-select:none;-
 .avail{font-weight:600;font-size:14.5px}
 .avail.yes{color:var(--ok)}.avail.part{color:var(--warn)}
 
+/* spaces / repairs switch */
+.subnav{display:flex;gap:26px;align-items:flex-end;flex-wrap:wrap}
+.subnav button{border:0;background:none;padding:0 0 6px;font-family:var(--f-display);font-weight:500;font-size:34px;line-height:1.1;color:var(--ink-3);border-bottom:2px solid transparent;letter-spacing:-.01em;display:inline-flex;align-items:baseline;gap:8px}
+.subnav button:hover{color:var(--ink-2)}
+.subnav button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--gold)}
+.subnav .cnt{font-family:var(--f-body);font-size:13px;font-weight:600;color:var(--ink-2);background:var(--sunk);border-radius:999px;padding:1px 8px;letter-spacing:0}
+.subnav .cnt:empty{display:none}
+
+/* people */
+.ty-resident{background:var(--c-resident)}.ty-longterm{background:var(--c-volunteer)}.ty-threemonth{background:var(--c-helper)}.ty-shortterm{background:var(--c-short)}.ty-workshop{background:var(--c-workshop)}.ty-guest{background:var(--c-guest)}
+.pgroup{display:flex;flex-direction:column;gap:10px}
+.pgroup-h{display:flex;align-items:baseline;gap:10px}
+.pgroup-h h3{font-size:22px}
+.pgroup-h .n{font-size:14px;color:var(--ink-3)}
+.pgroup.res .list{background:var(--sunk);box-shadow:none}
+.pgroup.res .li .t{color:var(--ink-2)}
+.prow .t{font-weight:500}
+.prow .when{font-size:13.5px;color:var(--ink-2);white-space:nowrap;flex:none;text-align:right}
+.prow .when.soon{color:var(--ok);font-weight:600}
+.prow .swatch{align-self:flex-start;margin-top:8px}
+details.past summary{cursor:pointer;list-style:none;font-family:var(--f-display);font-size:22px;color:var(--ink-2);width:max-content}
+details.past summary::-webkit-details-marker{display:none}
+details.past summary::after{content:" ▾";font-size:13px;font-family:var(--f-body)}
+details.past[open] summary{margin-bottom:10px}
+.tychip{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:500;color:var(--ink-2);padding:3px 10px;border-radius:999px;background:var(--sunk)}
+.kv{display:flex;flex-direction:column;background:var(--surface);border-radius:var(--r-sm);box-shadow:var(--shadow-sm);overflow:hidden}
+.kv div{display:flex;gap:14px;padding:10px 14px;border-top:1px solid var(--line);font-size:15px}
+.kv div:first-child{border-top:0}
+.kv small{flex:none;width:76px;color:var(--ink-3);font-size:13px;padding-top:2px}
+.kv span{min-width:0;overflow-wrap:anywhere;white-space:pre-wrap}
+.kv a{color:var(--ink)}
+.li.focus{background:var(--gold-soft)}
+.pill.st-deciding{color:var(--warn)}.pill.soft.st-deciding{background:var(--warn-soft)}
+.pill.st-coming{color:var(--occ)}.pill.soft.st-coming{background:var(--occ-soft)}
+.f .sub{font-size:13px;color:var(--ink-3);margin-top:-2px}
+.fieldset{display:flex;flex-direction:column;gap:12px;padding:14px;border-radius:12px;background:var(--sunk)}
+.fieldset > span{font-size:14px;font-weight:500;color:var(--ink-2)}
+#peopleSearch{width:190px}
+@media (max-width:720px){
+  .subnav{gap:20px}
+  .subnav button{font-size:28px}
+  #peopleSearch{flex:1;min-width:0;width:auto}
+  .people-bar{display:grid;grid-template-columns:minmax(0,1fr);gap:10px}
+  .people-bar .spacer{display:none}
+  .people-bar #peopleSearch{width:100%;order:-1}
+  .people-bar .seg{display:flex;flex-wrap:nowrap;overflow-x:auto;min-width:0;scrollbar-width:none}
+  .people-bar .seg::-webkit-scrollbar{display:none}
+  .people-bar .seg button{flex:none}
+}
+
 /* modal */
 .modal{position:fixed;inset:0;z-index:50;display:grid;place-items:center;padding:16px}
 .modal .scrim{position:absolute;z-index:0}
@@ -494,7 +545,7 @@ body.is-dragging,body.is-dragging *{cursor:grabbing!important;user-select:none;-
     <nav class="tabs" role="tablist" aria-label="Views">
       <button class="tab" role="tab" data-view="calendar" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg><span class="long">Calendar</span><span class="short">Calendar</span></button>
       <button class="tab" role="tab" data-view="spaces" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg><span class="long">Spaces</span><span class="short">Spaces</span></button>
-      <button class="tab" role="tab" data-view="repairs" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 6.5a4 4 0 0 0-5.3 5.3L4 17l3 3 5.2-5.2a4 4 0 0 0 5.3-5.3l-2.6 2.6-2.4-.6-.6-2.4z"/></svg><span class="long">Repairs</span><span class="short">Repairs</span></button>
+      <button class="tab" role="tab" data-view="people" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8.5" r="3.2"/><path d="M3.5 19.5c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5"/><circle cx="16.8" cy="9.5" r="2.5"/><path d="M15.6 14.6c2.4-.3 4.3 1.2 4.9 4.4"/></svg><span class="long">People</span><span class="short">People</span></button>
     </nav>
     <div class="top-actions" id="topActions"></div>
   </div>
@@ -504,7 +555,7 @@ body.is-dragging,body.is-dragging *{cursor:grabbing!important;user-select:none;-
   <div id="notice"></div>
 
   <section class="view" id="view-spaces" hidden>
-    <div class="view-h"><h2>Spaces</h2></div>
+    <div class="subnav" role="tablist" aria-label="Spaces or repairs"><button role="tab" data-sub="spaces" aria-selected="true">Spaces</button><button role="tab" data-sub="repairs" aria-selected="false">Repairs<span class="cnt" data-repcount></span></button></div>
     <div id="spacesSummary" class="summary"></div>
     <div class="toolbar" id="spacesToolbar">
       <div class="seg" role="group" aria-label="Filter spaces">
@@ -550,7 +601,8 @@ body.is-dragging,body.is-dragging *{cursor:grabbing!important;user-select:none;-
   </section>
 
   <section class="view" id="view-repairs" hidden>
-    <div class="view-h"><h2>Repairs</h2><div id="workSummary" class="summary"></div></div>
+    <div class="subnav" role="tablist" aria-label="Spaces or repairs"><button role="tab" data-sub="spaces" aria-selected="false">Spaces</button><button role="tab" data-sub="repairs" aria-selected="true">Repairs<span class="cnt" data-repcount></span></button></div>
+    <div id="workSummary" class="summary"></div>
     <div class="toolbar">
       <div class="seg" role="group" aria-label="Show">
         <button data-wfilter="open" aria-pressed="true">Open</button>
@@ -559,6 +611,14 @@ body.is-dragging,body.is-dragging *{cursor:grabbing!important;user-select:none;-
     </div>
     <div id="workReady"></div>
     <div id="workList" class="view"></div>
+  </section>
+
+  <section class="view" id="view-people" hidden>
+    <div class="view-h"><h2>People</h2></div>
+    <div id="peopleSummary" class="summary"></div>
+    <div class="toolbar people-bar"><div class="seg" id="peopleTypes" role="group" aria-label="Show type"></div><span class="spacer"></span><input class="inline" type="search" id="peopleSearch" placeholder="Search names" aria-label="Search people" autocomplete="off"></div>
+    <div id="peopleNote"></div>
+    <div id="peopleList" class="view"></div>
   </section>
 
   <section class="view" id="view-visitors" hidden>
@@ -574,6 +634,7 @@ body.is-dragging,body.is-dragging *{cursor:grabbing!important;user-select:none;-
 </main>
 
 <input type="file" id="photoInput" accept="image/*" multiple hidden>
+<datalist id="peopleNames"></datalist>
 <div id="drawerRoot"></div>
 <div id="modalRoot"></div>
 <div id="toastRoot"></div>
@@ -585,12 +646,15 @@ body.is-dragging,body.is-dragging *{cursor:grabbing!important;user-select:none;-
 "use strict";
 /* ---------- constants ---------- */
 const CONDITIONS = [["ready","Ready"],["usable","Usable, needs work"],["construction","Under construction"],["planned","Planned"],["offline","Offline"]];
-const CATS = [["resident","Permanent resident"],["helper","Temporary helper"],["volunteer","Long-term volunteer"],["guest","Guest"],["workshop","Workshop participant"]];
+const TYPES = [["resident","Resident"],["longterm","Long-term helper"],["threemonth","3-month helper"],["shortterm","Short-term helper"],["workshop","Workshop participant"],["guest","Guest"]];
+const TYPE_SHORT = { resident: "Residents", longterm: "Long-term", threemonth: "3-month", shortterm: "Short-term", workshop: "Workshop", guest: "Guests" };
+const TYPE_KEYS = new Set(TYPES.map(t => t[0]));
+const PSTATUS = [["confirmed","Confirmed"],["coming","Coming, dates unknown"],["deciding","Being decided"]];
+const SCRIPT_MSG = "To save people, update the script in your Google Sheet first. It's a one-time step.";
 const AMENITIES = [["power","Power"],["water","Water"],["fridge","Fridge"],["bed","Bed & bedding"],["screened","Screened"],["lock","Lockable door"],["wifi","Wifi"]];
-const DIST = [["kitchenFt","Kitchen"],["bathFt","Bathroom"],["showerFt","Shower"]];
 const PRIOS = [["blocker","Blocks use"],["needed","Needed"],["nice","Nice to have"]];
 const WSTAT = [["todo","To do"],["doing","In progress"],["done","Done"]];
-const VIEWS = ["spaces","calendar","repairs","visitors"];
+const VIEWS = ["spaces","calendar","repairs","visitors","people"];
 const label = (list, k) => (list.find(x => x[0] === k) || [k, k || "—"])[1];
 const USABLE = new Set(["ready","usable"]);
 
@@ -620,7 +684,8 @@ function lsSet(k, v){ try { localStorage.setItem(k, v); } catch {} }
 /* ---------- state ---------- */
 const S = {
   db: null, assets: null, canWrite: false, demo: false, connected: false, loaded: new Set(),
-  real: { spaces: [], stays: [], work: [], events: [], settings: {} }, demoData: null,
+  real: { spaces: [], stays: [], work: [], events: [], people: [], settings: {} }, demoData: null,
+  openPerson: null, focusStay: null, ptype: "all", pq: "", peopleOk: false,
   view: "spaces", filter: "all", wfilter: "open",
   openSpace: null, pendingOpen: null, gIdx: 0, photoTarget: null,
   cal: { start: addDays(TODAY, -7), zoom: "month" },
@@ -713,9 +778,66 @@ const isHold = sp => !!(sp && sp.holding);
 const realSpaces = () => D().spaces.filter(sp => !isHold(sp));
 const sortedSpaces = (list = D().spaces) => [...list].sort((a, b) => (isHold(b) - isHold(a)) || (isRes(a) - isRes(b)) || (num(a.order, 999) - num(b.order, 999)) || String(a.name || "").localeCompare(String(b.name || ""), undefined, { numeric: true }));
 const photoUrl = id => String(id).startsWith("data:") ? id : S.photoBase ? S.photoBase + encodeURIComponent(id) : "/_blob/" + id;
-function distLine(sp){
-  const parts = DIST.filter(([k]) => hasNum(sp[k])).map(([k, l]) => `${l} ${ft(sp[k])}`);
-  return parts.join(" · ");
+
+/* ---------- people ----------
+   A person is one party: someone, a couple or a family. Stays link to a person by personId,
+   or by name for stays booked before People existed. Anyone on the calendar without a
+   People record still shows up here, so nothing has to be retyped. */
+const norm = s => String(s || "").trim().toLowerCase().replace(/\s+/g, " ");
+const byStart = (a, b) => a.start < b.start ? -1 : a.start > b.start ? 1 : 0;
+const peopleWritable = () => S.demo || !S.hosted || S.peopleOk;
+function guessType(sts){
+  const cats = sts.map(x => x.category).filter(Boolean);
+  const latest = [...sts].sort(byStart).reverse().find(x => TYPE_KEYS.has(x.category));
+  if (latest) return latest.category;
+  if (cats.includes("resident")) return "resident";
+  if (cats.length && cats.every(c => c === "workshop")) return "workshop";
+  if (cats.length && cats.every(c => c === "guest")) return "guest";
+  if (cats.includes("volunteer")) return "longterm";
+  const nights = sts.reduce((a, x) => a + (x.end ? diff(x.start, x.end) : 200), 0);
+  return nights >= 150 ? "longterm" : nights >= 75 ? "threemonth" : "shortterm";
+}
+let PXC = null;
+const pxReset = () => { PXC = null; };
+function PX(){
+  if (PXC) return PXC;
+  const real = (D().people || []).filter(p => p && p.id);
+  const byId = new Map(real.map(p => [p.id, p])), byName = new Map();
+  real.forEach(p => { const k = norm(p.name); if (k && !byName.has(k)) byName.set(k, p); });
+  const virt = new Map(), stayP = new Map(), staysBy = new Map();
+  for (const st of (D().stays || [])){
+    if (st.status === "cancelled" || !validDate(st.start)) continue;
+    let p = (st.personId && byId.get(st.personId)) || byName.get(norm(st.name));
+    if (!p){
+      const k = norm(st.name); if (!k) continue;
+      p = virt.get(k);
+      if (!p){ p = { id: "v:" + k, name: String(st.name).trim(), status: "confirmed", virtual: true }; virt.set(k, p); }
+    }
+    stayP.set(st.id, p);
+    if (!staysBy.has(p.id)) staysBy.set(p.id, []);
+    staysBy.get(p.id).push(st);
+  }
+  virt.forEach(p => { p.type = guessType(staysBy.get(p.id) || []); });
+  PXC = { list: [...real, ...virt.values()], byId, byName, virt, stayP, staysOf: p => (staysBy.get(p.id) || []).slice().sort(byStart) };
+  return PXC;
+}
+const personOfStay = st => st ? PX().stayP.get(st.id) || null : null;
+const personName = st => { const p = personOfStay(st); return p ? p.name : (st && st.name) || ""; };
+const findPerson = name => { const x = PX(), k = norm(name); return k ? (x.byName.get(k) || x.virt.get(k) || null) : null; };
+function personById(id){
+  if (!id) return null;
+  const x = PX();
+  if (x.byId.has(id)) return x.byId.get(id);
+  if (String(id).startsWith("v:")){ const k = id.slice(2); return x.byName.get(k) || x.virt.get(k) || null; }
+  return null;
+}
+const typeOf = p => p && TYPE_KEYS.has(p.type) ? p.type : "guest";
+const isDeciding = st => { const p = personOfStay(st); return !!(p && p.status === "deciding"); };
+const spName = st => { const s = st && space(st.spaceId); return s && !isHold(s) ? s.name : "Needs a space"; };
+const trunc = (s, n) => { s = String(s || "").replace(/\s+/g, " ").trim(); return s.length > n ? s.slice(0, n - 1).trimEnd() + "…" : s; };
+function linkify(t){
+  return esc(t).replace(/[\w.+-]+@[\w-]+\.[\w.-]+/g, m => `<a href="mailto:${m}">${m}</a>`)
+    .replace(/(^|[^\w@.])(\+?\d[\d\s().-]{6,}\d)/g, (m, pre, ph) => `${pre}<a href="tel:${ph.replace(/[^\d+]/g, "")}">${ph}</a>`);
 }
 
 /* ---------- shell ---------- */
@@ -723,7 +845,7 @@ function setView(v, push = true){
   if (v === "work") v = "repairs"; if (v === "outsiders") v = "visitors";
   if (!VIEWS.includes(v)) v = "calendar";
   S.view = v;
-  document.querySelectorAll(".tab").forEach(t => t.setAttribute("aria-selected", String(t.dataset.view === (v === "visitors" ? "spaces" : v))));
+  document.querySelectorAll(".tab").forEach(t => t.setAttribute("aria-selected", String(t.dataset.view === (v === "visitors" || v === "repairs" ? "spaces" : v))));
   VIEWS.forEach(k => { $("#view-" + k).hidden = k !== v; });
   if (push && location.hash !== "#" + v){ try { history.replaceState(null, "", "#" + v); } catch { location.hash = v; } }
   renderView(); renderTopActions(); window.scrollTo(0, 0);
@@ -735,12 +857,18 @@ function renderTopActions(){
   if (S.view === "calendar") h = w ? b("new-event", "Event", false, "Add an event") + b("new-stay", "Book", true, "Book a stay") : "";
   else if (S.view === "spaces") h = `<button class="btn sm hbtn" data-act="go-visitors">Visitor page</button>` + (w ? b("new-space", "Space", true, "Add a space") : "");
   else if (S.view === "repairs") h = w && D().spaces.length ? b("new-work", "Repair", true, "Add a repair") : "";
+  else if (S.view === "people") h = w ? b("new-person", "Person", true, "Add a person") : "";
   else if (S.view === "visitors") h = `<button class="btn sm hbtn" data-act="go-spaces">‹ Spaces</button>` + (w ? `<button class="btn sm hbtn" data-act="edit-public">Edit text</button>` : "");
   const el = $("#topActions"); if (el.innerHTML !== h) el.innerHTML = h;
 }
-function renderAll(){ renderNotice(); renderView(); renderDrawer(); renderTopActions(); }
+function renderAll(){ pxReset(); renderNotice(); renderView(); renderDrawer(); renderTopActions(); }
 function renderView(){
-  ({ spaces: renderSpaces, calendar: renderCalendar, repairs: renderWork, visitors: renderPublic })[S.view]();
+  pxReset();
+  ({ spaces: renderSpaces, calendar: renderCalendar, repairs: renderWork, visitors: renderPublic, people: renderPeople })[S.view]();
+}
+function setRepCount(){
+  const n = D().work.filter(w => w.status !== "done").length;
+  document.querySelectorAll("[data-repcount]").forEach(el => { el.textContent = n ? String(n) : ""; });
 }
 function renderNotice(){
   const el = $("#notice"); let h = "";
@@ -771,6 +899,7 @@ function renderSummary(){
 function renderSpaces(){
   if (S.reorder) return renderReorder();
   const all = D().spaces, grid = $("#spacesGrid");
+  setRepCount();
   $("#reorderBtn").hidden = !writable() || !all.length;
   document.querySelectorAll("[data-filter]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.filter === S.filter)));
   if (!all.length){
@@ -778,7 +907,7 @@ function renderSpaces(){
     if (!S.connected || (S.db && !S.loaded.has("spaces"))){ grid.innerHTML = `<p class="faint">Loading…</p>`; return; }
     grid.innerHTML = `<div class="empty-state"><span class="label">No spaces yet</span>
       <h2>Every carport, cabin, dome and cob house gets a card here</h2>
-      <p>Photos, how many it sleeps and at most, how far it is to the kitchen, bathroom and shower, what repairs it needs, and who is in it on any date.</p>
+      <p>Photos, how many it sleeps and at most, what repairs it needs, and who is in it on any date.</p>
       <div class="row">${writable() ? `<button class="btn primary plus" data-act="new-space">Add the first space</button>` : ""}<button class="btn" data-act="demo-on">See an example</button></div></div>`;
     return;
   }
@@ -792,7 +921,7 @@ function renderSpaces(){
   });
   const main = list.filter(sp => !isRes(sp) && !isHold(sp)), homes = list.filter(isRes);
   const waiting = D().spaces.filter(isHold).flatMap(h => staysFor(h.id)).filter(x => !x.end || x.end > TODAY).sort((a, b) => a.start < b.start ? -1 : 1);
-  const waitHtml = waiting.length ? `<div class="banner"><span class="grow"><b>Still need a space:</b> ${waiting.map(x => `<button class="linkish" data-act="edit-stay" data-id="${esc(x.id)}">${esc(x.name)}</button> <span class="faint">${fmt(x.start)} – ${x.end ? fmt(x.end) : "no end date"}</span>`).join(" · ")}</span></div>` : "";
+  const waitHtml = waiting.length ? `<div class="banner"><span class="grow"><b>Still need a space:</b> ${waiting.map(x => `<button class="linkish" data-act="edit-stay" data-id="${esc(x.id)}">${esc(personName(x))}</button> <span class="faint">${fmt(x.start)} – ${x.end ? fmt(x.end) : "no end date"}</span>`).join(" · ")}</span></div>` : "";
   grid.innerHTML = waitHtml + (!list.length ? `<p class="faint">No spaces match.</p>` :
     (main.length ? `<div class="grid">${main.map(cardHtml).join("")}</div>` : "") +
     (homes.length ? `<div class="res-group"><div class="grid">${homes.map(cardHtml).join("")}</div></div>` : ""));
@@ -800,15 +929,14 @@ function renderSpaces(){
 function cardHtml(sp){
   const st = statusOf(sp), cur = staysFor(sp.id).filter(x => covers(x, TODAY));
   const wk = openWork(sp.id), blockers = wk.some(w => w.priority === "blocker");
-  const over = clashDays(sp, TODAY, 90), nc = nextChange(sp), dl = distLine(sp), cap = capLine(sp);
+  const over = clashDays(sp, TODAY, 90), nc = nextChange(sp), cap = capLine(sp);
   const hasPhoto = Array.isArray(sp.photos) && sp.photos.length;
   return `<button class="card${isRes(sp) ? " res" : ""}${isLast(sp) ? " last" : ""}${hasPhoto ? "" : " nophoto"}" data-act="open-space" data-id="${esc(sp.id)}">
     ${hasPhoto ? photoBlock(sp, st) : ""}
     <div class="card-body">
       <div class="card-head"><h3>${esc(sp.name || "Untitled space")}</h3>${hasPhoto ? "" : `<span class="pill soft st-${st.key}">${esc(st.text)}</span>`}</div>
       ${cap || nc ? `<div class="cap">${esc([cap, nc].filter(Boolean).join(" · "))}</div>` : ""}
-      ${dl ? `<div class="dist">${esc(dl)}</div>` : ""}
-      ${cur.length ? `<div class="who">${cur.map(x => esc(x.name)).join(", ")}</div>` : ""}
+      ${cur.length ? `<div class="who">${cur.map(x => esc(personName(x))).join(", ")}</div>` : ""}
       ${wk.length || over.length ? `<div class="card-foot">
         ${wk.length ? `<span class="chip ${blockers ? "crit" : "warn"}">${wk.length} ${wk.length === 1 ? "repair" : "repairs"}${sumHours(wk) ? ` · ${hrs(sumHours(wk))}` : ""}</span>` : ""}
         ${over.length ? `<span class="chip crit">Double booked ${fmt(over[0])}</span>` : ""}</div>` : ""}
@@ -871,9 +999,11 @@ document.addEventListener("drop", e => {
 document.addEventListener("dragend", () => { roDrag = null; document.querySelectorAll(".ro-row").forEach(x => x.classList.remove("dragging", "drop-before", "drop-after")); });
 
 /* ---------- side sheet ---------- */
-function openSpace(id){ S.openSpace = id; S.gIdx = 0; renderDrawer(); }
-function closeDrawer(){ S.openSpace = null; S.pendingOpen = null; renderDrawer(); }
+function openSpace(id){ S.openSpace = id; S.openPerson = null; S.gIdx = 0; renderDrawer(); }
+function openPerson(id, focusStay){ if (!id) return; S.openPerson = id; S.focusStay = focusStay || null; S.openSpace = null; S.pendingOpen = null; renderDrawer(); }
+function closeDrawer(){ S.openSpace = null; S.openPerson = null; S.pendingOpen = null; renderDrawer(); }
 function renderDrawer(){
+  if (S.openPerson) return renderPersonDrawer();
   const root = $("#drawerRoot"), sp = S.openSpace && space(S.openSpace);
   if (!sp){ root.innerHTML = ""; if (S.openSpace !== S.pendingOpen) S.openSpace = null; document.body.style.overflow = ""; return; }
   if (S.pendingOpen === sp.id) S.pendingOpen = null;
@@ -908,14 +1038,13 @@ function renderDrawer(){
       <section class="sect">
         <div class="facts"><div><small>Sleeps</small><b>${maxOf(sp) ? num(sp.idealOcc) : "—"}</b></div><div><small>Max</small><b>${maxOf(sp) || "—"}</b></div><div><small>Here tonight</small><b>${st.load}</b></div></div>
         ${sp.toMax ? `<p class="prose small muted">To reach max: ${esc(sp.toMax)}</p>` : ""}
-        ${DIST.some(([k]) => hasNum(sp[k])) ? `<div class="facts">${DIST.map(([k, l]) => `<div><small>${l}</small><b>${hasNum(sp[k]) ? esc(ft(sp[k])) : "—"}</b></div>`).join("")}</div>` : ""}
         ${am.length ? `<div class="chips">${am.map(a => `<span class="chip">${esc(label(AMENITIES, a))}</span>`).join("")}</div>` : ""}
       </section>
 
       <section class="sect"><div class="sect-h"><h3>Stays</h3>${past ? `<span class="hint">${past} past</span>` : ""}</div>
         <div class="list">${sts.length ? sts.map(x => `<button class="li" data-act="edit-stay" data-id="${esc(x.id)}" ${w ? "" : "disabled"}>
-          <span class="swatch cat-${esc(x.category)}"></span>
-          <span class="grow"><span class="t">${esc(x.name)}</span>${heads(x) > 1 ? ` <span class="faint">×${heads(x)}</span>` : ""}<br><span class="s">${esc(label(CATS, x.category))} · ${fmt(x.start)} – ${x.end ? fmt(x.end) : "no end date"}${x.status === "hold" ? " · on hold" : ""}</span></span>
+          <span class="swatch ty-${typeOf(personOfStay(x))}"></span>
+          <span class="grow"><span class="t">${esc(personName(x))}</span>${heads(x) > 1 ? ` <span class="faint">×${heads(x)}</span>` : ""}<br><span class="s">${esc(label(TYPES, typeOf(personOfStay(x))))} · ${fmt(x.start)} – ${x.end ? fmt(x.end) : "no end date"}${x.status === "hold" ? " · on hold" : ""}</span></span>
           ${covers(x, TODAY) ? `<span class="chip">Here now</span>` : ""}</button>`).join("") : `<div class="none">No current or upcoming stays.</div>`}</div>
       </section>
 
@@ -926,6 +1055,36 @@ function renderDrawer(){
 
       ${sp.publicBlurb ? `<section class="sect"><div class="sect-h"><h3>For visitors</h3></div><p class="prose">${esc(sp.publicBlurb)}</p></section>` : ""}
       ${sp.notes ? `<section class="sect"><div class="sect-h"><h3>Internal notes</h3></div><p class="prose">${esc(sp.notes)}</p></section>` : ""}
+    </div>
+  </aside>`;
+  if (keepScroll) root.querySelector(".drawer").scrollTop = keepScroll;
+}
+function renderPersonDrawer(){
+  const root = $("#drawerRoot"), p = personById(S.openPerson);
+  if (!p){ root.innerHTML = ""; S.openPerson = null; document.body.style.overflow = ""; return; }
+  const fresh = !root.innerHTML, w = writable();
+  document.body.style.overflow = "hidden";
+  const sts = PX().staysOf(p), ty = typeOf(p), st = p.status || "confirmed";
+  const upcoming = sts.filter(x => !x.end || x.end > TODAY), past = sts.filter(x => x.end && x.end <= TODAY);
+  const facts = [["Contact", p.contact ? linkify(p.contact) : ""], ["Arrival", p.arrival ? esc(p.arrival) : ""], ["Expected", !upcoming.length && p.when ? esc(p.when) : ""]].filter(f => f[1]);
+  const row = x => `<button class="li${S.focusStay === x.id ? " focus" : ""}" data-act="edit-stay" data-id="${esc(x.id)}" ${w ? "" : "disabled"}>
+      <span class="grow"><span class="t">${esc(spName(x))}</span>${heads(x) > 1 ? ` <span class="faint">×${heads(x)}</span>` : ""}<br><span class="s">${fmt(x.start)} – ${x.end ? fmt(x.end) : "no end date"}${x.end ? ` · ${diff(x.start, x.end)} nights` : ""}${x.status === "hold" ? " · on hold" : ""}</span></span>
+      ${covers(x, TODAY) ? `<span class="chip">Here now</span>` : ""}${w ? `<span class="faint" aria-hidden="true">›</span>` : ""}</button>`;
+  const keepScroll = !fresh && root.querySelector(".drawer") ? root.querySelector(".drawer").scrollTop : 0;
+  root.innerHTML = `<div class="scrim" data-act="close-drawer" style="${fresh ? "" : "animation:none"}"></div>
+  <aside class="drawer" role="dialog" aria-modal="true" aria-label="${esc(p.name)}" style="${fresh ? "" : "animation:none"}">
+    <div class="dr-top"><button class="btn ghost sm" data-act="close-drawer">Close</button><span class="grow"></span>
+      ${w ? `<button class="btn sm plus" data-act="book-person" data-id="${esc(p.id)}">Stay</button><button class="btn sm" data-act="edit-person" data-id="${esc(p.id)}">Edit</button>` : ""}</div>
+    <div class="dr-body">
+      <div class="dr-title"><h2>${esc(p.name)}</h2>
+        <div class="chips"><span class="tychip"><span class="swatch ty-${ty}"></span>${esc(label(TYPES, ty))}</span>${st !== "confirmed" && PSTATUS.some(s => s[0] === st) ? `<span class="pill soft st-${st}">${esc(label(PSTATUS, st))}</span>` : ""}</div>
+      </div>
+      ${p.description ? `<p class="prose">${esc(p.description)}</p>` : ""}
+      ${facts.length ? `<div class="kv">${facts.map(([k, v]) => `<div><small>${k}</small><span>${v}</span></div>`).join("")}</div>` : ""}
+      <section class="sect"><div class="sect-h"><h3>Stays</h3>${past.length ? `<span class="hint">${past.length} past</span>` : ""}</div>
+        <div class="list">${upcoming.length ? upcoming.map(row).join("") : `<div class="none">No dates yet.</div>`}</div>
+        ${w && !upcoming.length ? `<div><button class="btn sm primary plus" data-act="book-person" data-id="${esc(p.id)}">Book a stay</button></div>` : ""}
+      </section>
     </div>
   </aside>`;
   if (keepScroll) root.querySelector(".drawer").scrollTop = keepScroll;
@@ -973,32 +1132,32 @@ function renderFinder(){
 function renderWeekLine(){
   const el = $("#weekLine"); if (!el) return;
   const endD = addDays(TODAY, 7), sp = id => space(id), nameOf = id => (sp(id) && !isHold(sp(id))) ? sp(id).name : "needs a space";
-  const key = x => String(x.name || "").trim().toLowerCase();
+  const key = x => { const p = personOfStay(x); return p ? p.id : norm(x.name); };
   const sts = activeStays().filter(x => !isRes(sp(x.spaceId)));
   const items = [];
   sts.forEach(x => {
     if (x.start >= TODAY && x.start < endD){
       const prev = sts.find(y => y !== x && key(y) === key(x) && y.end === x.start);
-      if (prev) items.push({ d: x.start, id: x.id, html: `${esc(x.name)} moves to ${esc(nameOf(x.spaceId))}` });
-      else items.push({ d: x.start, id: x.id, html: `${esc(x.name)} → ${esc(nameOf(x.spaceId))}` });
+      if (prev) items.push({ d: x.start, id: x.id, html: `${esc(personName(x))} moves to ${esc(nameOf(x.spaceId))}` });
+      else items.push({ d: x.start, id: x.id, html: `${esc(personName(x))} → ${esc(nameOf(x.spaceId))}` });
     }
     if (x.end && x.end >= TODAY && x.end < endD && !sts.some(y => y !== x && key(y) === key(x) && y.start === x.end))
-      items.push({ d: x.end, id: x.id, html: `${esc(x.name)} leaves ${esc(nameOf(x.spaceId))}`, out: true });
+      items.push({ d: x.end, id: x.id, html: `${esc(personName(x))} leaves ${esc(nameOf(x.spaceId))}`, out: true });
   });
   if (!items.length){ el.innerHTML = ""; el.hidden = true; return; }
   el.hidden = false;
   items.sort((a, b) => a.d < b.d ? -1 : a.d > b.d ? 1 : (a.out ? -1 : 1));
   const dayName = d => d === TODAY ? "Today" : d === addDays(TODAY, 1) ? "Tomorrow" : `${["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][parse(d).getUTCDay()]} ${parse(d).getUTCDate()}`;
-  el.innerHTML = `<span class="wl-label">Next 7 days</span>` + items.map(it => `<button class="wl-item${it.out ? " out" : ""}" data-act="edit-stay" data-id="${esc(it.id)}" ${writable() ? "" : "disabled"}><b>${dayName(it.d)}</b> ${it.html}</button>`).join("");
+  el.innerHTML = `<span class="wl-label">Next 7 days</span>` + items.map(it => `<button class="wl-item${it.out ? " out" : ""}" data-act="bar" data-id="${esc(it.id)}"><b>${dayName(it.d)}</b> ${it.html}</button>`).join("");
 }
 // Merge back-to-back stays of the same person in one space into one block
 function blocksForRow(sts){
   const out = [];
   [...sts].sort((a, b) => a.start < b.start ? -1 : a.start > b.start ? 1 : 0).forEach(x => {
-    const last = out[out.length - 1], key = String(x.name || "").trim().toLowerCase();
+    const last = out[out.length - 1], p = personOfStay(x), key = p ? p.id : norm(x.name), hold = x.status === "hold" || isDeciding(x);
     if (last && last.key === key && last.end && last.end === x.start && heads(x) === last.hc){
-      last.end = x.end; last.ids.push(x.id); last.hold = last.hold && x.status === "hold";
-    } else out.push({ key, name: x.name, hc: heads(x), start: x.start, end: x.end, ids: [x.id], hold: x.status === "hold" });
+      last.end = x.end; last.ids.push(x.id); last.hold = last.hold && hold;
+    } else out.push({ key, name: personName(x), hc: heads(x), start: x.start, end: x.end, ids: [x.id], hold });
   });
   return out;
 }
@@ -1009,8 +1168,8 @@ function renderCalendar(){
   renderWeekLine();
   const touch = window.matchMedia("(hover: none)").matches;
   $("#calHint").textContent = !writable() ? "" : touch
-    ? "Tap an empty spot to book it. Tap a name to change dates or move the person."
-    : "Click an empty spot to book it. Drag a name to another row to move someone, or drag its right edge to change the leaving day.";
+    ? "Tap an empty spot to book it. Tap a name to see that person and change their stay."
+    : "Click an empty spot to book it. Click a name to open the person. Drag a name to another row to move them, or drag its right edge to change the leaving day.";
   renderFinder();
   const frame = $("#calFrame"), sps = sortedSpaces();
   if (!sps.length){ frame.innerHTML = `<div class="none">Add spaces to see them here.</div>`; return; }
@@ -1080,7 +1239,7 @@ function renderCalendar(){
       if (it.kind === "nr"){ bars += `<span class="bar nrb" style="${style}" title="${esc(it.name)}"><span class="n">${esc(it.name)}</span></span>`; return; }
       if (it.kind === "blk"){ bars += `<button class="bar blk${spill}" data-act="edit-work" data-kind="blk" data-id="${esc(it.ids[0])}" ${writable() ? "" : "disabled"} style="${style}" title="Repairs: ${esc(it.name)} · ${range}"><span class="n">Repairs · ${esc(it.name)}</span></button>`; return; }
       const multi = it.ids.length > 1;
-      bars += `<button class="bar${spill} ${it.hold ? "hold" : ""} ${!it.end ? "open-end" : ""} ${it.clash ? "clash" : ""}" data-act="edit-stay" data-kind="${multi ? "stay-multi" : "stay"}" data-id="${esc(it.ids[0])}" data-ids="${esc(it.ids.join(","))}" ${writable() ? "" : "disabled"} style="${style}" title="${esc(it.name)}${it.hc > 1 ? ` (${it.hc})` : ""} · ${range}${it.hold ? " · on hold" : ""}"><span class="n">${esc(it.name)}${it.hc > 1 ? ` <small>×${it.hc}</small>` : ""}${it.hold ? ` <small>· hold</small>` : ""}</span>${!multi && it.end && writable() ? `<span class="grip" aria-hidden="true"></span>` : ""}</button>`;
+      bars += `<button class="bar${spill} ${it.hold ? "hold" : ""} ${!it.end ? "open-end" : ""} ${it.clash ? "clash" : ""}" data-act="${isHold(sp) && writable() ? "edit-stay" : "bar"}" data-kind="${multi ? "stay-multi" : "stay"}" data-id="${esc(it.ids[0])}" data-ids="${esc(it.ids.join(","))}" style="${style}" title="${esc(it.name)}${it.hc > 1 ? ` (${it.hc})` : ""} · ${range}${it.hold ? " · on hold" : ""}"><span class="n">${esc(it.name)}${it.hc > 1 ? ` <small>×${it.hc}</small>` : ""}${it.hold ? ` <small>· hold</small>` : ""}</span>${!multi && it.end && writable() ? `<span class="grip" aria-hidden="true"></span>` : ""}</button>`;
     });
     let rowCls = isLast(sp) ? "lastrow" : "", sub = "";
     if (isHold(sp)){ rowCls = "holdrow"; sub = items.length ? (window.matchMedia("(hover: none)").matches ? "tap a name to place it" : "drag into a space") : "nobody waiting"; }
@@ -1150,7 +1309,8 @@ document.addEventListener("pointerup", async () => {
   if (await save("stays", next)){
     const sp = space(next.spaceId), span = Math.min(120, next.end ? diff(next.start, next.end) : 60), over = overbookedDays(sp, next.start, span);
     let nr = 0; for (let i = 0; i < span; i++) if (notReadyOn(sp, addDays(next.start, i))) nr++;
-    const msg = d.mode === "end" ? `${prev.name} now leaves ${fmt(next.end)}` : next.spaceId !== prev.spaceId ? `Moved ${prev.name} to ${sp.name}` : `${prev.name} now ${fmt(next.start)} – ${next.end ? fmt(next.end) : "no end date"}`;
+    const who = personName(prev);
+    const msg = d.mode === "end" ? `${who} now leaves ${fmt(next.end)}` : next.spaceId !== prev.spaceId ? `Moved ${who} to ${sp.name}` : `${who} now ${fmt(next.start)} – ${next.end ? fmt(next.end) : "no end date"}`;
     const warn = nr ? `${sp.name} isn't ready for ${nr} of those nights` : over.length ? `${sp.name} is double booked on ${over.length} ${over.length === 1 ? "night" : "nights"}` : "";
     toast(warn ? `${msg}. ${warn}.` : msg, 8000, { label: "Undo", fn: () => save("stays", prev) });
   }
@@ -1159,6 +1319,7 @@ document.addEventListener("pointerup", async () => {
 
 /* ---------- repairs & construction ---------- */
 function renderWork(){
+  setRepCount();
   document.querySelectorAll("[data-wfilter]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.wfilter === S.wfilter)));
   const all = D().work, open = all.filter(w => w.status !== "done"), blockers = open.filter(w => w.priority === "blocker");
   $("#workSummary").innerHTML = D().spaces.length ? `<span><b>${open.length}</b>open</span><span><b>${Math.round(sumHours(open))}</b>hours estimated</span><span class="${blockers.length ? "alert" : ""}"><b>${blockers.length}</b>blocking use</span>` : "";
@@ -1207,13 +1368,12 @@ function renderPublic(){
   const from = S.pub.from, to = S.pub.to > from ? S.pub.to : addDays(from, 1);
   const list = visitorSpaces(from, to);
   $("#pubBody").innerHTML = list.length ? `<div class="grid">${list.map(({ sp, free, nights }) => {
-    const am = (sp.amenities || []).filter(a => AMENITIES.some(x => x[0] === a)), dl = distLine(sp);
+    const am = (sp.amenities || []).filter(a => AMENITIES.some(x => x[0] === a));
     return `<div class="card">${photoBlock(sp)}<div class="card-body">
       <h3>${esc(sp.name)}</h3>
       <div class="cap">Sleeps ${num(sp.idealOcc)}${maxOf(sp) > num(sp.idealOcc) ? `, up to ${maxOf(sp)}` : ""}</div>
       <div class="avail ${free === nights ? "yes" : "part"}">${free === nights ? `Free for all ${nights} ${nights === 1 ? "night" : "nights"}` : `${free} of ${nights} nights free`}</div>
       ${sp.publicBlurb ? `<p class="prose muted small">${esc(sp.publicBlurb)}</p>` : ""}
-      ${dl ? `<div class="dist">${esc(dl)}</div>` : ""}
       ${am.length ? `<div class="chips">${am.map(a => `<span class="chip">${esc(label(AMENITIES, a))}</span>`).join("")}</div>` : ""}
     </div></div>`; }).join("")}</div>` : `<div class="none">Nothing free for these dates.</div>`;
 }
@@ -1288,9 +1448,6 @@ function spaceForm(id){
       <label class="f"><span>Most at once</span><input id="sp-max" type="number" min="0" max="50" inputmode="numeric" value="${num(sp.maxOcc)}"></label>
     </div>
     <label class="f"><span>What it would take to reach max</span><input id="sp-tomax" value="${esc(sp.toMax)}" placeholder="e.g. second bed, screen the porch" maxlength="200"></label>
-    <div class="f"><span>Distance to the nearest</span>
-      <div class="f3">${DIST.map(([k, l]) => `<label class="f"><small>${l}</small><span class="unit"><input id="sp-${k}" type="number" min="0" step="10" inputmode="numeric" value="${hasNum(sp[k]) ? num(sp[k]) : ""}"></span></label>`).join("")}</div>
-      <small>Feet, roughly. 0 means it's in the space. Leave blank if unknown.</small></div>
     <div class="f"><span>Has</span><div class="checks">${AMENITIES.map(([k, v]) => `<label><input type="checkbox" id="am-${k}" ${am.has(k) ? "checked" : ""}>${esc(v)}</label>`).join("")}</div></div>
     <label class="f"><span>Description for visitors</span><textarea id="sp-blurb" maxlength="600" placeholder="What it's like, the bed, the view, the walk from the kitchen.">${esc(sp.publicBlurb)}</textarea></label>
     <label class="f"><span>Internal notes</span><textarea id="sp-notes" maxlength="2000" placeholder="Only people with access to this tool see this.">${esc(sp.notes)}</textarea></label>
@@ -1307,7 +1464,6 @@ function spaceForm(id){
       amenities: AMENITIES.map(a => a[0]).filter(k => document.getElementById("am-" + k).checked),
       publicBlurb: fv("sp-blurb"), notes: fv("sp-notes"), residence: fv("sp-kind") === "residence", kind: ["shared","lastResort"].includes(fv("sp-kind")) ? fv("sp-kind") : "", private: fv("sp-kind") === "lastResort" ? true : !!sp.private && fv("sp-kind") !== "regular" && fv("sp-kind") !== "shared",
       photos: S.fp ? S.fp.list.slice() : (Array.isArray(sp.photos) ? sp.photos : []) };
-    DIST.forEach(([k]) => { const v = fv("sp-" + k); body[k] = v === "" ? null : Math.max(0, Math.round(num(v))); });
     if (!(await save("spaces", body))) return false;
     if (S.fp){ const gone = S.fp.original.filter(p => !S.fp.list.includes(p)); S.fp.saved = true; if (!S.demo && S.assets) gone.forEach(p => { try { S.assets.delete(p); } catch {} }); }
     toast(id ? "Saved" : "Space added");
@@ -1321,17 +1477,21 @@ function spaceForm(id){
 }
 
 function stayForm(id, preset = {}){
-  const st = id ? D().stays.find(x => x.id === id) : { category: "guest", headcount: 1, status: "confirmed", start: TODAY, end: addDays(TODAY, 7), ...preset };
+  const st = id ? D().stays.find(x => x.id === id) : { headcount: 1, status: "confirmed", start: TODAY, end: addDays(TODAY, 7), ...preset };
   if (!st) return;
   const sps = sortedSpaces();
   if (!sps.length){ toast("Add a space first."); return; }
   if (!st.spaceId) st.spaceId = sps[0].id;
   const oldSp = id ? space(st.spaceId) : null;
+  const p0 = id ? personOfStay(st) : (st.personId ? personById(st.personId) : null);
+  const name0 = p0 ? p0.name : (st.name || ""), type0 = p0 ? typeOf(p0) : (TYPE_KEYS.has(st.category) ? st.category : "guest");
+  let typeTouched = false;
+  $("#peopleNames").innerHTML = PX().list.map(p => `<option value="${esc(p.name)}"></option>`).join("");
   openModal(id ? "Edit stay" : "New stay", `
-    <label class="f"><span>Who</span><input id="st-name" value="${esc(st.name)}" placeholder="Person, couple or group" maxlength="80"></label>
+    <label class="f"><span>Who</span><input id="st-name" list="peopleNames" value="${esc(name0)}" placeholder="Person, couple or family" maxlength="80" autocomplete="off"><small class="sub" id="st-who"></small></label>
     <div class="f2">
       <label class="f"><span>Space</span><select id="st-space">${sps.map(sp => `<option value="${esc(sp.id)}"${sp.id === st.spaceId ? " selected" : ""}>${esc(sp.name)}</option>`).join("")}</select></label>
-      <label class="f"><span>Category</span><select id="st-cat">${opt(CATS, st.category)}</select></label>
+      <label class="f"><span>Type</span><select id="st-type">${opt(TYPES, type0)}</select></label>
     </div>
     <div class="f2">
       <label class="f"><span>Arrives</span><input id="st-start" type="date" value="${esc(st.start)}"></label>
@@ -1351,19 +1511,25 @@ function stayForm(id, preset = {}){
     if (!name){ toast("Add who is staying."); $("#st-name").focus(); return false; }
     if (!validDate(start)){ toast("Pick an arrival date."); return false; }
     if (end && end <= start){ toast("Leaving has to be after arriving."); return false; }
-    const body = { ...(id ? st : {}), id: id || newId("stays"), name, spaceId: fv("st-space"), category: fv("st-cat"), start, end: end || "",
+    const type = fv("st-type"), person = await ensurePerson(name, type, p0);
+    const body = { ...(id ? st : {}), id: id || newId("stays"), name: person ? person.name : name, personId: person && !person.virtual ? person.id : "", spaceId: fv("st-space"), category: type, start, end: end || "",
       headcount: Math.max(1, Math.round(num(fv("st-hc"), 1))), status: fv("st-status"), notes: fv("st-notes") };
     const mf = fv("st-movefrom");
     if (!$("#st-movewrap").hidden && validDate(mf) && mf > start && (!end || mf < end)){
       const toSp = space(body.spaceId);
       if (!(await save("stays", { ...body, spaceId: st.spaceId, end: mf }))) return false;
       if (!(await save("stays", { ...body, id: newId("stays"), start: mf }))) return false;
-      toast(`${name} moves to ${toSp ? toSp.name : "the new space"} on ${fmt(mf)}`);
+      toast(`${body.name} moves to ${toSp ? toSp.name : "the new space"} on ${fmt(mf)}`);
       return;
     }
     if (!(await save("stays", body))) return false;
     toast(id ? (body.spaceId !== st.spaceId ? `Moved to ${space(body.spaceId).name}` : "Stay updated") : "Booked");
-  }, () => {
+  }, e => {
+    const tgt = e && e.target && e.target.id;
+    if (tgt === "st-type") typeTouched = true;
+    const typed = fv("st-name"), match = p0 && norm(p0.name) === norm(typed) ? p0 : findPerson(typed);
+    if (tgt === "st-name" && match && !typeTouched) $("#st-type").value = typeOf(match);
+    $("#st-who").textContent = typed && !match ? "New person. They'll be added to People." : "";
     const spId = fv("st-space"), start = fv("st-start"), end = fv("st-end"), hc = Math.max(1, num(fv("st-hc"), 1));
     const moving = !!id && spId !== st.spaceId && st.start < TODAY && (!st.end || st.end > TODAY);
     $("#st-movewrap").hidden = !moving;
@@ -1387,7 +1553,7 @@ function stayForm(id, preset = {}){
       if (notReadyOn(sp, d)){ nr++; continue; }
       if (bl.some(b => b.start <= d && d < b.end)){ bk++; continue; }
       const others = partiesOn(sp, d, id);
-      if (isShared(sp) ? others.length >= Math.max(1, maxOf(sp)) : isLast(sp) ? peopleIn(others) + hc > Math.max(1, maxOf(sp)) : others.length){ clash++; if (!firstClash) firstClash = d; others.forEach(x => who.add(x.name)); }
+      if (isShared(sp) ? others.length >= Math.max(1, maxOf(sp)) : isLast(sp) ? peopleIn(others) + hc > Math.max(1, maxOf(sp)) : others.length){ clash++; if (!firstClash) firstClash = d; others.forEach(x => who.add(personName(x))); }
     }
     const msgs = [];
     if (nr) msgs.push(`${esc(sp.name)} isn't ready for ${nr} of these nights${validDate(sp.readyBy) ? ` (expected ${fmt(sp.readyBy)})` : ""}.`);
@@ -1395,9 +1561,125 @@ function stayForm(id, preset = {}){
     if (clash) msgs.push(isLast(sp) ? `That's more than ${maxOf(sp)} people in ${esc(sp.name)} on ${clash} ${clash === 1 ? "night" : "nights"}, from ${fmt(firstClash)}.` : isShared(sp) ? `All ${maxOf(sp)} sites are taken on ${clash} ${clash === 1 ? "night" : "nights"}, from ${fmt(firstClash)}.` : `${esc([...who].join(", "))} ${who.size === 1 ? "is" : "are"} already in ${esc(sp.name)} on ${clash} of these nights, from ${fmt(firstClash)}.`);
     if (!isShared(sp) && hc > Math.max(1, maxOf(sp))) msgs.push(`${esc(sp.name)} fits at most ${Math.max(1, maxOf(sp))}.`);
     if (isLast(sp)) msgs.push(`${esc(sp.name)} is a last-resort space.`);
-    box.innerHTML = msgs.length ? `<div class="warnbox">${msgs.join(" ")} You can still save it.</div>` : "";    box.innerHTML = msgs.length ? `<div class="warnbox">${msgs.join(" ")} You can still save it.</div>` : "";
+    box.innerHTML = msgs.length ? `<div class="warnbox">${msgs.join(" ")} You can still save it.</div>` : "";
   });
   S.modalCtx = { id };
+}
+
+// Find or create the People record a stay belongs to
+async function ensurePerson(name, type, p0){
+  let p = p0 && norm(p0.name) === norm(name) ? p0 : findPerson(name);
+  if (!peopleWritable()) return p;
+  if (p && !p.virtual){ if (p.type !== type) await save("people", { ...p, type }); return p; }
+  const np = { id: newId("people"), name: p ? p.name : name, type, status: "confirmed", description: "", contact: "", arrival: "", when: "" };
+  return (await save("people", np)) ? np : p;
+}
+function personForm(pid){
+  const p = pid ? personById(pid) : { type: "guest", status: "confirmed" };
+  if (!p) return;
+  const sts = pid ? PX().staysOf(p) : [], sps = sortedSpaces(), hold = D().spaces.find(isHold);
+  openModal(pid ? "Edit person" : "New person", `
+    <label class="f"><span>Name</span><input id="pp-name" value="${esc(p.name)}" placeholder="Person, couple or family" maxlength="80"></label>
+    <div class="f2">
+      <label class="f"><span>Type</span><select id="pp-type">${opt(TYPES, typeOf(p))}</select></label>
+      <label class="f"><span>Status</span><select id="pp-status">${opt(PSTATUS, PSTATUS.some(s => s[0] === p.status) ? p.status : "confirmed")}</select></label>
+    </div>
+    <label class="f"><span>Description <small>(optional)</small></span><textarea id="pp-desc" maxlength="1000" placeholder="Role, what they're here for, anything worth knowing">${esc(p.description)}</textarea></label>
+    <div class="f2">
+      <label class="f"><span>Contact <small>(optional)</small></span><input id="pp-contact" value="${esc(p.contact)}" placeholder="Phone or email" maxlength="160"></label>
+      <label class="f"><span>Arrival</span><input id="pp-arrival" value="${esc(p.arrival)}" placeholder="Flight, pickup" maxlength="200"></label>
+    </div>
+    ${sts.length ? `<div class="f"><span>Dates</span><small>${sts.map(x => `${esc(spName(x))}, ${fmt(x.start)} – ${x.end ? fmt(x.end) : "no end date"}`).join(" · ")}. Change these from the stay.</small></div>` : `
+    <div class="fieldset"><span>Dates</span>
+      <div class="f2"><label class="f"><small>Arrives</small><input id="pp-start" type="date"></label><label class="f"><small>Leaves</small><input id="pp-end" type="date"></label></div>
+      <label class="f" id="pp-spacewrap" hidden><small>Space</small><select id="pp-space">${sps.map(s => `<option value="${esc(s.id)}"${hold && s.id === hold.id ? " selected" : ""}>${esc(s.name)}</option>`).join("")}</select></label>
+      <label class="f" id="pp-whenwrap"><small>Or roughly, if the dates aren't known</small><input id="pp-when" value="${esc(p.when)}" placeholder="e.g. early January, sometime in spring" maxlength="80"></label>
+    </div>`}
+  `, footer(pid ? "Save" : "Add person", pid ? "delete-person" : ""), async () => {
+    const name = fv("pp-name");
+    if (!name){ toast("Add a name."); $("#pp-name").focus(); return false; }
+    if (!peopleWritable()){ toast(SCRIPT_MSG, 7000); return false; }
+    const start = fv("pp-start"), end = fv("pp-end"), dated = validDate(start);
+    if (end && (!dated || end <= start)){ toast(dated ? "Leaving has to be after arriving." : "Add the arrival date too."); return false; }
+    const dup = findPerson(name);
+    if (!pid && dup){ toast(`${dup.name} is already in People.`); return false; }
+    let status = fv("pp-status"); if (dated && status === "coming") status = "confirmed";
+    const id = pid && !p.virtual ? p.id : newId("people");
+    const body = { ...(pid && !p.virtual ? p : {}), id, name, type: fv("pp-type"), status, description: fv("pp-desc"), contact: fv("pp-contact"), arrival: fv("pp-arrival"), when: dated ? "" : fv("pp-when") };
+    delete body.virtual;
+    if (!(await save("people", body))) return false;
+    for (const st of sts) if (st.personId !== id || st.name !== name || st.category !== body.type) await save("stays", { ...st, personId: id, name, category: body.type });
+    if (dated) await save("stays", { id: newId("stays"), name, personId: id, spaceId: fv("pp-space"), category: body.type, start, end: validDate(end) ? end : "", headcount: 1, status: "confirmed", notes: "" });
+    if (S.openPerson) S.openPerson = id;
+    toast(pid ? "Saved" : dated ? `${name} added to the calendar` : `${name} added`);
+  }, () => {
+    const s = $("#pp-start"); if (!s) return;
+    const dated = validDate(s.value);
+    $("#pp-spacewrap").hidden = !dated; $("#pp-whenwrap").hidden = dated;
+  });
+  S.modalCtx = { id: pid };
+}
+
+const PGROUPS = [["here","Here now"],["arriving","Arriving"],["unknown","Coming, dates unknown"],["deciding","Being decided"],["res","Residents"],["past","Past"]];
+function personInfo(p){
+  const sts = PX().staysOf(p), cur = sts.find(x => covers(x, TODAY)), next = sts.find(x => x.start > TODAY);
+  const past = sts.filter(x => x.end && x.end <= TODAY), last = past[past.length - 1], ty = typeOf(p), curSp = cur && space(cur.spaceId);
+  let g;
+  if (ty === "resident" || (curSp && isRes(curSp))) g = "res";
+  else if (p.status === "deciding") g = "deciding";
+  else if (cur) g = "here";
+  else if (next) g = "arriving";
+  else if (!sts.length || p.status === "coming") g = "unknown";
+  else g = "past";
+  return { p, sts, cur, next, last, ty, g };
+}
+function personRow(i){
+  const { p, cur, next, last, ty, g } = i, range = x => `${fmt(x.start)}${x.end ? " – " + fmt(x.end) : " on"}`;
+  let line = "", when = "", soon = false;
+  if (g === "here"){
+    line = `${spName(cur)}${cur.end ? ` until ${fmt(cur.end)}` : ""}`;
+    const then = i.sts.find(x => x !== cur && cur.end && x.start === cur.end && x.spaceId !== cur.spaceId);
+    if (then) line += `, then ${spName(then)}`;
+  } else if (g === "arriving"){
+    line = `${spName(next)} · ${range(next)}`;
+    const d = diff(TODAY, next.start); when = d === 1 ? "Tomorrow" : d < 14 ? `in ${d} days` : fmt(next.start); soon = d <= 7;
+  } else if (g === "unknown") line = p.when ? `Expected ${p.when}` : "No dates yet";
+  else if (g === "deciding") line = p.when ? `Maybe ${p.when}` : next ? `${spName(next)} · ${range(next)}` : cur ? spName(cur) : "No dates yet";
+  else if (g === "res") line = cur ? spName(cur) : "";
+  else line = last ? `Left ${fmt(last.end)}` : "";
+  const sub = [g === "res" ? "" : label(TYPES, ty), line].filter(Boolean).join(" · ");
+  return `<button class="li prow" data-act="open-person" data-id="${esc(p.id)}"><span class="swatch ty-${ty}"></span>
+    <span class="grow"><span class="t">${esc(p.name)}</span><br><span class="s">${esc(sub)}</span>${p.description ? `<br><span class="s faint">${esc(trunc(p.description, 90))}</span>` : ""}</span>
+    ${when ? `<span class="when${soon ? " soon" : ""}">${esc(when)}</span>` : ""}</button>`;
+}
+function renderPeople(){
+  const all = PX().list.map(personInfo), listEl = $("#peopleList");
+  const counts = {}; all.forEach(i => { counts[i.ty] = (counts[i.ty] || 0) + 1; });
+  if (S.ptype !== "all" && !counts[S.ptype]) S.ptype = "all";
+  $("#peopleTypes").innerHTML = all.length ? `<button data-ptype="all" aria-pressed="${S.ptype === "all"}">All</button>` + TYPES.filter(([k]) => counts[k]).map(([k]) => `<button data-ptype="${k}" aria-pressed="${S.ptype === k}">${esc(TYPE_SHORT[k])}</button>`).join("") : "";
+  const n = g => all.filter(i => i.g === g).length;
+  const soon = all.filter(i => i.g === "arriving" && diff(TODAY, i.next.start) <= 30).length;
+  $("#peopleSummary").innerHTML = all.length ? `<span><b>${n("here")}</b>here now</span><span><b>${soon}</b>arriving in 30 days</span>${n("unknown") ? `<span><b>${n("unknown")}</b>dates unknown</span>` : ""}${n("deciding") ? `<span><b>${n("deciding")}</b>being decided</span>` : ""}` : "";
+  const note = $("#peopleNote");
+  note.innerHTML = S.hosted && !S.visit && S.loaded.size && !S.peopleOk && !S.stale ? `<div class="banner"><span class="grow"><b>One more step.</b> Everyone on the calendar is listed here already. To save details like contact and arrival, update the script in your Google Sheet.</span></div>` : "";
+  note.hidden = !note.innerHTML;
+  if (!all.length){
+    listEl.innerHTML = !S.connected || (S.db && !S.loaded.has("stays")) ? `<p class="faint">Loading…</p>` : `<div class="empty-state"><span class="label">No one yet</span><h2>Residents, helpers, workshop people and guests</h2><p>Add people as soon as you hear they might come, even without dates. Book their stay once the dates firm up.</p>${writable() ? `<div class="row"><button class="btn primary plus" data-act="new-person">Add a person</button></div>` : ""}</div>`;
+    return;
+  }
+  const q = norm(S.pq);
+  const shown = all.filter(i => (S.ptype === "all" || i.ty === S.ptype) && (!q || norm(i.p.name).includes(q) || norm(i.p.description).includes(q)));
+  const byName = (a, b) => String(a.p.name).localeCompare(String(b.p.name));
+  const sorts = { arriving: (a, b) => byStart(a.next, b.next) || byName(a, b), past: (a, b) => (a.last && b.last && a.last.end < b.last.end ? 1 : -1) };
+  const html = PGROUPS.map(([g, title]) => {
+    const items = shown.filter(i => i.g === g).sort(sorts[g] || byName);
+    if (!items.length) return "";
+    if (g === "past") return `<details class="past"><summary>Past <span class="faint" style="font-size:15px">${items.length}</span></summary><div class="list">${items.map(personRow).join("")}</div></details>`;
+    return `<div class="pgroup${g === "res" ? " res" : ""}"><div class="pgroup-h"><h3>${title}</h3><span class="n">${items.length}</span></div><div class="list">${items.map(personRow).join("")}</div></div>`;
+  }).join("");
+  const keepOpen = listEl.querySelector("details.past[open]");
+  listEl.innerHTML = html || `<p class="faint">No one matches.</p>`;
+  if (keepOpen){ const d = listEl.querySelector("details.past"); if (d) d.open = true; }
 }
 
 function workForm(id, preset = {}){
@@ -1441,7 +1723,7 @@ function workForm(id, preset = {}){
     const box = $("#w-warn"), bs = fv("w-bstart"), be = fv("w-bend") || (validDate(bs) ? addDays(bs, 1) : "");
     if (!blk || !validDate(bs) || be <= bs){ box.innerHTML = blk ? `<small class="hint">The calendar shows the space closed for these dates. Without an end date it uses the hour estimate at 8 hours a day.</small>` : ""; return; }
     const who = staysFor(fv("w-space")).filter(x => x.start < be && (!x.end || x.end > bs));
-    box.innerHTML = who.length ? `<div class="warnbox">${who.map(x => esc(x.name)).join(", ")} ${who.length === 1 ? "is" : "are"} booked there during those dates. Move ${who.length === 1 ? "them" : "them"} first: open the stay and pick another space, or use Find room on the calendar.</div>` : `<small class="hint">Nobody is booked there during those dates.</small>`;
+    box.innerHTML = who.length ? `<div class="warnbox">${who.map(x => esc(personName(x))).join(", ")} ${who.length === 1 ? "is" : "are"} booked there during those dates. Move ${who.length === 1 ? "them" : "them"} first: open the stay and pick another space, or use Find room on the calendar.</div>` : `<small class="hint">Nobody is booked there during those dates.</small>`;
   });
   S.modalCtx = { id };
 }
@@ -1482,6 +1764,7 @@ function publicForm(){
 function newId(coll){ return (S.demo || !S.db) ? "x" + Math.random().toString(36).slice(2, 12) : S.db.collection(coll).doc().id; }
 async function save(coll, obj){
   const { id, ...body } = obj; body.updatedAt = new Date().toISOString();
+  pxReset();
   if (S.demo){
     if (coll === "settings") S.demoData.settings = body;
     else { const arr = S.demoData[coll], i = arr.findIndex(x => x.id === id), rec = { id, ...body }; if (i >= 0) arr[i] = rec; else arr.push(rec); }
@@ -1491,6 +1774,7 @@ async function save(coll, obj){
   try { await S.db.collection(coll).doc(id).set(body); return true; } catch (e){ return writeError(e); }
 }
 async function remove(coll, id){
+  pxReset();
   if (S.demo){ S.demoData[coll] = S.demoData[coll].filter(x => x.id !== id); renderAll(); return true; }
   try { await S.db.collection(coll).doc(id).delete(); return true; } catch (e){ return writeError(e); }
 }
@@ -1543,9 +1827,9 @@ function toast(msg, ms = 2600, action){
   const r = $("#toastRoot"); r.innerHTML = `<div class="toast" role="status"><span>${esc(msg)}</span>${action ? `<button data-act="toast-action">${esc(action.label)}</button>` : ""}</div>`;
   clearTimeout(toastT); toastT = setTimeout(() => { r.innerHTML = ""; }, ms);
 }
-function armed(btn){
+function armed(btn, msg){
   if (btn.classList.contains("armed")) return true;
-  btn.classList.add("armed"); const t = btn.textContent; btn.textContent = "Tap again to confirm";
+  btn.classList.add("armed"); const t = btn.textContent; btn.textContent = msg || "Tap again to confirm";
   setTimeout(() => { btn.classList.remove("armed"); btn.textContent = t; }, 4000);
   return false;
 }
@@ -1554,6 +1838,8 @@ function armed(btn){
 document.addEventListener("click", async e => {
   if (suppressClick){ e.preventDefault(); e.stopPropagation(); return; }
   const tab = e.target.closest(".tab"); if (tab){ setView(tab.dataset.view); return; }
+  const sub = e.target.closest("[data-sub]"); if (sub){ setView(sub.dataset.sub); return; }
+  const pt = e.target.closest("[data-ptype]"); if (pt){ S.ptype = pt.dataset.ptype; renderPeople(); return; }
   const fb = e.target.closest("[data-filter]"); if (fb){ S.filter = fb.dataset.filter; renderSpaces(); return; }
   const zb = e.target.closest("[data-zoom]"); if (zb){
     const fr = $("#calFrame"), mid = S.cw ? addDays(S.cal.start, Math.floor((fr.scrollLeft + 1) / S.cw)) : TODAY;
@@ -1588,6 +1874,32 @@ document.addEventListener("click", async e => {
         const hit = D().stays.find(x => ids.includes(x.id) && covers(x, d)); if (hit) sid = hit.id;
       }
       stayForm(sid); break; }
+    case "bar": {
+      let sid = id; const ids = (a.dataset.ids || "").split(",").filter(Boolean);
+      if (ids.length > 1){
+        const tr = a.closest("[data-track]"), r = tr.getBoundingClientRect(), d = addDays(S.cal.start, Math.floor((e.clientX - r.left) / S.cw));
+        const hit = D().stays.find(x => ids.includes(x.id) && covers(x, d)); if (hit) sid = hit.id;
+      }
+      const st = D().stays.find(x => x.id === sid), p = personOfStay(st);
+      if (p) openPerson(p.id, sid); else if (st && writable()) stayForm(sid);
+      break; }
+    case "open-person": openPerson(id, a.dataset.stay); break;
+    case "new-person": if (writable()) personForm(null); break;
+    case "edit-person": personForm(id); break;
+    case "book-person": {
+      const p = personById(id); if (!p) break;
+      const hold = D().spaces.find(isHold), last = PX().staysOf(p).filter(x => x.status !== "cancelled").pop();
+      stayForm(null, { personId: p.virtual ? "" : p.id, name: p.name, category: typeOf(p), spaceId: last ? last.spaceId : hold ? hold.id : undefined, start: last && last.end && last.end > TODAY ? last.end : TODAY, end: addDays(last && last.end && last.end > TODAY ? last.end : TODAY, 7) });
+      break; }
+    case "delete-person": {
+      const p = personById(S.modalCtx.id); if (!p) break;
+      const sts = PX().staysOf(p);
+      if (!p.virtual && !peopleWritable()){ toast(SCRIPT_MSG, 7000); break; }
+      if (!armed(a, sts.length ? `Tap again: deletes ${sts.length === 1 ? "their stay" : `their ${sts.length} stays`} too` : "")) break;
+      for (const st of sts){ if (!(await remove("stays", st.id))) return; }
+      if (!p.virtual && !(await remove("people", p.id))) break;
+      closeModal(); closeDrawer(); toast(`${p.name} deleted`);
+      break; }
     case "new-work": workForm(null, { spaceId: a.dataset.space || S.openSpace || undefined }); break;
     case "edit-work": workForm(id); break;
     case "cycle-work": {
@@ -1655,7 +1967,8 @@ $("#calJump").addEventListener("change", e => { const v = e.target.value; if (!v
   S.scrollToDate = addDays(v, -1); e.target.value = ""; renderCalendar(); });
 $("#pubFrom").addEventListener("change", e => { if (validDate(e.target.value)){ S.pub.from = e.target.value; if (S.pub.to <= S.pub.from) S.pub.to = addDays(S.pub.from, 7); renderPublic(); } });
 $("#pubTo").addEventListener("change", e => { if (validDate(e.target.value)){ S.pub.to = e.target.value; renderPublic(); } });
-document.addEventListener("keydown", e => { if (e.key !== "Escape") return; if ($("#modalRoot").innerHTML) closeModal(); else if (S.openSpace) closeDrawer(); });
+document.addEventListener("keydown", e => { if (e.key !== "Escape") return; if ($("#modalRoot").innerHTML) closeModal(); else if (S.openSpace || S.openPerson) closeDrawer(); });
+$("#peopleSearch").addEventListener("input", e => { S.pq = e.target.value; renderPeople(); });
 window.addEventListener("hashchange", () => setView(location.hash.slice(1), false));
 let rT; window.addEventListener("resize", () => { clearTimeout(rT); rT = setTimeout(() => { if (S.view === "calendar") renderCalendar(); }, 150); });
 
@@ -1690,6 +2003,11 @@ function makeDemo(){
       { id: "w7", spaceId: "d6", task: "Run power to the back corner", hours: 3, priority: "needed", status: "todo" },
     ],
     events: [{ id: "e1", name: "Workshop (example)", start: addDays(T, 12), last: addDays(T, 16) }],
+    people: [
+      { id: "p1", name: "Kitchen helper (example)", type: "threemonth", status: "confirmed", description: "Runs breakfast and the kitchen schedule.", contact: "808 555 0142", arrival: "" },
+      { id: "p2", name: "Coming in spring (example)", type: "shortterm", status: "coming", when: "March or April" },
+      { id: "p3", name: "Maybe for the workshop (example)", type: "workshop", status: "deciding", when: "workshop week" },
+    ],
     settings: { publicTitle: "Places to stay at Rainbow Bridge", publicIntro: "Accommodation here is simple and close to the land. Kitchen and bathrooms are shared. Bring a headlamp and rain gear.", contact: "Message us with your dates and we'll find you a spot." },
   };
 }
@@ -1700,10 +2018,11 @@ function makeDemo(){
 function subscribeAll(db){
   const timer = setTimeout(() => { if (S.loaded.size < 3){ S.slow = true; renderNotice(); } }, 10000);
   const onErr = () => { clearTimeout(timer); S.slow = false; renderAll(); };
+  db.collection("people").onSnapshot(snap => { S.real.people = snap.docs.map(d => ({ id: d.id, ...d.data() })); if (!S.hosted) S.peopleOk = true; pxReset(); if (!S.demo) renderAll(); }, () => {});
   db.collection("events").onSnapshot(snap => { S.real.events = snap.docs.map(d => ({ id: d.id, ...d.data() })); if (!S.demo && S.view === "calendar") renderCalendar(); }, () => {});
   for (const coll of ["spaces","stays","work"]){
     db.collection(coll).onSnapshot(snap => {
-      S.real[coll] = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      S.real[coll] = snap.docs.map(d => ({ id: d.id, ...d.data() })); pxReset();
       if (!snap.metadata.fromCache) S.loaded.add(coll);
       if (S.loaded.size >= 3){ clearTimeout(timer); S.slow = false; }
       if (!S.demo) renderAll();
@@ -1730,10 +2049,10 @@ function authLost(){
   toast("Please sign in again."); showLogin();
 }
 function gasDb(){
-  let data = { spaces: [], stays: [], work: [], events: [], settings: [] }, ready = false, queue = Promise.resolve(), pending = 0;
+  let data = { spaces: [], stays: [], work: [], events: [], people: [], settings: [] }, ready = false, queue = Promise.resolve(), pending = 0;
   const subs = [];
   const cached = readCache(CACHE_TEAM);
-  if (cached){ data = cached.data; ready = true; S.stale = cached.at; }
+  if (cached){ data = cached.data; S.peopleOk = Array.isArray(data.people); data.people = data.people || []; ready = true; S.stale = cached.at; }
   const snapOf = l => {
     const list = data[l.coll] || [];
     if (l.id){ const r = list.find(x => x.id === l.id); return { id: l.id, exists: !!r, data: () => r ? { ...r } : undefined, metadata: { fromCache: false, hasPendingWrites: false } }; }
@@ -1746,7 +2065,9 @@ function gasDb(){
     if (r.error === "auth") return authLost();
     if (r.error) throw r;
     if (pending) return; // a save is on its way; the next load will catch up
+    S.peopleOk = Array.isArray(r.people);
     data = { spaces: r.spaces || [], stays: r.stays || [], work: r.work || [], events: r.events || [], settings: r.settings || [] };
+    if (S.peopleOk) data.people = r.people;
     ready = true; S.stale = 0; S.offline = false; writeCache(CACHE_TEAM, data); fireAll();
   }
   const send = body => {
@@ -1825,7 +2146,7 @@ async function hostedBoot(cfg){
   S.photoBase = "https://drive.google.com/thumbnail?sz=w1600&id=";
   if (new URLSearchParams(location.search).has("visit")){
     S.visit = true; document.body.classList.add("visit-mode"); setView("visitors", false);
-    const show = d => { S.real = { spaces: d.spaces || [], stays: d.stays || [], work: d.blocks || [], events: [], settings: d.settings || {} }; ["spaces","stays","work"].forEach(k => S.loaded.add(k)); renderAll(); };
+    const show = d => { S.real = { spaces: d.spaces || [], stays: d.stays || [], work: d.blocks || [], events: [], people: [], settings: d.settings || {} }; ["spaces","stays","work"].forEach(k => S.loaded.add(k)); renderAll(); };
     const c = readCache(CACHE_PUB);
     if (c) show(c.data); else $("#pubBody").innerHTML = `<p class="faint">Loading…</p>`;
     let data; try { data = await gasCall({ action: "public" }); } catch {}
