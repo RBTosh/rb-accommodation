@@ -392,6 +392,25 @@ body.is-dragging,body.is-dragging *{cursor:grabbing!important;user-select:none;-
 .hbtn{gap:5px;white-space:nowrap}
 .hbtn svg{margin:-2px 0 -2px -2px}
 
+/* reorder */
+.ro-bar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:10px 14px;background:var(--sunk);border-radius:var(--r-sm);font-size:14px;color:var(--ink-2);margin-bottom:12px}
+.ro-bar .grow{flex:1;min-width:200px}
+.ro-list{list-style:none;margin:0 0 16px;padding:0;background:var(--surface);border-radius:var(--r-sm);box-shadow:var(--shadow-sm);overflow:hidden;max-width:640px}
+.ro-list[data-g="1"]{background:var(--sunk);box-shadow:none}
+.ro-row{display:flex;align-items:center;gap:10px;padding:8px 10px 8px 12px;border-top:1px solid var(--line);user-select:none;-webkit-user-select:none}
+.ro-row:first-child{border-top:0}
+.ro-row[draggable="true"]{cursor:grab}
+.ro-row.dragging{opacity:.35}
+.ro-row.drop-before{box-shadow:inset 0 3px 0 var(--brand)}
+.ro-row.drop-after{box-shadow:inset 0 -3px 0 var(--brand)}
+.ro-handle{color:var(--ink-3);display:grid;place-items:center}
+.ro-name{flex:1;font-weight:500;min-width:0}
+.ro-list[data-g="1"] .ro-name{color:var(--ink-2)}
+.ro-btns{display:flex;gap:4px}
+.ro-btns .btn{padding:6px 11px;min-width:40px;font-size:13px}
+.ro-btns .btn:disabled{opacity:.25}
+#reorderBtn svg{margin-right:2px}
+
 /* visitor view */
 .pub-hero{display:flex;flex-direction:column;gap:12px;padding:40px 36px;border-radius:var(--r);background:var(--brand);color:var(--brand-ink)}
 .pub-hero .wordmark{width:min(300px,80%);height:auto;margin-bottom:8px}
@@ -494,6 +513,8 @@ body.is-dragging,body.is-dragging *{cursor:grabbing!important;user-select:none;-
         <button data-filter="occupied" aria-pressed="false">Occupied</button>
         <button data-filter="notready" aria-pressed="false">Not ready</button>
       </div>
+      <span class="spacer"></span>
+      <button class="btn sm" data-act="reorder-start" id="reorderBtn" hidden><svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4v16M4 7l3-3 3 3M17 20V4M14 17l3 3 3-3"/></svg>Reorder</button>
     </div>
     <div id="spacesGrid"></div>
     <div class="page-foot"><button class="linkish" data-act="sign-out" id="signOutBtn" hidden>Sign out</button></div>
@@ -745,7 +766,9 @@ function renderSummary(){
   $("#spacesSummary").innerHTML = `<span><b>${people}</b>here tonight</span><span><b>${free}</b>free ${free === 1 ? "space" : "spaces"}</span>${notReady ? `<span><b>${notReady}</b>not ready</span>` : ""}${clash ? `<span class="alert"><b>${clash}</b>double booked ahead</span>` : ""}`;
 }
 function renderSpaces(){
+  if (S.reorder) return renderReorder();
   const all = D().spaces, grid = $("#spacesGrid");
+  $("#reorderBtn").hidden = !writable() || !all.length;
   document.querySelectorAll("[data-filter]").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.filter === S.filter)));
   if (!all.length){
     $("#spacesSummary").innerHTML = ""; $("#spacesToolbar").hidden = true;
@@ -788,6 +811,61 @@ function cardHtml(sp){
         ${over.length ? `<span class="chip crit">Double booked ${fmt(over[0])}</span>` : ""}</div>` : ""}
     </div></button>`;
 }
+
+/* ---------- reorder spaces (same order on the calendar) ---------- */
+const HANDLE = '<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><circle cx="9" cy="6" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="18" r="1.6"/></svg>';
+function startReorder(){
+  const list = sortedSpaces(realSpaces());
+  S.ro = [list.filter(sp => !isRes(sp)).map(sp => sp.id), list.filter(isRes).map(sp => sp.id)];
+  S.reorder = true; renderSpaces();
+}
+function renderReorder(){
+  $("#spacesToolbar").hidden = true; $("#spacesSummary").innerHTML = "";
+  const touch = window.matchMedia("(hover: none)").matches;
+  const row = (id, g, i, n) => {
+    const sp = space(id); if (!sp) return "";
+    return `<li class="ro-row" draggable="${touch ? "false" : "true"}" data-id="${esc(id)}" data-g="${g}">
+      <span class="ro-handle">${HANDLE}</span><span class="ro-name">${esc(sp.name)}</span>
+      <span class="ro-btns"><button class="btn ghost sm" data-act="ro-move" data-dir="-1" data-id="${esc(id)}" data-g="${g}" ${i === 0 ? "disabled" : ""} aria-label="Move ${esc(sp.name)} up">▲</button><button class="btn ghost sm" data-act="ro-move" data-dir="1" data-id="${esc(id)}" data-g="${g}" ${i === n - 1 ? "disabled" : ""} aria-label="Move ${esc(sp.name)} down">▼</button></span></li>`;
+  };
+  const list = g => S.ro[g].length ? `<ol class="ro-list" data-g="${g}">${S.ro[g].map((id, i, a) => row(id, g, i, a.length)).join("")}</ol>` : "";
+  $("#spacesGrid").innerHTML = `<div class="ro-bar"><span class="grow">${touch ? "Use the arrows to move spaces up or down." : "Drag the rows, or use the arrows."} The calendar follows this order.</span>
+    <button class="btn sm" data-act="reorder-cancel">Cancel</button><button class="btn sm primary" data-act="reorder-done">Done</button></div>${list(0)}${list(1)}`;
+}
+async function finishReorder(){
+  const changes = [];
+  S.ro.forEach(group => group.forEach((id, i) => { const sp = space(id); if (sp && num(sp.order, -999) !== i + 1) changes.push({ ...sp, order: i + 1 }); }));
+  S.reorder = false; S.ro = null;
+  for (const c of changes){ if (!(await save("spaces", c))) break; }
+  renderAll(); toast(changes.length ? "Order saved" : "No changes");
+}
+let roDrag = null;
+document.addEventListener("dragstart", e => {
+  const r = e.target.closest && e.target.closest(".ro-row"); if (!r) return;
+  roDrag = { id: r.dataset.id, g: Number(r.dataset.g) };
+  e.dataTransfer.effectAllowed = "move"; try { e.dataTransfer.setData("text/plain", roDrag.id); } catch {}
+  r.classList.add("dragging");
+});
+document.addEventListener("dragover", e => {
+  if (!roDrag) return;
+  const r = e.target.closest(".ro-row"); if (!r || Number(r.dataset.g) !== roDrag.g) return;
+  e.preventDefault();
+  const rect = r.getBoundingClientRect(), after = e.clientY > rect.top + rect.height / 2;
+  document.querySelectorAll(".ro-row.drop-before,.ro-row.drop-after").forEach(x => x.classList.remove("drop-before", "drop-after"));
+  if (r.dataset.id !== roDrag.id) r.classList.add(after ? "drop-after" : "drop-before");
+});
+document.addEventListener("drop", e => {
+  if (!roDrag) return;
+  const r = e.target.closest(".ro-row"); e.preventDefault();
+  if (r && Number(r.dataset.g) === roDrag.g && r.dataset.id !== roDrag.id){
+    const after = r.classList.contains("drop-after"), list = S.ro[roDrag.g];
+    list.splice(list.indexOf(roDrag.id), 1);
+    let to = list.indexOf(r.dataset.id); if (after) to++;
+    list.splice(to, 0, roDrag.id);
+  }
+  roDrag = null; renderReorder();
+});
+document.addEventListener("dragend", () => { roDrag = null; document.querySelectorAll(".ro-row").forEach(x => x.classList.remove("dragging", "drop-before", "drop-after")); });
 
 /* ---------- side sheet ---------- */
 function openSpace(id){ S.openSpace = id; S.gIdx = 0; renderDrawer(); }
@@ -1549,6 +1627,11 @@ document.addEventListener("click", async e => {
     case "copy-link": try { await navigator.clipboard.writeText(a.dataset.url); toast("Link copied"); } catch { toast("Select the link and copy it."); } break;
     case "sign-out": lsSet("rb-token", ""); clearCaches(); location.reload(); break;
     case "go-visitors": setView("visitors"); break;
+    case "reorder-start": startReorder(); break;
+    case "reorder-cancel": S.reorder = false; S.ro = null; renderSpaces(); break;
+    case "reorder-done": finishReorder(); break;
+    case "ro-move": { const g = Number(a.dataset.g), list = S.ro[g], i = list.indexOf(id), j = i + Number(a.dataset.dir);
+      if (i >= 0 && j >= 0 && j < list.length){ [list[i], list[j]] = [list[j], list[i]]; renderReorder(); const nb = document.querySelector(`.ro-row[data-id="${CSS.escape(id)}"] [data-dir="${a.dataset.dir}"]`); if (nb && !nb.disabled) nb.focus(); } break; }
     case "go-spaces": setView("spaces"); break;
     case "demo-off": S.demo = false; S.openSpace = null; renderAll(); break;
   }
