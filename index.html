@@ -732,14 +732,22 @@ function blocksFor(id){
 }
 const notReadyOn = (sp, d) => !USABLE.has(sp.condition) && !(validDate(sp.readyBy) && d >= sp.readyBy);
 const blockedOn = (sp, d) => blocksFor(sp.id).some(b => b.start <= d && d < b.end);
-const partiesOn = (sp, d, excludeId) => staysFor(sp.id).filter(x => x.id !== excludeId && covers(x, d));
+// A party is people booked together: a couple or a family share a party id; anyone else is their own party.
+const partyKey = st => st.party || st.id;
+const partyCount = list => new Set(list.map(partyKey)).size;
+const joinNames = names => names.length <= 1 ? (names[0] || "") : names.slice(0, -1).join(", ") + " and " + names[names.length - 1];
+const splitNames = s => String(s || "").split(/\s*(?:,|&|\+|\band\b)\s*/i).map(x => x.trim()).filter(Boolean);
+function partiesOn(sp, d, excludeId){
+  const ex = excludeId ? D().stays.find(x => x.id === excludeId) : null;
+  return staysFor(sp.id).filter(x => x.id !== excludeId && !(ex && ex.party && x.party === ex.party) && covers(x, d));
+}
 // One party per space. A party is one booking (a person, a couple). Shared spaces take several parties up to their number of sites.
 // Last-resort spaces (the Dream Temple) can hold several people from different bookings, up to their most-at-once.
 const peopleIn = list => list.reduce((a, x) => a + heads(x), 0);
 function roomOn(sp, d, people = 1, excludeId){
   if (isRes(sp) || isHold(sp) || notReadyOn(sp, d) || blockedOn(sp, d)) return false;
   const others = partiesOn(sp, d, excludeId);
-  if (isShared(sp)) return others.length < Math.max(1, maxOf(sp));
+  if (isShared(sp)) return partyCount(others) < Math.max(1, maxOf(sp));
   if (isLast(sp)) return peopleIn(others) + people <= Math.max(1, maxOf(sp));
   return !others.length && people <= Math.max(1, maxOf(sp));
 }
@@ -758,7 +766,7 @@ function clashDays(sp, from = TODAY, days = 120){
     const d = addDays(from, i), here = sts.filter(st => covers(st, d));
     if (!here.length) continue;
     const blocked = bl.some(b => b.start <= d && d < b.end);
-    const tooMany = isShared(sp) ? here.length > Math.max(1, maxOf(sp)) : isLast(sp) ? peopleIn(here) > Math.max(1, maxOf(sp)) : here.length > 1;
+    const tooMany = isShared(sp) ? partyCount(here) > Math.max(1, maxOf(sp)) : isLast(sp) ? peopleIn(here) > Math.max(1, maxOf(sp)) : partyCount(here) > 1;
     if (blocked || tooMany) out.push(d);
   }
   return out;
@@ -768,7 +776,7 @@ function statusOf(sp){
   const here = staysFor(sp.id).filter(x => covers(x, TODAY)), load = here.reduce((a, x) => a + heads(x), 0);
   if (blockedOn(sp, TODAY)) return { key: load ? "over" : "notready", text: load ? "Repairs while occupied" : "Closed for repairs", load };
   if (clashDays(sp, TODAY, 1).length) return { key: "over", text: "Double booked", load };
-  if (isShared(sp) && here.length) return { key: "part", text: `${here.length} of ${Math.max(1, maxOf(sp))} sites`, load };
+  if (isShared(sp) && here.length) return { key: "part", text: `${partyCount(here)} of ${Math.max(1, maxOf(sp))} sites`, load };
   if (load > 0) return { key: "full", text: "Occupied", load };
   if (notReadyOn(sp, TODAY)) return { key: "notready", text: validDate(sp.readyBy) ? `Ready ~${fmt(sp.readyBy)}` : label(CONDITIONS, sp.condition), load };
   if (isLast(sp)) return { key: "notready", text: "Last resort", load };
@@ -956,7 +964,7 @@ function cardHtml(sp){
     <div class="card-body">
       <div class="card-head"><h3>${esc(sp.name || "Untitled space")}</h3>${hasPhoto ? "" : `<span class="pill soft st-${st.key}">${esc(st.text)}</span>`}</div>
       ${cap || nc ? `<div class="cap">${esc([cap, nc].filter(Boolean).join(" · "))}</div>` : ""}
-      ${cur.length ? `<div class="who">${cur.map(x => esc(personName(x))).join(", ")}</div>` : ""}
+      ${cur.length ? `<div class="who">${esc(joinNames(cur.map(personName)))}</div>` : ""}
       ${wk.length || over.length ? `<div class="card-foot">
         ${wk.length ? `<span class="chip ${blockers ? "crit" : "warn"}">${wk.length} ${wk.length === 1 ? "repair" : "repairs"}${sumHours(wk) ? ` · ${hrs(sumHours(wk))}` : ""}</span>` : ""}
         ${over.length ? `<span class="chip crit">Double booked ${fmt(over[0])}</span>` : ""}</div>` : ""}
@@ -1089,7 +1097,8 @@ function renderPersonDrawer(){
   document.body.style.overflow = "hidden";
   const sts = PX().staysOf(p), ty = typeOf(p), st = p.status || "confirmed";
   const upcoming = sts.filter(x => !x.end || x.end > TODAY), past = sts.filter(x => x.end && x.end <= TODAY);
-  const facts = [["Contact", p.contact ? linkify(p.contact) : ""], ["Arrival", p.arrival ? esc(p.arrival) : ""], ["Expected", !upcoming.length && p.when ? esc(p.when) : ""]].filter(f => f[1]);
+  const mates = [...new Map(upcoming.filter(x => x.party).flatMap(x => activeStays().filter(o => o.party === x.party && o.id !== x.id)).map(o => personOfStay(o)).filter(Boolean).map(o => [o.id, o])).values()];
+  const facts = [["With", mates.map(o => `<button class="linkish" data-act="open-person" data-id="${esc(o.id)}">${esc(o.name)}</button>`).join(", ")], ["Contact", p.contact ? linkify(p.contact) : ""], ["Arrival", p.arrival ? esc(p.arrival) : ""], ["Expected", !upcoming.length && p.when ? esc(p.when) : ""]].filter(f => f[1]);
   const row = x => `<button class="li${S.focusStay === x.id ? " focus" : ""}" data-act="edit-stay" data-id="${esc(x.id)}" ${w ? "" : "disabled"}>
       <span class="grow"><span class="t">${esc(spName(x))}</span>${heads(x) > 1 ? ` <span class="faint">×${heads(x)}</span>` : ""}<br><span class="s">${fmtY(x.start)} – ${x.end ? fmtY(x.end) : "no end date"}${x.end ? ` · ${diff(x.start, x.end)} nights` : ""}${x.status === "hold" ? " · on hold" : ""}</span></span>
       ${covers(x, TODAY) ? `<span class="chip">Here now</span>` : ""}${w ? `<span class="faint" aria-hidden="true">›</span>` : ""}</button>`;
@@ -1138,7 +1147,7 @@ function cellW(){
 // Tent sites still open on the busiest night of a date range
 function sitesLeft(sp, from, to){
   let left = Math.max(1, maxOf(sp));
-  for (let i = 0, n = diff(from, to); i < n; i++) left = Math.min(left, Math.max(1, maxOf(sp)) - partiesOn(sp, addDays(from, i)).length);
+  for (let i = 0, n = diff(from, to); i < n; i++) left = Math.min(left, Math.max(1, maxOf(sp)) - partyCount(partiesOn(sp, addDays(from, i))));
   return Math.max(0, left);
 }
 // Homes with nobody in them on any of these nights (the resident is travelling)
@@ -1184,6 +1193,16 @@ function renderWeekLine(){
     if (x.end && x.end >= TODAY && x.end < endD && !sts.some(y => y !== x && key(y) === key(x) && y.start === x.end))
       items.push({ d: x.end, id: x.id, html: `${esc(personName(x))} leaves ${esc(nameOf(x.spaceId))}`, out: true });
   });
+  // people booked together arrive, move and leave as one
+  const merged = [];
+  items.forEach(it => {
+    const x = sts.find(s => s.id === it.id), pk = x && x.party ? x.party + it.d + !!it.out + x.spaceId : null;
+    const same = pk && merged.find(m => m.pk === pk);
+    if (same){ same.names.push(personName(x)); return; }
+    merged.push({ ...it, pk, names: [personName(x)] });
+  });
+  merged.forEach(m => { if (m.names.length > 1) m.html = m.html.replace(esc(m.names[0]), esc(joinNames(m.names))).replace(" moves ", " move ").replace(" leaves ", " leave "); });
+  items.length = 0; items.push(...merged);
   if (!items.length){ el.innerHTML = ""; el.hidden = true; return; }
   el.hidden = false;
   items.sort((a, b) => a.d < b.d ? -1 : a.d > b.d ? 1 : (a.out ? -1 : 1));
@@ -1192,12 +1211,19 @@ function renderWeekLine(){
 }
 // Merge back-to-back stays of the same person in one space into one block
 function blocksForRow(sts){
+  // 1. people in the same party with the same dates become one segment
+  const segs = new Map();
+  [...sts].sort(byStart).forEach(x => {
+    const k = partyKey(x) + "|" + x.start + "|" + (x.end || "");
+    if (!segs.has(k)){ const p = personOfStay(x); segs.set(k, { key: x.party || (p ? p.id : norm(x.name)), party: partyKey(x), start: x.start, end: x.end, ids: [], names: [], heads: 0, hold: true }); }
+    const s = segs.get(k); s.ids.push(x.id); s.names.push(personName(x)); s.heads += heads(x); s.hold = s.hold && x.status === "hold";
+  });
+  // 2. back-to-back segments of the same people join into one block
   const out = [];
-  [...sts].sort((a, b) => a.start < b.start ? -1 : a.start > b.start ? 1 : 0).forEach(x => {
-    const last = out[out.length - 1], p = personOfStay(x), key = p ? p.id : norm(x.name), hold = x.status === "hold";
-    if (last && last.key === key && last.end && last.end === x.start && heads(x) === last.hc && last.hold === hold){
-      last.end = x.end; last.ids.push(x.id);
-    } else out.push({ key, name: personName(x), hc: heads(x), start: x.start, end: x.end, ids: [x.id], hold });
+  [...segs.values()].sort(byStart).forEach(s => {
+    const name = joinNames(s.names), last = out[out.length - 1];
+    if (last && last.key === s.key && last.name === name && last.end && last.end === s.start && last.hold === s.hold){ last.end = s.end; last.ids.push(...s.ids); last.segs++; }
+    else out.push({ key: s.key, party: s.party, name, hc: s.names.length === 1 ? s.heads : 1, heads: s.heads, start: s.start, end: s.end, ids: s.ids.slice(), hold: s.hold, segs: 1 });
   });
   return out;
 }
@@ -1255,8 +1281,8 @@ function renderCalendar(){
       const ov = (a, b) => a.start < (b.end || "9999-12-31") && b.start < (a.end || "9999-12-31");
       const st = items.filter(it => it.kind === "stay"), bk = items.filter(it => it.kind === "blk");
       st.forEach(a => {
-        const others = st.filter(b => b !== a && ov(a, b));
-        const tooMany = isShared(sp) ? others.length >= Math.max(1, maxOf(sp)) : isLast(sp) ? a.hc + others.reduce((n, b) => n + b.hc, 0) > Math.max(1, maxOf(sp)) : others.length > 0;
+        const others = st.filter(b => b !== a && ov(a, b) && b.party !== a.party);
+        const tooMany = isShared(sp) ? new Set(others.map(b => b.party)).size >= Math.max(1, maxOf(sp)) : isLast(sp) ? a.heads + others.reduce((n, b) => n + b.heads, 0) > Math.max(1, maxOf(sp)) : others.length > 0;
         if (bk.some(b => ov(a, b)) || tooMany) a.clash = true;
       });
     }
@@ -1278,7 +1304,7 @@ function renderCalendar(){
       const range = `${fmt(it.start)} – ${it.end ? fmt(it.end) : "no end date"}`;
       if (it.kind === "nr"){ bars += `<span class="bar nrb" style="${style}" title="${esc(it.name)}"><span class="n">${esc(it.name)}</span></span>`; return; }
       if (it.kind === "blk"){ bars += `<button class="bar blk${spill}" data-act="edit-work" data-kind="blk" data-id="${esc(it.ids[0])}" ${writable() ? "" : "disabled"} style="${style}" title="Repairs: ${esc(it.name)} · ${range}"><span class="n">Repairs · ${esc(it.name)}</span></button>`; return; }
-      const multi = it.ids.length > 1;
+      const multi = it.segs > 1;
       bars += `<button class="bar${spill} ${it.hold ? "hold" : ""} ${!it.end ? "open-end" : ""} ${it.clash ? "clash" : ""}" data-act="${isHold(sp) && writable() ? "edit-stay" : "bar"}" data-kind="${multi ? "stay-multi" : "stay"}" data-id="${esc(it.ids[0])}" data-ids="${esc(it.ids.join(","))}" style="${style}" title="${esc(it.name)}${it.hc > 1 ? ` (${it.hc})` : ""} · ${range}${it.hold ? " · on hold" : ""}"><span class="n">${esc(it.name)}${it.hc > 1 ? ` <small>×${it.hc}</small>` : ""}${it.hold ? ` <small>· hold</small>` : ""}</span>${!multi && it.end && writable() ? `<span class="grip" aria-hidden="true"></span>` : ""}</button>`;
     });
     let rowCls = isLast(sp) ? "lastrow" : "", sub = "";
@@ -1307,9 +1333,9 @@ let drag = null, suppressClick = false;
 document.addEventListener("pointerdown", e => {
   if (e.pointerType !== "mouse" || e.button !== 0 || !writable()) return;
   const bar = e.target.closest('.bar[data-kind="stay"]'); if (!bar || bar.disabled) return;
-  const st = D().stays.find(x => x.id === bar.dataset.id); if (!st) return;
+  const sts = (bar.dataset.ids || bar.dataset.id).split(",").map(id => D().stays.find(x => x.id === id)).filter(Boolean), st = sts[0]; if (!st) return;
   e.preventDefault();
-  drag = { bar, st, x0: e.clientX, y0: e.clientY, mode: e.target.closest(".grip") ? "end" : "move", started: false, days: 0, target: st.spaceId, width: parseFloat(bar.style.width) };
+  drag = { bar, st, sts, x0: e.clientX, y0: e.clientY, mode: e.target.closest(".grip") ? "end" : "move", started: false, days: 0, target: st.spaceId, width: parseFloat(bar.style.width) };
 });
 document.addEventListener("pointermove", e => {
   if (!drag) return;
@@ -1342,17 +1368,18 @@ document.addEventListener("pointerup", async () => {
   document.querySelectorAll(".cal-row.drop").forEach(r => r.classList.remove("drop"));
   if (!d.started) return;
   suppressClick = true; setTimeout(() => { suppressClick = false; }, 0);
-  const prev = { ...d.st }; let next;
-  if (d.mode === "end") next = { ...prev, end: addDays(prev.end, d.days) };
-  else next = { ...prev, spaceId: d.target, start: addDays(prev.start, d.days), end: prev.end ? addDays(prev.end, d.days) : "" };
+  const prevs = d.sts.map(x => ({ ...x }));
+  const nexts = prevs.map(p => d.mode === "end" ? { ...p, end: addDays(p.end, d.days) } : { ...p, spaceId: d.target, start: addDays(p.start, d.days), end: p.end ? addDays(p.end, d.days) : "" });
+  const prev = prevs[0], next = nexts[0];
   if (next.spaceId === prev.spaceId && next.start === prev.start && next.end === prev.end){ renderCalendar(); return; }
-  if (await save("stays", next)){
+  let ok = true; for (const n of nexts){ if (!(await save("stays", n))){ ok = false; break; } }
+  if (ok){
     const sp = space(next.spaceId), span = Math.min(120, next.end ? diff(next.start, next.end) : 60), over = overbookedDays(sp, next.start, span);
     let nr = 0; for (let i = 0; i < span; i++) if (notReadyOn(sp, addDays(next.start, i))) nr++;
-    const who = personName(prev);
-    const msg = d.mode === "end" ? `${who} now leaves ${fmt(next.end)}` : next.spaceId !== prev.spaceId ? `Moved ${who} to ${sp.name}` : `${who} now ${fmt(next.start)} – ${next.end ? fmt(next.end) : "no end date"}`;
+    const who = joinNames(prevs.map(personName)), many = prevs.length > 1;
+    const msg = d.mode === "end" ? `${who} now ${many ? "leave" : "leaves"} ${fmt(next.end)}` : next.spaceId !== prev.spaceId ? `Moved ${who} to ${sp.name}` : `${who} now ${fmt(next.start)} – ${next.end ? fmt(next.end) : "no end date"}`;
     const warn = nr ? `${sp.name} isn't ready for ${nr} of those nights` : over.length ? `${sp.name} is double booked on ${over.length} ${over.length === 1 ? "night" : "nights"}` : "";
-    toast(warn ? `${msg}. ${warn}.` : msg, 8000, { label: "Undo", fn: () => save("stays", prev) });
+    toast(warn ? `${msg}. ${warn}.` : msg, 8000, { label: "Undo", fn: async () => { for (const p of prevs){ if (!(await save("stays", p))) return false; } return true; } });
   }
   renderCalendar();
 });
@@ -1393,7 +1420,7 @@ function visitorSpaces(from, to){
     const sts = staysFor(sp.id);
     if (sts.some(x => !x.end && x.start <= from)) return null; // someone's long-term home
     let free = 0;
-    for (let i = 0; i < nights; i++){ const d = addDays(from, i); if (!notReadyOn(sp, d) && !blockedOn(sp, d) && sts.filter(x => covers(x, d)).length < (isShared(sp) ? Math.max(1, maxOf(sp)) : 1)) free++; }
+    for (let i = 0; i < nights; i++){ const d = addDays(from, i); if (!notReadyOn(sp, d) && !blockedOn(sp, d) && partyCount(sts.filter(x => covers(x, d))) < (isShared(sp) ? Math.max(1, maxOf(sp)) : 1)) free++; }
     return free ? { sp, free, nights } : null;
   }).filter(Boolean).sort((a, b) => b.free - a.free);
 }
@@ -1689,10 +1716,11 @@ function stayForm(id, preset = {}){
   const oldSp = id ? space(st.spaceId) : null;
   const p0 = id ? personOfStay(st) : (st.personId ? personById(st.personId) : null);
   const name0 = p0 ? p0.name : (st.name || ""), type0 = p0 ? typeOf(p0) : (TYPE_KEYS.has(st.category) ? st.category : "guest");
+  const mates = id && st.party ? activeStays().filter(x => x.party === st.party && x.id !== st.id && x.start === st.start && (x.end || "") === (st.end || "")) : [];
   let typeTouched = false;
   $("#peopleNames").innerHTML = PX().list.map(p => `<option value="${esc(p.name)}"></option>`).join("");
   openModal(id ? "Edit stay" : "New stay", `
-    <label class="f"><span>Who</span><input id="st-name" list="peopleNames" value="${esc(name0)}" placeholder="Person, couple or family" maxlength="80" autocomplete="off"><small class="sub" id="st-who"></small></label>
+    <label class="f"><span>Who</span><input id="st-name" list="peopleNames" value="${esc(name0)}" placeholder="${id ? "Name" : "Name, or several: Mickey and Leah"}" maxlength="120" autocomplete="off"><small class="sub" id="st-who"></small></label>
     <div class="f2">
       <label class="f"><span>Space</span><select id="st-space">${sps.map(sp => `<option value="${esc(sp.id)}"${sp.id === st.spaceId ? " selected" : ""}>${esc(sp.name)}</option>`).join("")}</select></label>
       <label class="f"><span>Type</span><select id="st-type">${opt(TYPES, type0)}</select></label>
@@ -1701,41 +1729,61 @@ function stayForm(id, preset = {}){
       <label class="f"><span>Arrives</span><input id="st-start" type="date" value="${esc(st.start)}"></label>
       <label class="f"><span>Leaves <small>(blank = no end)</small></span><input id="st-end" type="date" value="${esc(st.end || "")}"></label>
     </div>
+    ${mates.length ? `<div class="checks"><label><input type="checkbox" id="st-follow" checked>Same changes for ${esc(joinNames(mates.map(personName)))}</label></div>` : ""}
     <label class="f" id="st-movewrap" hidden><span>Moving on</span><input id="st-movefrom" type="date" value="${TODAY}">
       <small>Nights before this date stay in ${esc(oldSp ? oldSp.name : "the current space")}. Both parts stay linked to ${esc(st.name || "this person")}.</small></label>
     <div id="st-fits" class="fits"></div>
     <div id="st-warn"></div>
     <div class="f2">
-      <label class="f"><span>People</span><input id="st-hc" type="number" min="1" max="50" inputmode="numeric" value="${heads(st)}"></label>
+      <label class="f" id="st-hcwrap"><span>People</span><input id="st-hc" type="number" min="1" max="50" inputmode="numeric" value="${heads(st)}"></label>
       <label class="f"><span>Status</span><select id="st-status">${opt([["confirmed","Confirmed"],["hold","On hold"]], st.status)}</select></label>
     </div>
     <label class="f"><span>Notes</span><textarea id="st-notes" maxlength="1000">${esc(st.notes)}</textarea></label>
   `, footer(id ? "Save" : "Book", id ? "delete-stay" : ""), async () => {
-    const name = fv("st-name"), start = fv("st-start"), end = fv("st-end");
-    if (!name){ toast("Add who is staying."); $("#st-name").focus(); return false; }
+    const raw = fv("st-name"), names = id ? [raw].filter(Boolean) : splitNames(raw), start = fv("st-start"), end = fv("st-end");
+    if (!names.length){ toast("Add who is staying."); $("#st-name").focus(); return false; }
     if (!validDate(start)){ toast("Pick an arrival date."); return false; }
     if (end && end <= start){ toast("Leaving has to be after arriving."); return false; }
-    const type = fv("st-type"), person = await ensurePerson(name, type, p0);
-    const body = { ...(id ? st : {}), id: id || newId("stays"), name: person ? person.name : name, personId: person && !person.virtual ? person.id : "", spaceId: fv("st-space"), category: type, start, end: end || "",
-      headcount: Math.max(1, Math.round(num(fv("st-hc"), 1))), status: fv("st-status"), notes: fv("st-notes") };
+    const type = fv("st-type"), spId = fv("st-space"), status = fv("st-status"), notes = fv("st-notes");
+    const hc = names.length === 1 ? Math.max(1, Math.round(num(fv("st-hc"), 1))) : 1;
+    if (!id){
+      const party = names.length > 1 ? newId("stays") : "";
+      for (const nm of names){
+        const person = await ensurePerson(nm, type, names.length === 1 ? p0 : null);
+        const b = { id: newId("stays"), name: person ? person.name : nm, personId: person && !person.virtual ? person.id : "", spaceId: spId, category: type, start, end: end || "", headcount: hc, status, notes, party };
+        if (!(await save("stays", b))) return false;
+        if (type === "workshop") await autoRoster(person, b.name, start, end);
+      }
+      toast(names.length > 1 ? `Booked ${joinNames(names)}` : "Booked");
+      return;
+    }
+    const person = await ensurePerson(raw, type, p0);
+    const body = { ...st, name: person ? person.name : raw, personId: person && !person.virtual ? person.id : (st.personId || ""), spaceId: spId, category: type, start, end: end || "", headcount: hc, status, notes };
+    const follow = mates.length && $("#st-follow") && $("#st-follow").checked ? mates : [];
+    const who = joinNames([body.name, ...follow.map(personName)]);
     const mf = fv("st-movefrom");
     if (!$("#st-movewrap").hidden && validDate(mf) && mf > start && (!end || mf < end)){
-      const toSp = space(body.spaceId);
-      if (!(await save("stays", { ...body, spaceId: st.spaceId, end: mf }))) return false;
-      if (!(await save("stays", { ...body, id: newId("stays"), start: mf }))) return false;
-      toast(`${body.name} moves to ${toSp ? toSp.name : "the new space"} on ${fmt(mf)}`);
+      const toSp = space(spId);
+      for (const t of [body, ...follow.map(m => ({ ...m, spaceId: spId, start, end: end || "", status }))]){
+        if (!(await save("stays", { ...t, spaceId: st.spaceId, end: mf }))) return false;
+        if (!(await save("stays", { ...t, id: newId("stays"), start: mf }))) return false;
+      }
+      toast(`${who} ${follow.length ? "move" : "moves"} to ${toSp ? toSp.name : "the new space"} on ${fmt(mf)}`);
       return;
     }
     if (!(await save("stays", body))) return false;
+    for (const m of follow){ if (!(await save("stays", { ...m, spaceId: spId, start, end: end || "", status }))) return false; }
     if (type === "workshop") await autoRoster(person, body.name, start, end);
-    toast(id ? (body.spaceId !== st.spaceId ? `Moved to ${space(body.spaceId).name}` : "Stay updated") : "Booked");
+    toast(body.spaceId !== st.spaceId ? `${follow.length ? who + " moved" : "Moved"} to ${space(body.spaceId).name}` : "Stay updated");
   }, e => {
     const tgt = e && e.target && e.target.id;
     if (tgt === "st-type") typeTouched = true;
-    const typed = fv("st-name"), match = p0 && norm(p0.name) === norm(typed) ? p0 : findPerson(typed);
-    if (tgt === "st-name" && match && !typeTouched) $("#st-type").value = typeOf(match);
-    $("#st-who").textContent = typed && !match ? "New person. They'll be added to People." : "";
-    const spId = fv("st-space"), start = fv("st-start"), end = fv("st-end"), hc = Math.max(1, num(fv("st-hc"), 1));
+    const typed = fv("st-name"), list = id ? [typed].filter(Boolean) : splitNames(typed);
+    const found = list.map(nm => p0 && norm(p0.name) === norm(nm) ? p0 : findPerson(nm)), fresh = list.filter((nm, k) => !found[k]);
+    if (tgt === "st-name" && found[0] && !typeTouched) $("#st-type").value = typeOf(found[0]);
+    $("#st-who").textContent = (list.length > 1 ? `Books ${joinNames(list)} together, sharing the space. ` : "") + (fresh.length ? `New to People: ${joinNames(fresh)}.` : "");
+    $("#st-hcwrap").style.visibility = list.length > 1 ? "hidden" : "";
+    const spId = fv("st-space"), start = fv("st-start"), end = fv("st-end"), hc = list.length > 1 ? list.length : Math.max(1, num(fv("st-hc"), 1));
     const moving = !!id && spId !== st.spaceId && st.start < TODAY && (!st.end || st.end > TODAY);
     $("#st-movewrap").hidden = !moving;
     const from = moving && validDate(fv("st-movefrom")) && fv("st-movefrom") > start ? fv("st-movefrom") : start;
@@ -1758,7 +1806,7 @@ function stayForm(id, preset = {}){
       if (notReadyOn(sp, d)){ nr++; continue; }
       if (bl.some(b => b.start <= d && d < b.end)){ bk++; continue; }
       const others = partiesOn(sp, d, id);
-      if (isShared(sp) ? others.length >= Math.max(1, maxOf(sp)) : isLast(sp) ? peopleIn(others) + hc > Math.max(1, maxOf(sp)) : others.length){ clash++; if (!firstClash) firstClash = d; others.forEach(x => who.add(personName(x))); }
+      if (isShared(sp) ? partyCount(others) >= Math.max(1, maxOf(sp)) : isLast(sp) ? peopleIn(others) + hc > Math.max(1, maxOf(sp)) : others.length){ clash++; if (!firstClash) firstClash = d; others.forEach(x => who.add(personName(x))); }
     }
     const msgs = [];
     if (nr) msgs.push(`${esc(sp.name)} isn't ready for ${nr} of these nights${validDate(sp.readyBy) ? ` (expected ${fmt(sp.readyBy)})` : ""}.`);
@@ -1828,23 +1876,34 @@ function personForm(pid){
 // A resident travelling: their stay ends the day they leave and picks up again when they're back, so the home shows free in between
 function awayForm(pid){
   const p = personById(pid); if (!p) return;
-  const sts = PX().staysOf(p);
+  const home = PX().staysOf(p).filter(x => !x.end || x.end > TODAY).map(x => space(x.spaceId)).find(isRes);
+  // others living in the same home can go away on the same dates with one tick
+  const housemates = home ? PX().list.filter(o => o !== p && PX().staysOf(o).some(x => x.spaceId === home.id && (!x.end || x.end > TODAY))) : [];
+  const stayAt = (person, d) => { const sts = PX().staysOf(person); return sts.find(x => covers(x, d)) || sts.filter(x => x.start < d && x.end === "").pop(); };
   openModal(`${p.name} away`, `
     <div class="f2">
       <label class="f"><span>Leaving</span><input id="aw-from" type="date" value="${addDays(TODAY, 1)}"></label>
       <label class="f"><span>Back <small>(blank if unknown)</small></span><input id="aw-back" type="date"></label>
     </div>
-    <small class="hint" style="margin-top:-6px">Their home shows as free on the calendar while they're away, and Find room offers it.</small>
+    ${housemates.length ? `<div class="f"><span>Also away</span><div class="checks">${housemates.map((o, k) => `<label><input type="checkbox" id="aw-m${k}">${esc(o.name)}</label>`).join("")}</div></div>` : ""}
+    <small class="hint" id="aw-hint"></small>
   `, footer("Save"), async () => {
     const from = fv("aw-from"), back = fv("aw-back");
     if (!validDate(from)){ toast("Pick the day they leave."); return false; }
     if (back && (!validDate(back) || back <= from)){ toast("Back has to be after leaving."); return false; }
-    const s = sts.find(x => covers(x, from)) || sts.filter(x => x.start < from && x.end === "").pop();
-    if (!s){ toast("They don't have a stay on that date."); return false; }
-    const tail = !s.end || (back && back < s.end);
-    if (!(await save("stays", { ...s, end: from }))) return false;
-    if (back && tail && s.start < back) await save("stays", { ...s, id: newId("stays"), start: back, end: s.end || "" });
-    toast(back ? `${p.name} away ${fmt(from)} – ${fmt(back)}` : `${p.name} away from ${fmt(from)}`);
+    const who = [p, ...housemates.filter((o, k) => $("#aw-m" + k).checked)];
+    for (const person of who){
+      const s = stayAt(person, from);
+      if (!s){ toast(`${person.name} doesn't have a stay on that date.`); return false; }
+      const tail = !s.end || (back && back < s.end);
+      if (!(await save("stays", { ...s, end: from }))) return false;
+      if (back && tail && s.start < back) await save("stays", { ...s, id: newId("stays"), start: back, end: s.end || "" });
+    }
+    const names = joinNames(who.map(o => o.name));
+    toast(back ? `${names} away ${fmt(from)} – ${fmt(back)}` : `${names} away from ${fmt(from)}`);
+  }, () => {
+    const all = housemates.every((o, k) => $("#aw-m" + k).checked);
+    $("#aw-hint").textContent = home ? (all ? `${home.name} shows as free while everyone is away, and Find room offers it.` : `${home.name} stays occupied by ${joinNames(housemates.filter((o, k) => !$("#aw-m" + k).checked).map(o => o.name))}.`) : "";
   });
   S.modalCtx = { id: pid };
 }
