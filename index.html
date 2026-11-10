@@ -1413,14 +1413,14 @@ function renderPublic(){
 }
 
 /* ---------- events ----------
-   Each event has its own list of people with a role: teaching, participating, supporting, maybe.
+   Each event has its own list of people with a role: leading, participating or supporting.
    Everyone else whose stay overlaps the event shows as also on the land. */
-const ROLES = [["instructor","Teaching"],["participant","Participating"],["support","Supporting"],["maybe","Maybe"]];
+const ROLES = [["instructor","Leading"],["participant","Participating"],["support","Supporting"]];
 const evEnd = ev => addDays(ev.last, 1);
 const evDays = ev => diff(ev.start, ev.last) + 1;
 const attendReady = () => S.demo || !S.hosted || S.attendOk;
 function rosterOf(ev){
-  if (attendReady()) return (D().attend || []).filter(r => r.eventId === ev.id && r.name);
+  if (attendReady()) return (D().attend || []).filter(r => r.eventId === ev.id && r.name && ROLES.some(x => x[0] === r.role));
   const to = evEnd(ev), seen = new Set();
   return activeStays().filter(x => x.start < to && (!x.end || x.end > ev.start)).map(x => personOfStay(x)).filter(p => p && typeOf(p) === "workshop" && !seen.has(p.id) && seen.add(p.id))
     .map(p => ({ id: "auto:" + p.id, eventId: ev.id, personId: p.id, name: p.name, role: "participant" }));
@@ -1483,12 +1483,12 @@ const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
 function renderEvents(){
   const el = $("#eventsList"), all = (D().events || []).filter(ev => validDate(ev.start) && validDate(ev.last)).sort(byStart);
   if (!all.length){
-    el.innerHTML = `<div class="empty-state"><span class="label">No events yet</span><h2>Workshops, retreats and gatherings</h2><p>Each event shows across the top of the calendar. Its page lists who teaches, takes part and supports, who still needs a space, and what's free.</p>${writable() ? `<div class="row"><button class="btn primary plus" data-act="new-event">Add an event</button></div>` : ""}</div>`;
+    el.innerHTML = `<div class="empty-state"><span class="label">No events yet</span><h2>Workshops, retreats and gatherings</h2><p>Each event shows across the top of the calendar. Its page lists who leads, takes part and supports, who still needs a space, and what's free.</p>${writable() ? `<div class="row"><button class="btn primary plus" data-act="new-event">Add an event</button></div>` : ""}</div>`;
     return;
   }
   const card = ev => {
     const i = eventInfo(ev), past = ev.last < TODAY, np = i.count("participant"), nt = i.count("instructor");
-    const bits = [np ? plural(np, "participant", "participants") : "", nt ? `${nt} teaching` : "", `${i.people} on the land`, !past && i.needCount ? `${i.needCount} need${i.needCount === 1 ? "s" : ""} a space` : "", !past ? plural(i.free.length, "space free", "spaces free") : ""].filter(Boolean);
+    const bits = [np ? plural(np, "participant", "participants") : "", nt ? `${nt} leading` : "", `${i.people} on the land`, !past && i.needCount ? `${i.needCount} need${i.needCount === 1 ? "s" : ""} a space` : "", !past ? plural(i.free.length, "space free", "spaces free") : ""].filter(Boolean);
     return `<button class="li ev-li" data-act="open-event" data-id="${esc(ev.id)}"><span class="grow"><span class="t">${esc(ev.name)}</span><br><span class="s">${esc(evRange(ev))}</span><br><span class="s">${esc(bits.join(" · "))}</span></span><span class="when${!past && ev.start <= addDays(TODAY, 30) ? " soon" : ""}">${esc(evWhen(ev))}</span></button>`;
   };
   const up = all.filter(ev => ev.last >= TODAY), past = all.filter(ev => ev.last < TODAY).reverse();
@@ -1507,7 +1507,7 @@ function renderEventDrawer(){
     return `<button class="li" data-act="${e.p ? "open-person" : "edit-stay"}" data-id="${esc(e.p ? e.p.id : x.id)}" data-stay="${esc(x.id)}"><span class="swatch ty-${e.ty}"></span><span class="grow"><span class="t">${esc(i.name(e))}</span>${e.heads > 1 ? ` <span class="faint">×${e.heads}</span>` : ""}<br><span class="s">${esc([...new Set(e.sts.map(spName))].join(" → ") + (whole ? "" : ` · ${fmt(a.start)} – ${z.end ? fmt(z.end) : "on"}`))}${e.sts.some(s => s.status === "hold") ? " · on hold" : ""}</span></span></button>`;
   };
   const sect = (title, html, n) => html ? `<section class="sect"><div class="sect-h"><h3>${title}</h3>${n !== undefined ? `<span class="hint">${n}</span>` : ""}</div>${html}</section>` : "";
-  const roles = ROLES.map(([k, t]) => { const list = i.roster.filter(x => x.r.role === k).sort((a, b) => a.r.name.localeCompare(b.r.name)); return list.length ? sect(t, `<div class="list">${list.map(rrow).join("")}</div>`, k === "maybe" ? list.length : list.reduce((a, x) => a + x.heads, 0)) : ""; }).join("");
+  const roles = ROLES.map(([k, t]) => { const list = i.roster.filter(x => x.r.role === k).sort((a, b) => a.r.name.localeCompare(b.r.name)); return list.length ? sect(t, `<div class="list">${list.map(rrow).join("")}</div>`, list.reduce((a, x) => a + x.heads, 0)) : ""; }).join("");
   const chips = (list, cls) => list.map(s => `<button class="fitchip${cls || ""}" data-act="event-book" data-ev="${esc(ev.id)}" data-id="${esc(s.id)}"${w ? "" : " disabled"}>${esc(s.name)}</button>`).join("");
   const room = past ? "" : sect("Room left", `<div class="fits">${i.free.length ? chips(i.free) : `<span class="hint">No space is free for every night.</span>`}
     ${i.homes.length ? `<span class="hint" style="margin-left:6px">Resident away:</span>${chips(i.homes, " lastchip")}` : ""}
@@ -1518,12 +1518,12 @@ function renderEventDrawer(){
   root.innerHTML = `<div class="scrim" data-act="close-drawer" style="${fresh ? "" : "animation:none"}"></div>
   <aside class="drawer" role="dialog" aria-modal="true" aria-label="${esc(ev.name)}" style="${fresh ? "" : "animation:none"}">
     <div class="dr-top"><button class="btn ghost sm" data-act="close-drawer">Close</button><span class="grow"></span>
-      ${w && attendReady() ? `<button class="btn sm" data-act="event-people" data-id="${esc(ev.id)}">People</button>` : ""}${w && !past ? `<button class="btn sm plus" data-act="event-book" data-ev="${esc(ev.id)}" data-id="">Book</button>` : ""}${w ? `<button class="btn sm" data-act="edit-event" data-id="${esc(ev.id)}">Edit</button>` : ""}</div>
+      ${w && attendReady() ? `<button class="btn sm" data-act="event-people" data-id="${esc(ev.id)}">Roles</button>` : ""}${w && !past ? `<button class="btn sm plus" data-act="event-book" data-ev="${esc(ev.id)}" data-id="">Book</button>` : ""}${w ? `<button class="btn sm" data-act="edit-event" data-id="${esc(ev.id)}">Edit</button>` : ""}</div>
     <div class="dr-body">
       <div class="dr-title"><h2>${esc(ev.name)}</h2><div class="chips"><span class="chip">${esc(evRange(ev))}</span><span class="chip">${esc(evWhen(ev))}</span></div></div>
-      <div class="summary">${np ? `<span><b>${np}</b>${np === 1 ? "participant" : "participants"}</span>` : ""}${nt ? `<span><b>${nt}</b>teaching</span>` : ""}${ns ? `<span><b>${ns}</b>supporting</span>` : ""}<span><b>${i.people}</b>on the land</span>${!past && i.needCount ? `<span class="alert"><b>${i.needCount}</b>${i.needCount === 1 ? "needs" : "need"} a space</span>` : ""}</div>
-      ${!attendReady() ? `<div class="banner"><span class="grow"><b>Update the sheet's script</b> to see who's teaching, taking part and supporting. Until then, everyone booked as Workshop shows as participating.</span></div>` : ""}
-      ${roles || `<div class="none">${w ? `Nobody listed yet. Tap <b>People</b> to add who teaches, takes part and supports.` : "Nobody listed yet."}</div>`}
+      <div class="summary">${np ? `<span><b>${np}</b>${np === 1 ? "participant" : "participants"}</span>` : ""}${nt ? `<span><b>${nt}</b>leading</span>` : ""}${ns ? `<span><b>${ns}</b>supporting</span>` : ""}<span><b>${i.people}</b>on the land</span>${!past && i.needCount ? `<span class="alert"><b>${i.needCount}</b>${i.needCount === 1 ? "needs" : "need"} a space</span>` : ""}</div>
+      ${!attendReady() ? `<div class="banner"><span class="grow"><b>Update the sheet's script</b> to see who's leading, taking part and supporting. Until then, everyone booked as Workshop shows as participating.</span></div>` : ""}
+      ${roles || `<div class="none">${w ? `Nobody listed yet. Tap <b>Roles</b> to add who leads, takes part and supports.` : "Nobody listed yet."}</div>`}
       ${sect("Needs a space", i.g.needs.length ? `<div class="list">${i.g.needs.map(erow).join("")}</div>` : "", i.g.needs.reduce((a, e) => a + e.heads, 0))}
       ${sect("Also on the land", i.g.other.length ? `<div class="list">${i.g.other.map(erow).join("")}</div>` : "", i.g.other.reduce((a, e) => a + e.heads, 0))}
       ${i.g.res.length ? sect("Residents", `<p class="prose small muted">${i.g.res.map(e => esc(i.name(e))).join(" · ")}</p>`, i.g.res.reduce((a, e) => a + e.heads, 0)) : ""}
@@ -1532,15 +1532,15 @@ function renderEventDrawer(){
   </aside>`;
   if (keepScroll) root.querySelector(".drawer").scrollTop = keepScroll;
 }
-// Who teaches, takes part, supports or might come
+// Who leads, takes part or supports
 function rosterForm(evId){
   const ev = (D().events || []).find(x => x.id === evId); if (!ev) return;
   S.rf = rosterOf(ev).map(r => ({ id: r.id, name: r.name, role: r.role, orig: r }));
   if (!S.rf.length) S.rf.push({ name: "", role: "participant" });
   $("#peopleNames").innerHTML = PX().list.map(p => `<option value="${esc(p.name)}"></option>`).join("");
-  const order = { instructor: 0, participant: 1, support: 2, maybe: 3 };
+  const order = { instructor: 0, participant: 1, support: 2 };
   S.rf.sort((a, b) => (order[a.role] ?? 9) - (order[b.role] ?? 9) || a.name.localeCompare(b.name));
-  openModal(`People at ${ev.name}`, `<div id="rf-list" class="rf-list"></div>
+  openModal(`Roles at ${ev.name}`, `<div id="rf-list" class="rf-list"></div>
     <button type="button" class="btn sm plus" data-act="rf-add" style="align-self:flex-start">Someone</button>
     <small class="hint">Type a name from People, or anyone's first name, like one person from a couple. Where they sleep comes from their stays.</small>`,
     footer("Save"), async () => {
