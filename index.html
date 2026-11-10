@@ -455,6 +455,11 @@ details.past[open] summary{margin-bottom:10px}
 .kv span{min-width:0;overflow-wrap:anywhere;white-space:pre-wrap}
 .kv a{color:var(--ink)}
 .li.focus{background:var(--gold-soft)}
+details.pastlist summary{cursor:pointer;list-style:none;font-size:14px;color:var(--ink-2);font-weight:500;width:max-content;padding:2px 0}
+details.pastlist summary::-webkit-details-marker{display:none}
+details.pastlist summary::after{content:" ▾";font-size:11px}
+details.pastlist[open] summary{margin-bottom:8px}
+details.pastlist .list{background:var(--sunk);box-shadow:none}
 .pill.st-deciding{color:var(--warn)}.pill.soft.st-deciding{background:var(--warn-soft)}
 .pill.st-coming{color:var(--occ)}.pill.soft.st-coming{background:var(--occ-soft)}
 .f .sub{font-size:13px;color:var(--ink-3);margin-top:-2px}
@@ -670,6 +675,7 @@ const diff = (a, b) => Math.round((parse(b) - parse(a)) / 86400000);
 const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 const DOW = ["Su","Mo","Tu","We","Th","Fr","Sa"];
 const fmt = s => { if (!s) return ""; const d = parse(s); return `${MON[d.getUTCMonth()]} ${d.getUTCDate()}`; };
+const fmtY = s => fmt(s) + (s && s.slice(0, 4) !== TODAY.slice(0, 4) ? " " + s.slice(0, 4) : "");
 const validDate = s => /^\d{4}-\d{2}-\d{2}$/.test(s || "");
 
 /* ---------- helpers ---------- */
@@ -1014,7 +1020,7 @@ function renderDrawer(){
   if (S.gIdx >= ph.length) S.gIdx = Math.max(0, ph.length - 1);
   const st = statusOf(sp), w = writable();
   const sts = staysFor(sp.id).filter(x => !x.end || x.end > TODAY).sort((a, b) => a.start < b.start ? -1 : 1);
-  const past = staysFor(sp.id).filter(x => x.end && x.end <= TODAY).length;
+  const past = staysFor(sp.id).filter(x => x.end && x.end <= TODAY).sort(byStart).reverse();
   const work = D().work.filter(x => x.spaceId === sp.id).sort(workSort), ow = openWork(sp.id);
   const over = overbookedDays(sp, TODAY, 120);
   const am = Array.isArray(sp.amenities) ? sp.amenities.filter(a => AMENITIES.some(x => x[0] === a)) : [];
@@ -1042,11 +1048,12 @@ function renderDrawer(){
         ${am.length ? `<div class="chips">${am.map(a => `<span class="chip">${esc(label(AMENITIES, a))}</span>`).join("")}</div>` : ""}
       </section>
 
-      <section class="sect"><div class="sect-h"><h3>Stays</h3>${past ? `<span class="hint">${past} past</span>` : ""}</div>
+      <section class="sect"><div class="sect-h"><h3>Stays</h3></div>
         <div class="list">${sts.length ? sts.map(x => `<button class="li" data-act="edit-stay" data-id="${esc(x.id)}" ${w ? "" : "disabled"}>
           <span class="swatch ty-${typeOf(personOfStay(x))}"></span>
           <span class="grow"><span class="t">${esc(personName(x))}</span>${heads(x) > 1 ? ` <span class="faint">×${heads(x)}</span>` : ""}<br><span class="s">${esc(label(TYPES, typeOf(personOfStay(x))))} · ${fmt(x.start)} – ${x.end ? fmt(x.end) : "no end date"}${x.status === "hold" ? " · on hold" : ""}</span></span>
           ${covers(x, TODAY) ? `<span class="chip">Here now</span>` : ""}</button>`).join("") : `<div class="none">No current or upcoming stays.</div>`}</div>
+        ${past.length ? `<details class="pastlist"${S.pastOpen === sp.id ? " open" : ""}><summary>${past.length} past ${past.length === 1 ? "stay" : "stays"}</summary><div class="list">${past.map(x => `<button class="li" data-act="open-person" data-id="${esc((personOfStay(x) || {}).id || "")}" data-stay="${esc(x.id)}"><span class="swatch ty-${typeOf(personOfStay(x))}"></span><span class="grow"><span class="t">${esc(personName(x))}</span><br><span class="s">${fmt(x.start)} – ${fmt(x.end)} ${x.end.slice(0, 4)} · ${diff(x.start, x.end)} nights</span></span></button>`).join("")}</div></details>` : ""}
       </section>
 
       <section class="sect"><div class="sect-h"><h3>Repairs</h3>${w ? `<button class="btn sm plus" data-act="new-work" data-space="${esc(sp.id)}">Task</button>` : ""}</div>
@@ -1069,7 +1076,7 @@ function renderPersonDrawer(){
   const upcoming = sts.filter(x => !x.end || x.end > TODAY), past = sts.filter(x => x.end && x.end <= TODAY);
   const facts = [["Contact", p.contact ? linkify(p.contact) : ""], ["Arrival", p.arrival ? esc(p.arrival) : ""], ["Expected", !upcoming.length && p.when ? esc(p.when) : ""]].filter(f => f[1]);
   const row = x => `<button class="li${S.focusStay === x.id ? " focus" : ""}" data-act="edit-stay" data-id="${esc(x.id)}" ${w ? "" : "disabled"}>
-      <span class="grow"><span class="t">${esc(spName(x))}</span>${heads(x) > 1 ? ` <span class="faint">×${heads(x)}</span>` : ""}<br><span class="s">${fmt(x.start)} – ${x.end ? fmt(x.end) : "no end date"}${x.end ? ` · ${diff(x.start, x.end)} nights` : ""}${x.status === "hold" ? " · on hold" : ""}</span></span>
+      <span class="grow"><span class="t">${esc(spName(x))}</span>${heads(x) > 1 ? ` <span class="faint">×${heads(x)}</span>` : ""}<br><span class="s">${fmtY(x.start)} – ${x.end ? fmtY(x.end) : "no end date"}${x.end ? ` · ${diff(x.start, x.end)} nights` : ""}${x.status === "hold" ? " · on hold" : ""}</span></span>
       ${covers(x, TODAY) ? `<span class="chip">Here now</span>` : ""}${w ? `<span class="faint" aria-hidden="true">›</span>` : ""}</button>`;
   const keepScroll = !fresh && root.querySelector(".drawer") ? root.querySelector(".drawer").scrollTop : 0;
   root.innerHTML = `<div class="scrim" data-act="close-drawer" style="${fresh ? "" : "animation:none"}"></div>
@@ -1082,8 +1089,9 @@ function renderPersonDrawer(){
       </div>
       ${p.description ? `<p class="prose">${esc(p.description)}</p>` : ""}
       ${facts.length ? `<div class="kv">${facts.map(([k, v]) => `<div><small>${k}</small><span>${v}</span></div>`).join("")}</div>` : ""}
-      <section class="sect"><div class="sect-h"><h3>Stays</h3>${past.length ? `<span class="hint">${past.length} past</span>` : ""}</div>
-        <div class="list">${upcoming.length ? upcoming.map(row).join("") : `<div class="none">No dates yet.</div>`}</div>
+      <section class="sect"><div class="sect-h"><h3>Stays</h3></div>
+        <div class="list">${upcoming.length ? upcoming.map(row).join("") : `<div class="none">${past.length ? "Not booked again yet." : "No dates yet."}</div>`}</div>
+        ${past.length ? `<details class="pastlist"${S.pastOpen === p.id ? " open" : ""}><summary>${past.length} past ${past.length === 1 ? "stay" : "stays"} · last left ${fmt(past[past.length - 1].end)}${past[past.length - 1].end.slice(0, 4) !== TODAY.slice(0, 4) ? " " + past[past.length - 1].end.slice(0, 4) : ""}</summary><div class="list">${past.slice().reverse().map(row).join("")}</div></details>` : ""}
         ${w && !upcoming.length ? `<div><button class="btn sm primary plus" data-act="book-person" data-id="${esc(p.id)}">Book a stay</button></div>` : ""}
       </section>
     </div>
@@ -2011,6 +2019,8 @@ $("#calJump").addEventListener("change", e => { const v = e.target.value; if (!v
 $("#pubFrom").addEventListener("change", e => { if (validDate(e.target.value)){ S.pub.from = e.target.value; if (S.pub.to <= S.pub.from) S.pub.to = addDays(S.pub.from, 7); renderPublic(); } });
 $("#pubTo").addEventListener("change", e => { if (validDate(e.target.value)){ S.pub.to = e.target.value; renderPublic(); } });
 document.addEventListener("keydown", e => { if (e.key !== "Escape") return; if ($("#modalRoot").innerHTML) closeModal(); else if (S.openSpace || S.openPerson) closeDrawer(); });
+// keep a page's past stays open across refreshes
+document.addEventListener("toggle", e => { if (e.target.matches && e.target.matches("details.pastlist")) S.pastOpen = e.target.open ? (S.openPerson || S.openSpace) : null; }, true);
 $("#peopleSearch").addEventListener("input", e => { S.pq = e.target.value; renderPeople(); });
 window.addEventListener("hashchange", () => setView(location.hash.slice(1), false));
 let rT; window.addEventListener("resize", () => { clearTimeout(rT); rT = setTimeout(() => { if (S.view === "calendar") renderCalendar(); }, 150); });
