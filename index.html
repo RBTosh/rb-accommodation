@@ -1074,7 +1074,7 @@ function renderPersonDrawer(){
   root.innerHTML = `<div class="scrim" data-act="close-drawer" style="${fresh ? "" : "animation:none"}"></div>
   <aside class="drawer" role="dialog" aria-modal="true" aria-label="${esc(p.name)}" style="${fresh ? "" : "animation:none"}">
     <div class="dr-top"><button class="btn ghost sm" data-act="close-drawer">Close</button><span class="grow"></span>
-      ${w ? `<button class="btn sm plus" data-act="book-person" data-id="${esc(p.id)}">Stay</button><button class="btn sm" data-act="edit-person" data-id="${esc(p.id)}">Edit</button>` : ""}</div>
+      ${w ? `${ty === "resident" && upcoming.length ? `<button class="btn sm" data-act="away-person" data-id="${esc(p.id)}">Away</button>` : ""}<button class="btn sm plus" data-act="book-person" data-id="${esc(p.id)}">Stay</button><button class="btn sm" data-act="edit-person" data-id="${esc(p.id)}">Edit</button>` : ""}</div>
     <div class="dr-body">
       <div class="dr-title"><h2>${esc(p.name)}</h2>
         <div class="chips"><span class="tychip"><span class="swatch ty-${ty}"></span>${esc(label(TYPES, ty))}</span>${st !== "confirmed" && PSTATUS.some(s => s[0] === st) ? `<span class="pill soft st-${st}">${esc(label(PSTATUS, st))}</span>` : ""}</div>
@@ -1111,6 +1111,14 @@ function cellW(){
   const frame = $("#calFrame"), avail = (frame && frame.clientWidth ? frame.clientWidth : window.innerWidth - 40) - NAME_W();
   return Math.max(ZOOM_MIN[z], avail / ZOOM_SPAN[z]);
 }
+// Homes with nobody in them on any of these nights (the resident is travelling)
+function resAwayFor(from, to){
+  const n = diff(from, to);
+  return sortedSpaces(realSpaces()).filter(isRes).filter(sp => {
+    for (let i = 0; i < n; i++){ const d = addDays(from, i); if (notReadyOn(sp, d) || blockedOn(sp, d) || partiesOn(sp, d).length) return false; }
+    return n > 0;
+  });
+}
 const finderActive = () => validDate(S.find.from) && validDate(S.find.to) && S.find.to > S.find.from;
 function renderFinder(){
   const el = $("#fResults");
@@ -1124,6 +1132,8 @@ function renderFinder(){
   let h = full.length
     ? `<span>Room for ${people} ${people === 1 ? "person" : "people"}, ${fmt(from)} – ${fmt(to)}:</span>` + full.map(r => `<button class="fitchip" data-act="find-book" data-id="${esc(r.sp.id)}" title="Book ${esc(r.sp.name)} for these dates">${esc(r.sp.name)}${!USABLE.has(r.sp.condition) ? " · once ready" : ""}</button>`).join("")
     : `<span>Nothing has room for ${people === 1 ? "one person" : people + " people"} on all ${diff(from, to)} nights.</span>`;
+  const homes = resAwayFor(from, to);
+  if (homes.length) h += `<span class="hint" style="margin-left:8px">Resident away:</span>` + homes.map(sp => `<button class="fitchip lastchip" data-act="find-book" data-id="${esc(sp.id)}">${esc(sp.name)}</button>`).join("");
   if (last.length) h += `<span class="hint" style="margin-left:8px">Last resort:</span>` + last.map(r => `<button class="fitchip lastchip" data-act="find-book" data-id="${esc(r.sp.id)}">${esc(r.sp.name)}</button>`).join("");
   if (part.length) h += `<span class="hint" style="margin-left:8px">Partly free:</span>` + part.slice(0, 6).map(r => `<button class="fitchip part" data-act="open-space" data-id="${esc(r.sp.id)}">${esc(r.sp.name)} · ${r.ok} of ${r.n} nights</button>`).join("");
   el.innerHTML = h;
@@ -1243,7 +1253,7 @@ function renderCalendar(){
     });
     let rowCls = isLast(sp) ? "lastrow" : "", sub = "";
     if (isHold(sp)){ rowCls = "holdrow"; sub = items.length ? (window.matchMedia("(hover: none)").matches ? "tap a name to place it" : "drag into a space") : "nobody waiting"; }
-    else if (isRes(sp)){ rowCls = "res" + (F ? " dim" : ""); }
+    else if (isRes(sp)){ const ok = F && resAwayFor(F.from, F.to).includes(sp); rowCls = "res" + (F ? (ok ? " fit" : " dim") : ""); if (ok) sub = "resident away"; }
     else if (F && isLast(sp)){ rowCls += " dim"; }
     else if (F){ const f = fitFor(sp, F.from, F.to, F.people); rowCls += f.ok === f.n ? " fit" : f.ok ? " part" : " dim"; sub = f.ok === f.n ? "has room" : f.ok ? `${f.ok} of ${f.n} nights` : ""; }
     if (isRes(sp) && !resDivider){ resDivider = true; rows += `<div class="cal-row cal-divider" aria-hidden="true"><div class="cal-name"></div><div style="width:${W}px"></div></div>`; }
@@ -1620,7 +1630,31 @@ function personForm(pid){
   S.modalCtx = { id: pid };
 }
 
-const PGROUPS = [["here","Here now"],["arriving","Arriving"],["unknown","Coming, dates unknown"],["deciding","Being decided"],["res","Residents"],["past","Past"]];
+// A resident travelling: their stay ends the day they leave and picks up again when they're back, so the home shows free in between
+function awayForm(pid){
+  const p = personById(pid); if (!p) return;
+  const sts = PX().staysOf(p);
+  openModal(`${p.name} away`, `
+    <div class="f2">
+      <label class="f"><span>Leaving</span><input id="aw-from" type="date" value="${addDays(TODAY, 1)}"></label>
+      <label class="f"><span>Back <small>(blank if unknown)</small></span><input id="aw-back" type="date"></label>
+    </div>
+    <small class="hint" style="margin-top:-6px">Their home shows as free on the calendar while they're away, and Find room offers it.</small>
+  `, footer("Save"), async () => {
+    const from = fv("aw-from"), back = fv("aw-back");
+    if (!validDate(from)){ toast("Pick the day they leave."); return false; }
+    if (back && (!validDate(back) || back <= from)){ toast("Back has to be after leaving."); return false; }
+    const s = sts.find(x => covers(x, from)) || sts.filter(x => x.start < from && x.end === "").pop();
+    if (!s){ toast("They don't have a stay on that date."); return false; }
+    const tail = !s.end || (back && back < s.end);
+    if (!(await save("stays", { ...s, end: from }))) return false;
+    if (back && tail && s.start < back) await save("stays", { ...s, id: newId("stays"), start: back, end: s.end || "" });
+    toast(back ? `${p.name} away ${fmt(from)} – ${fmt(back)}` : `${p.name} away from ${fmt(from)}`);
+  });
+  S.modalCtx = { id: pid };
+}
+
+const PGROUPS = [["here","Here now"],["res","Residents"],["arriving","Arriving"],["unknown","Coming, dates unknown"],["deciding","Being decided"],["past","Past"]];
 function personInfo(p){
   const sts = PX().staysOf(p), cur = sts.find(x => covers(x, TODAY)), next = sts.find(x => x.start > TODAY);
   const past = sts.filter(x => x.end && x.end <= TODAY), last = past[past.length - 1], ty = typeOf(p), curSp = cur && space(cur.spaceId);
@@ -1645,7 +1679,11 @@ function personRow(i){
     const d = diff(TODAY, next.start); when = d === 1 ? "Tomorrow" : d < 14 ? `in ${d} days` : fmt(next.start); soon = d <= 7;
   } else if (g === "unknown") line = p.when ? `Expected ${p.when}` : "No dates yet";
   else if (g === "deciding") line = p.when ? `Maybe ${p.when}` : next ? `${spName(next)} · ${range(next)}` : cur ? spName(cur) : "No dates yet";
-  else if (g === "res") line = cur ? spName(cur) : "";
+  else if (g === "res"){
+    const back = i.sts.find(x => x.start > (cur && cur.end ? cur.end : TODAY));
+    if (cur) line = spName(cur) + (cur.end ? ` · away ${fmt(cur.end)}${back ? ` – ${fmt(back.start)}` : ""}` : "");
+    else { line = back ? `Away, back ${fmt(back.start)}` : last ? `Away since ${fmt(last.end)}` : "Away"; when = "Away"; }
+  }
   else line = last ? `Left ${fmt(last.end)}` : "";
   const sub = [g === "res" ? "" : label(TYPES, ty), line].filter(Boolean).join(" · ");
   return `<button class="li prow" data-act="open-person" data-id="${esc(p.id)}"><span class="swatch ty-${ty}"></span>
@@ -1659,7 +1697,8 @@ function renderPeople(){
   $("#peopleTypes").innerHTML = all.length ? `<button data-ptype="all" aria-pressed="${S.ptype === "all"}">All</button>` + TYPES.filter(([k]) => counts[k]).map(([k]) => `<button data-ptype="${k}" aria-pressed="${S.ptype === k}">${esc(TYPE_SHORT[k])}</button>`).join("") : "";
   const n = g => all.filter(i => i.g === g).length;
   const soon = all.filter(i => i.g === "arriving" && diff(TODAY, i.next.start) <= 30).length;
-  $("#peopleSummary").innerHTML = all.length ? `<span><b>${n("here")}</b>here now</span><span><b>${soon}</b>arriving in 30 days</span>${n("unknown") ? `<span><b>${n("unknown")}</b>dates unknown</span>` : ""}${n("deciding") ? `<span><b>${n("deciding")}</b>being decided</span>` : ""}` : "";
+  const onLand = activeStays().filter(x => covers(x, TODAY)).reduce((a, x) => a + heads(x), 0);
+  $("#peopleSummary").innerHTML = all.length ? `<span><b>${onLand}</b>on the land</span><span><b>${soon}</b>arriving in 30 days</span>${n("unknown") ? `<span><b>${n("unknown")}</b>dates unknown</span>` : ""}${n("deciding") ? `<span><b>${n("deciding")}</b>being decided</span>` : ""}` : "";
   const note = $("#peopleNote");
   note.innerHTML = S.hosted && !S.visit && S.loaded.size && !S.peopleOk && !S.stale ? `<div class="banner"><span class="grow"><b>One more step.</b> Everyone on the calendar is listed here already. To save details like contact and arrival, update the script in your Google Sheet.</span></div>` : "";
   note.hidden = !note.innerHTML;
@@ -1675,7 +1714,9 @@ function renderPeople(){
     const items = shown.filter(i => i.g === g).sort(sorts[g] || byName);
     if (!items.length) return "";
     if (g === "past") return `<details class="past"><summary>Past <span class="faint" style="font-size:15px">${items.length}</span></summary><div class="list">${items.map(personRow).join("")}</div></details>`;
-    return `<div class="pgroup${g === "res" ? " res" : ""}"><div class="pgroup-h"><h3>${title}</h3><span class="n">${items.length}</span></div><div class="list">${items.map(personRow).join("")}</div></div>`;
+    const away = g === "res" ? items.filter(i => !i.cur).length : 0;
+    const count = g === "here" ? `${items.reduce((a, i) => a + heads(i.cur), 0)} ${items.reduce((a, i) => a + heads(i.cur), 0) === 1 ? "person" : "people"}, plus residents below` : g === "res" ? `${items.filter(i => i.cur).reduce((a, i) => a + heads(i.cur), 0)} here${away ? ` · ${away} away` : ""}` : items.length;
+    return `<div class="pgroup${g === "res" ? " res" : ""}"><div class="pgroup-h"><h3>${title}</h3><span class="n">${count}</span></div><div class="list">${items.map(personRow).join("")}</div></div>`;
   }).join("");
   const keepOpen = listEl.querySelector("details.past[open]");
   listEl.innerHTML = html || `<p class="faint">No one matches.</p>`;
@@ -1886,6 +1927,7 @@ document.addEventListener("click", async e => {
     case "open-person": openPerson(id, a.dataset.stay); break;
     case "new-person": if (writable()) personForm(null); break;
     case "edit-person": personForm(id); break;
+    case "away-person": awayForm(id); break;
     case "book-person": {
       const p = personById(id); if (!p) break;
       const hold = D().spaces.find(isHold), last = PX().staysOf(p).filter(x => x.status !== "cancelled").pop();
