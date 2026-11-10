@@ -431,7 +431,7 @@ body.is-dragging,body.is-dragging *{cursor:grabbing!important;user-select:none;-
 .subnav .cnt:empty{display:none}
 
 /* people */
-.ty-resident{background:var(--c-resident)}.ty-longterm{background:var(--c-volunteer)}.ty-threemonth{background:var(--c-helper)}.ty-shortterm{background:var(--c-short)}.ty-workshop{background:var(--c-workshop)}.ty-guest{background:var(--c-guest)}
+.ty-resident{background:var(--c-resident)}.ty-longterm{background:var(--c-helper)}.ty-shortterm{background:var(--c-short)}.ty-workshop{background:var(--c-workshop)}.ty-guest{background:var(--c-guest)}
 .pgroup{display:flex;flex-direction:column;gap:10px}
 .pgroup-h{display:flex;align-items:baseline;gap:10px}
 .pgroup-h h3{font-size:22px}
@@ -646,8 +646,8 @@ details.past[open] summary{margin-bottom:10px}
 "use strict";
 /* ---------- constants ---------- */
 const CONDITIONS = [["ready","Ready"],["usable","Usable, needs work"],["construction","Under construction"],["planned","Planned"],["offline","Offline"]];
-const TYPES = [["resident","Resident"],["longterm","Long-term helper"],["threemonth","3-month helper"],["shortterm","Short-term helper"],["workshop","Workshop participant"],["guest","Guest"]];
-const TYPE_SHORT = { resident: "Residents", longterm: "Long-term", threemonth: "3-month", shortterm: "Short-term", workshop: "Workshop", guest: "Guests" };
+const TYPES = [["resident","Resident"],["longterm","Long-term helper"],["shortterm","Short-term helper"],["workshop","Workshop participant"],["guest","Guest"]];
+const TYPE_SHORT = { resident: "Residents", longterm: "Long-term", shortterm: "Short-term", workshop: "Workshop", guest: "Guests" };
 const TYPE_KEYS = new Set(TYPES.map(t => t[0]));
 const PSTATUS = [["confirmed","Confirmed"],["coming","Coming, dates unknown"],["deciding","Being decided"]];
 const SCRIPT_MSG = "To save people, update the script in your Google Sheet first. It's a one-time step.";
@@ -795,7 +795,7 @@ function guessType(sts){
   if (cats.length && cats.every(c => c === "guest")) return "guest";
   if (cats.includes("volunteer")) return "longterm";
   const nights = sts.reduce((a, x) => a + (x.end ? diff(x.start, x.end) : 200), 0);
-  return nights >= 150 ? "longterm" : nights >= 75 ? "threemonth" : "shortterm";
+  return nights >= 75 ? "longterm" : "shortterm";
 }
 let PXC = null;
 const pxReset = () => { PXC = null; };
@@ -831,7 +831,7 @@ function personById(id){
   if (String(id).startsWith("v:")){ const k = id.slice(2); return x.byName.get(k) || x.virt.get(k) || null; }
   return null;
 }
-const typeOf = p => p && TYPE_KEYS.has(p.type) ? p.type : "guest";
+const typeOf = p => !p ? "guest" : p.type === "threemonth" ? "longterm" : TYPE_KEYS.has(p.type) ? p.type : "guest";
 const isDeciding = st => { const p = personOfStay(st); return !!(p && p.status === "deciding"); };
 const spName = st => { const s = st && space(st.spaceId); return s && !isHold(s) ? s.name : "Needs a space"; };
 const trunc = (s, n) => { s = String(s || "").replace(/\s+/g, " ").trim(); return s.length > n ? s.slice(0, n - 1).trimEnd() + "…" : s; };
@@ -2004,7 +2004,7 @@ function makeDemo(){
     ],
     events: [{ id: "e1", name: "Workshop (example)", start: addDays(T, 12), last: addDays(T, 16) }],
     people: [
-      { id: "p1", name: "Kitchen helper (example)", type: "threemonth", status: "confirmed", description: "Runs breakfast and the kitchen schedule.", contact: "808 555 0142", arrival: "" },
+      { id: "p1", name: "Kitchen helper (example)", type: "longterm", status: "confirmed", description: "Runs breakfast and the kitchen schedule.", contact: "808 555 0142", arrival: "" },
       { id: "p2", name: "Coming in spring (example)", type: "shortterm", status: "coming", when: "March or April" },
       { id: "p3", name: "Maybe for the workshop (example)", type: "workshop", status: "deciding", when: "workshop week" },
     ],
