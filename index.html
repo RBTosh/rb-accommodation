@@ -447,6 +447,12 @@ body.is-dragging,body.is-dragging *{cursor:grabbing!important;user-select:none;-
 .rrow input,.rrow select{width:100%;border:1px solid var(--line-2);background:var(--surface);border-radius:10px;padding:9px 11px;font-size:16px;min-width:0}
 .warn-t{color:var(--warn)!important}
 @media (max-width:720px){ .rrow{grid-template-columns:minmax(0,1fr) 128px auto} }
+.hrow .hname{font-weight:500;text-decoration:none;color:var(--ink-2)}
+.hrow .hname:hover{text-decoration:underline}
+.hrow .hname.away{color:var(--ink-3);font-weight:400}
+.hrow .hsp{font-weight:400;text-decoration:none;color:var(--ink-2)}
+.hrow .hsp:hover{text-decoration:underline}
+.hrow .swatch{align-self:flex-start;margin-top:8px}
 .tag-dec{font-size:12.5px;font-weight:600;color:var(--warn);background:var(--warn-soft);padding:2px 9px;border-radius:999px;white-space:nowrap;flex:none}
 .prow .when.soon{color:var(--ok);font-weight:600}
 .prow .swatch{align-self:flex-start;margin-top:8px}
@@ -1944,6 +1950,18 @@ function personRow(i){
     <span class="grow"><span class="t">${esc(p.name)}</span><br><span class="s">${esc(sub)}</span>${p.description ? `<br><span class="s faint">${esc(trunc(p.description, 90))}</span>` : ""}</span>
     ${p.status === "deciding" && (g === "here" || g === "arriving") ? `<span class="tag-dec">Being decided</span>` : ""}${when ? `<span class="when${soon ? " soon" : ""}">${esc(when)}</span>` : ""}</button>`;
 }
+// Residents: one line per home, everyone who lives there on it
+function homeRows(items, homeStay){
+  const homes = [];
+  items.forEach(i => { const x = homeStay(i), k = x ? x.spaceId : "p:" + i.p.id; let h = homes.find(o => o.k === k); if (!h){ h = { k, sp: x && space(x.spaceId), list: [] }; homes.push(h); } h.list.push(i); });
+  return homes.map(h => {
+    const away = h.list.filter(i => !i.cur);
+    const name = i => `<button class="linkish hname${i.cur ? "" : " away"}" data-act="open-person" data-id="${esc(i.p.id)}">${esc(i.p.name)}</button>`;
+    const names = h.list.length === 1 ? name(h.list[0]) : h.list.slice(0, -1).map(name).join(", ") + " and " + name(h.list[h.list.length - 1]);
+    const awayLine = away.map(i => { const back = i.sts.find(x => x.start > TODAY); return `${esc(i.p.name)} away${back ? `, back ${fmt(back.start)}` : ""}`; }).join(" · ");
+    return `<div class="li hrow"><span class="swatch ty-resident"></span><span class="grow"><span class="t">${names}</span><br><span class="s">${h.sp ? `<button class="linkish hsp" data-act="open-space" data-id="${esc(h.sp.id)}">${esc(h.sp.name)}</button>` : ""}${awayLine ? ` · ${awayLine}` : ""}</span></span></div>`;
+  }).join("");
+}
 function renderPeople(){
   const all = PX().list.map(personInfo), listEl = $("#peopleList");
   const counts = {}; all.forEach(i => { counts[i.ty] = (counts[i.ty] || 0) + 1; });
@@ -1974,7 +1992,7 @@ function renderPeople(){
     if (g === "past") return `<details class="past"><summary>Past <span class="faint" style="font-size:15px">${items.length}</span></summary><div class="list">${items.map(personRow).join("")}</div></details>`;
     const away = g === "res" ? items.filter(i => !i.cur).length : 0;
     const count = g === "here" ? `${items.reduce((a, i) => a + heads(i.cur), 0)} ${items.reduce((a, i) => a + heads(i.cur), 0) === 1 ? "person" : "people"}, plus residents below` : g === "res" ? `${items.filter(i => i.cur).reduce((a, i) => a + heads(i.cur), 0)} here${away ? ` · ${away} away` : ""}` : items.length;
-    return `<div class="pgroup${g === "res" ? " res" : ""}"><div class="pgroup-h"><h3>${title}</h3><span class="n">${count}</span></div><div class="list">${items.map(personRow).join("")}</div></div>`;
+    return `<div class="pgroup${g === "res" ? " res" : ""}"><div class="pgroup-h"><h3>${title}</h3><span class="n">${count}</span></div><div class="list">${g === "res" ? homeRows(items, homeStay) : items.map(personRow).join("")}</div></div>`;
   }).join("");
   const keepOpen = listEl.querySelector("details.past[open]");
   listEl.innerHTML = html || `<p class="faint">No one matches.</p>`;
