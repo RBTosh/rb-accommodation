@@ -442,6 +442,11 @@ body.is-dragging,body.is-dragging *{cursor:grabbing!important;user-select:none;-
 .prow .when{font-size:13.5px;color:var(--ink-2);white-space:nowrap;flex:none;text-align:right}
 .ev-li .t{font-family:var(--f-display);font-size:20px;font-weight:500}
 .drawer .summary{margin-top:-8px}
+.rf-list{display:flex;flex-direction:column;gap:8px}
+.rrow{display:grid;grid-template-columns:minmax(0,1fr) 150px auto;gap:8px;align-items:center}
+.rrow input,.rrow select{width:100%;border:1px solid var(--line-2);background:var(--surface);border-radius:10px;padding:9px 11px;font-size:16px;min-width:0}
+.warn-t{color:var(--warn)!important}
+@media (max-width:720px){ .rrow{grid-template-columns:minmax(0,1fr) 128px auto} }
 .tag-dec{font-size:12.5px;font-weight:600;color:var(--warn);background:var(--warn-soft);padding:2px 9px;border-radius:999px;white-space:nowrap;flex:none}
 .prow .when.soon{color:var(--ok);font-weight:600}
 .prow .swatch{align-self:flex-start;margin-top:8px}
@@ -659,7 +664,7 @@ details.pastlist .list{background:var(--sunk);box-shadow:none}
 "use strict";
 /* ---------- constants ---------- */
 const CONDITIONS = [["ready","Ready"],["usable","Usable, needs work"],["construction","Under construction"],["planned","Planned"],["offline","Offline"]];
-const TYPES = [["resident","Resident"],["longterm","Long-term helper"],["shortterm","Short-term helper"],["workshop","Workshop participant"],["guest","Guest"]];
+const TYPES = [["resident","Resident"],["longterm","Long-term helper"],["shortterm","Short-term helper"],["workshop","Workshop"],["guest","Guest"]];
 const TYPE_SHORT = { resident: "Residents", longterm: "Long-term", shortterm: "Short-term", workshop: "Workshop", guest: "Guests" };
 const TYPE_KEYS = new Set(TYPES.map(t => t[0]));
 const PSTATUS = [["confirmed","Confirmed"],["coming","Coming, dates unknown"],["deciding","Being decided"]];
@@ -698,7 +703,7 @@ function lsSet(k, v){ try { localStorage.setItem(k, v); } catch {} }
 /* ---------- state ---------- */
 const S = {
   db: null, assets: null, canWrite: false, demo: false, connected: false, loaded: new Set(),
-  real: { spaces: [], stays: [], work: [], events: [], people: [], settings: {} }, demoData: null,
+  real: { spaces: [], stays: [], work: [], events: [], people: [], attend: [], settings: {} }, demoData: null,
   openPerson: null, openEvent: null, focusStay: null, ptype: "all", pq: "", peopleOk: false,
   view: "spaces", filter: "all", wfilter: "open",
   openSpace: null, pendingOpen: null, gIdx: 0, photoTarget: null,
@@ -1408,38 +1413,58 @@ function renderPublic(){
 }
 
 /* ---------- events ----------
-   Who is on the land during an event comes from the stays that overlap its dates. */
+   Each event has its own list of people with a role: teaching, participating, supporting, maybe.
+   Everyone else whose stay overlaps the event shows as also on the land. */
+const ROLES = [["instructor","Teaching"],["participant","Participating"],["support","Supporting"],["maybe","Maybe"]];
 const evEnd = ev => addDays(ev.last, 1);
 const evDays = ev => diff(ev.start, ev.last) + 1;
+const rosterOf = ev => (D().attend || []).filter(r => r.eventId === ev.id && r.name);
+// "Leah" finds the "Mickey & Leah" household when nobody else has that name
+function findPersonLoose(name){
+  const exact = findPerson(name); if (exact) return exact;
+  const words = norm(name).split(" ").filter(Boolean); if (!words.length) return null;
+  const hits = PX().list.filter(p => { const toks = norm(p.name).split(/[\s,&+]+/).filter(Boolean); return words.every(w => toks.includes(w)); });
+  return hits.length === 1 ? hits[0] : null;
+}
 function eventInfo(ev){
-  const from = ev.start, to = evEnd(ev);
-  const sts = activeStays().filter(x => x.start < to && (!x.end || x.end > from));
+  const from = ev.start, to = evEnd(ev), n = diff(from, to);
+  const over = x => x.start < to && (!x.end || x.end > from);
+  const sts = activeStays().filter(over);
   const byP = new Map();
   sts.forEach(x => {
     const p = personOfStay(x), k = p ? p.id : "s:" + x.id;
     if (!byP.has(k)) byP.set(k, { p, sts: [] });
     byP.get(k).sts.push(x);
   });
-  const g = { needs: [], part: [], help: [], res: [] };
-  byP.forEach(e => {
-    e.sts.sort(byStart);
-    const ty = typeOf(e.p);
-    e.heads = Math.max(...e.sts.map(heads));
-    e.ty = ty;
-    if (e.sts.every(x => isHold(space(x.spaceId)))) g.needs.push(e);
-    else if (ty === "resident") g.res.push(e);
-    else if (ty === "workshop") g.part.push(e);
-    else g.help.push(e);
+  byP.forEach(e => { e.sts.sort(byStart); e.heads = Math.max(...e.sts.map(heads)); e.ty = typeOf(e.p); });
+  const people = [...byP.values()].reduce((a, e) => a + e.heads, 0);
+  const roster = rosterOf(ev).map(r => {
+    const p = (r.personId && personById(r.personId)) || findPersonLoose(r.name);
+    const mine = p ? (byP.get(p.id) || { sts: [] }).sts : [];
+    const home = p && typeOf(p) === "resident";
+    const placed = mine.filter(x => !isHold(space(x.spaceId)));
+    let where = placed.length ? [...new Set(placed.map(spName))].join(" → ") : mine.length ? "Needs a space" : home ? "Lives here" : "";
+    const first = mine[0], last = mine[mine.length - 1];
+    if (mine.length && !home && (first.start > from || (last.end && last.end < to))) where += ` · ${fmt(first.start)} – ${last.end ? fmt(last.end) : "on"}`;
+    const solo = p && norm(p.name) === norm(r.name);
+    return { r, p, where, missing: !mine.length && !home, hold: mine.some(x => x.status === "hold"), heads: solo && mine.length ? Math.max(...mine.map(heads)) : 1 };
   });
+  const inRoster = new Set(roster.filter(x => x.p).map(x => x.p.id));
+  const rest = [...byP.values()].filter(e => !(e.p && inRoster.has(e.p.id)));
+  const g = {
+    needs: rest.filter(e => e.sts.every(x => isHold(space(x.spaceId)))),
+    res: rest.filter(e => e.ty === "resident"),
+  };
+  g.other = rest.filter(e => !g.needs.includes(e) && !g.res.includes(e));
   const name = e => (e.p ? e.p.name : personName(e.sts[0])) || "";
   Object.values(g).forEach(list => list.sort((a, b) => name(a).localeCompare(name(b))));
-  const people = [...byP.values()].reduce((a, e) => a + e.heads, 0);
-  const n = diff(from, to), sps = sortedSpaces(realSpaces());
+  const sps = sortedSpaces(realSpaces());
   const free = sps.filter(s => !isRes(s) && !isLast(s) && fitFor(s, from, to, 1).ok === n);
   const part = sps.filter(s => !isRes(s) && !isLast(s)).map(s => ({ s, ok: fitFor(s, from, to, 1).ok })).filter(r => r.ok > 0 && r.ok < n);
   const last = sps.filter(s => isLast(s) && fitFor(s, from, to, 1).ok === n);
-  const homes = resAwayFor(from, to);
-  return { from, to, g, people, free, part, last, homes, name };
+  const needCount = g.needs.length + roster.filter(x => x.where.startsWith("Needs a space") || x.missing).length;
+  const count = role => roster.filter(x => x.r.role === role).reduce((a, x) => a + x.heads, 0);
+  return { from, to, g, roster, people, free, part, last, homes: resAwayFor(from, to), name, needCount, count };
 }
 function evWhen(ev){
   if (ev.last < TODAY) return "Ended";
@@ -1448,16 +1473,16 @@ function evWhen(ev){
   return d === 1 ? "Tomorrow" : d < 14 ? `in ${d} days` : d < 70 ? `in ${Math.round(d / 7)} weeks` : `in ${Math.round(d / 30.4)} months`;
 }
 const evRange = ev => { const y = ev.last.slice(0, 4), same = ev.start.slice(0, 4) === y; return `${same ? fmt(ev.start) : fmtY(ev.start)} – ${fmt(ev.last)}${y !== TODAY.slice(0, 4) || !same ? ", " + y : ""} · ${evDays(ev)} ${evDays(ev) === 1 ? "day" : "days"}`; };
+const plural = (n, one, many) => `${n} ${n === 1 ? one : many}`;
 function renderEvents(){
   const el = $("#eventsList"), all = (D().events || []).filter(ev => validDate(ev.start) && validDate(ev.last)).sort(byStart);
   if (!all.length){
-    el.innerHTML = `<div class="empty-state"><span class="label">No events yet</span><h2>Workshops, retreats and gatherings</h2><p>Each event shows across the top of the calendar, and its page shows who's coming, who still needs a space, and what's free.</p>${writable() ? `<div class="row"><button class="btn primary plus" data-act="new-event">Add an event</button></div>` : ""}</div>`;
+    el.innerHTML = `<div class="empty-state"><span class="label">No events yet</span><h2>Workshops, retreats and gatherings</h2><p>Each event shows across the top of the calendar. Its page lists who teaches, takes part and supports, who still needs a space, and what's free.</p>${writable() ? `<div class="row"><button class="btn primary plus" data-act="new-event">Add an event</button></div>` : ""}</div>`;
     return;
   }
   const card = ev => {
-    const i = eventInfo(ev), past = ev.last < TODAY;
-    const np = i.g.part.reduce((a, e) => a + e.heads, 0);
-    const bits = [`${i.people} on the land`, np ? `${np} ${np === 1 ? "participant" : "participants"}` : "", !past && i.g.needs.length ? `${i.g.needs.length} need${i.g.needs.length === 1 ? "s" : ""} a space` : "", !past ? `${i.free.length} ${i.free.length === 1 ? "space" : "spaces"} free` : ""].filter(Boolean);
+    const i = eventInfo(ev), past = ev.last < TODAY, np = i.count("participant"), nt = i.count("instructor");
+    const bits = [np ? plural(np, "participant", "participants") : "", nt ? `${nt} teaching` : "", `${i.people} on the land`, !past && i.needCount ? `${i.needCount} need${i.needCount === 1 ? "s" : ""} a space` : "", !past ? plural(i.free.length, "space free", "spaces free") : ""].filter(Boolean);
     return `<button class="li ev-li" data-act="open-event" data-id="${esc(ev.id)}"><span class="grow"><span class="t">${esc(ev.name)}</span><br><span class="s">${esc(evRange(ev))}</span><br><span class="s">${esc(bits.join(" · "))}</span></span><span class="when${!past && ev.start <= addDays(TODAY, 30) ? " soon" : ""}">${esc(evWhen(ev))}</span></button>`;
   };
   const up = all.filter(ev => ev.last >= TODAY), past = all.filter(ev => ev.last < TODAY).reverse();
@@ -1469,37 +1494,79 @@ function renderEventDrawer(){
   if (!ev){ root.innerHTML = ""; S.openEvent = null; document.body.style.overflow = ""; return; }
   const fresh = !root.innerHTML, w = writable(), i = eventInfo(ev), past = ev.last < TODAY;
   document.body.style.overflow = "hidden";
-  const row = e => {
-    const x = e.sts.find(s => !isHold(space(s.spaceId))) || e.sts[0], whole = e.sts[0].start <= ev.start && (!e.sts[e.sts.length - 1].end || e.sts[e.sts.length - 1].end >= evEnd(ev));
-    const where = [...new Set(e.sts.map(spName))].join(" → ");
-    const dates = whole ? "" : ` · ${fmt(e.sts[0].start)} – ${e.sts[e.sts.length - 1].end ? fmt(e.sts[e.sts.length - 1].end) : "on"}`;
-    const hold = e.sts.some(s => s.status === "hold");
-    return `<button class="li" data-act="${e.p ? "open-person" : "edit-stay"}" data-id="${esc(e.p ? e.p.id : x.id)}" data-stay="${esc(x.id)}"><span class="swatch ty-${e.ty}"></span><span class="grow"><span class="t">${esc(i.name(e))}</span>${e.heads > 1 ? ` <span class="faint">×${e.heads}</span>` : ""}<br><span class="s">${esc(where + dates)}${hold ? " · on hold" : ""}</span></span>${e.p && e.p.status === "deciding" ? `<span class="tag-dec">Being decided</span>` : ""}</button>`;
+  const rrow = x => `<button class="li" data-act="${x.p ? "open-person" : "event-people"}" data-id="${esc(x.p ? x.p.id : ev.id)}"><span class="swatch ty-${typeOf(x.p)}"></span><span class="grow"><span class="t">${esc(x.r.name)}</span>${x.heads > 1 ? ` <span class="faint">×${x.heads}</span>` : ""}<br><span class="s${x.missing && !past ? " warn-t" : ""}">${esc(x.missing ? "No stay booked" : x.where)}${x.hold ? " · on hold" : ""}</span></span>${x.p && x.p.status === "deciding" ? `<span class="tag-dec">Being decided</span>` : ""}</button>`;
+  const erow = e => {
+    const x = e.sts.find(s => !isHold(space(s.spaceId))) || e.sts[0], a = e.sts[0], z = e.sts[e.sts.length - 1];
+    const whole = a.start <= ev.start && (!z.end || z.end >= evEnd(ev));
+    return `<button class="li" data-act="${e.p ? "open-person" : "edit-stay"}" data-id="${esc(e.p ? e.p.id : x.id)}" data-stay="${esc(x.id)}"><span class="swatch ty-${e.ty}"></span><span class="grow"><span class="t">${esc(i.name(e))}</span>${e.heads > 1 ? ` <span class="faint">×${e.heads}</span>` : ""}<br><span class="s">${esc([...new Set(e.sts.map(spName))].join(" → ") + (whole ? "" : ` · ${fmt(a.start)} – ${z.end ? fmt(z.end) : "on"}`))}${e.sts.some(s => s.status === "hold") ? " · on hold" : ""}</span></span></button>`;
   };
-  const group = (title, list, note) => list.length ? `<section class="sect"><div class="sect-h"><h3>${title}</h3><span class="hint">${list.reduce((a, e) => a + e.heads, 0)}${note || ""}</span></div><div class="list">${list.map(row).join("")}</div></section>` : "";
+  const sect = (title, html, n) => html ? `<section class="sect"><div class="sect-h"><h3>${title}</h3>${n !== undefined ? `<span class="hint">${n}</span>` : ""}</div>${html}</section>` : "";
+  const roles = ROLES.map(([k, t]) => { const list = i.roster.filter(x => x.r.role === k).sort((a, b) => a.r.name.localeCompare(b.r.name)); return list.length ? sect(t, `<div class="list">${list.map(rrow).join("")}</div>`, k === "maybe" ? list.length : list.reduce((a, x) => a + x.heads, 0)) : ""; }).join("");
   const chips = (list, cls) => list.map(s => `<button class="fitchip${cls || ""}" data-act="event-book" data-ev="${esc(ev.id)}" data-id="${esc(s.id)}"${w ? "" : " disabled"}>${esc(s.name)}</button>`).join("");
-  const room = past ? "" : `<section class="sect"><div class="sect-h"><h3>Room left</h3><span class="hint">for the whole event</span></div>
-    <div class="fits">${i.free.length ? chips(i.free) : `<span class="hint">No space is free for every night.</span>`}
+  const room = past ? "" : sect("Room left", `<div class="fits">${i.free.length ? chips(i.free) : `<span class="hint">No space is free for every night.</span>`}
     ${i.homes.length ? `<span class="hint" style="margin-left:6px">Resident away:</span>${chips(i.homes, " lastchip")}` : ""}
     ${i.last.length ? `<span class="hint" style="margin-left:6px">Last resort:</span>${chips(i.last, " lastchip")}` : ""}</div>
-    ${i.part.length ? `<div class="fits"><span class="hint">Part of it:</span>${i.part.map(r => `<button class="fitchip part" data-act="open-space" data-id="${esc(r.s.id)}">${esc(r.s.name)} · ${r.ok} of ${diff(i.from, i.to)} nights</button>`).join("")}</div>` : ""}
-  </section>`;
+    ${i.part.length ? `<div class="fits"><span class="hint">Part of it:</span>${i.part.map(r => `<button class="fitchip part" data-act="open-space" data-id="${esc(r.s.id)}">${esc(r.s.name)} · ${r.ok} of ${diff(i.from, i.to)} nights</button>`).join("")}</div>` : ""}`);
+  const np = i.count("participant"), nt = i.count("instructor"), ns = i.count("support");
   const keepScroll = !fresh && root.querySelector(".drawer") ? root.querySelector(".drawer").scrollTop : 0;
   root.innerHTML = `<div class="scrim" data-act="close-drawer" style="${fresh ? "" : "animation:none"}"></div>
   <aside class="drawer" role="dialog" aria-modal="true" aria-label="${esc(ev.name)}" style="${fresh ? "" : "animation:none"}">
     <div class="dr-top"><button class="btn ghost sm" data-act="close-drawer">Close</button><span class="grow"></span>
-      ${w && !past ? `<button class="btn sm plus" data-act="event-book" data-ev="${esc(ev.id)}" data-id="">Book</button>` : ""}${w ? `<button class="btn sm" data-act="edit-event" data-id="${esc(ev.id)}">Edit</button>` : ""}</div>
+      ${w ? `<button class="btn sm" data-act="event-people" data-id="${esc(ev.id)}">People</button>` : ""}${w && !past ? `<button class="btn sm plus" data-act="event-book" data-ev="${esc(ev.id)}" data-id="">Book</button>` : ""}${w ? `<button class="btn sm" data-act="edit-event" data-id="${esc(ev.id)}">Edit</button>` : ""}</div>
     <div class="dr-body">
       <div class="dr-title"><h2>${esc(ev.name)}</h2><div class="chips"><span class="chip">${esc(evRange(ev))}</span><span class="chip">${esc(evWhen(ev))}</span></div></div>
-      <div class="summary"><span><b>${i.people}</b>on the land</span>${i.g.part.length ? `<span><b>${i.g.part.reduce((a, e) => a + e.heads, 0)}</b>${i.g.part.length === 1 && i.g.part[0].heads === 1 ? "participant" : "participants"}</span>` : ""}${!past && i.g.needs.length ? `<span class="alert"><b>${i.g.needs.length}</b>${i.g.needs.length === 1 ? "needs" : "need"} a space</span>` : ""}</div>
-      ${group("Needs a space", i.g.needs)}
-      ${group("Participants", i.g.part)}
-      ${group("Helpers & guests", i.g.help)}
-      ${i.g.res.length ? `<section class="sect"><div class="sect-h"><h3>Residents</h3><span class="hint">${i.g.res.reduce((a, e) => a + e.heads, 0)}</span></div><p class="prose small muted">${i.g.res.map(e => esc(i.name(e))).join(" · ")}</p></section>` : ""}
+      <div class="summary">${np ? `<span><b>${np}</b>${np === 1 ? "participant" : "participants"}</span>` : ""}${nt ? `<span><b>${nt}</b>teaching</span>` : ""}${ns ? `<span><b>${ns}</b>supporting</span>` : ""}<span><b>${i.people}</b>on the land</span>${!past && i.needCount ? `<span class="alert"><b>${i.needCount}</b>${i.needCount === 1 ? "needs" : "need"} a space</span>` : ""}</div>
+      ${roles || `<div class="none">${w ? `Nobody listed yet. Tap <b>People</b> to add who teaches, takes part and supports.` : "Nobody listed yet."}</div>`}
+      ${sect("Needs a space", i.g.needs.length ? `<div class="list">${i.g.needs.map(erow).join("")}</div>` : "", i.g.needs.reduce((a, e) => a + e.heads, 0))}
+      ${sect("Also on the land", i.g.other.length ? `<div class="list">${i.g.other.map(erow).join("")}</div>` : "", i.g.other.reduce((a, e) => a + e.heads, 0))}
+      ${i.g.res.length ? sect("Residents", `<p class="prose small muted">${i.g.res.map(e => esc(i.name(e))).join(" · ")}</p>`, i.g.res.reduce((a, e) => a + e.heads, 0)) : ""}
       ${room}
     </div>
   </aside>`;
   if (keepScroll) root.querySelector(".drawer").scrollTop = keepScroll;
+}
+// Who teaches, takes part, supports or might come
+function rosterForm(evId){
+  const ev = (D().events || []).find(x => x.id === evId); if (!ev) return;
+  S.rf = rosterOf(ev).map(r => ({ id: r.id, name: r.name, role: r.role, orig: r }));
+  if (!S.rf.length) S.rf.push({ name: "", role: "participant" });
+  $("#peopleNames").innerHTML = PX().list.map(p => `<option value="${esc(p.name)}"></option>`).join("");
+  const order = { instructor: 0, participant: 1, support: 2, maybe: 3 };
+  S.rf.sort((a, b) => (order[a.role] ?? 9) - (order[b.role] ?? 9) || a.name.localeCompare(b.name));
+  openModal(`People at ${ev.name}`, `<div id="rf-list" class="rf-list"></div>
+    <button type="button" class="btn sm plus" data-act="rf-add" style="align-self:flex-start">Someone</button>
+    <small class="hint">Type a name from People, or anyone's first name, like one person from a couple. Where they sleep comes from their stays.</small>`,
+    footer("Save"), async () => {
+      if (!peopleWritable()){ toast(SCRIPT_MSG, 7000); return false; }
+      const keep = S.rf.filter(r => r.name.trim());
+      const dup = keep.find((r, k) => keep.findIndex(o => norm(o.name) === norm(r.name)) !== k);
+      if (dup){ toast(`${dup.name.trim()} is listed twice.`); return false; }
+      for (const r of keep){
+        const name = r.name.trim(), p = findPersonLoose(name), personId = p && !p.virtual ? p.id : "";
+        if (r.orig && r.orig.name === name && r.orig.role === r.role && (r.orig.personId || "") === personId) continue;
+        if (!(await save("attend", { ...(r.orig || {}), id: r.id || newId("attend"), eventId: ev.id, personId, name, role: r.role }))) return false;
+      }
+      for (const r of S.rf.filter(r => r.orig && !r.name.trim())) await remove("attend", r.id);
+      for (const r of (S.rfGone || [])) await remove("attend", r);
+      S.rf = null; S.rfGone = null; toast("Saved");
+    });
+  S.rfGone = [];
+  renderRoster();
+  S.modalCtx = { id: evId };
+}
+function renderRoster(){
+  const el = $("#rf-list"); if (!el || !S.rf) return;
+  el.innerHTML = S.rf.map((r, k) => `<div class="rrow"><input class="rf-name" data-k="${k}" list="peopleNames" value="${esc(r.name)}" placeholder="Name" autocomplete="off" aria-label="Name"><select class="rf-role" data-k="${k}" aria-label="Role">${opt(ROLES, r.role)}</select><button type="button" class="btn ghost sm" data-act="rf-del" data-k="${k}" aria-label="Remove">×</button></div>`).join("");
+}
+// A workshop booking that overlaps an event puts the person on its list as participating
+async function autoRoster(person, name, start, end){
+  if (!peopleWritable()) return;
+  const to = end || addDays(start, 1);
+  for (const ev of (D().events || []).filter(e => validDate(e.start) && start < evEnd(e) && to > e.start)){
+    const list = rosterOf(ev), pid = person && !person.virtual ? person.id : "";
+    if (list.some(r => (pid && r.personId === pid) || norm(r.name) === norm(name))) continue;
+    await save("attend", { id: newId("attend"), eventId: ev.id, personId: pid, name, role: "participant" });
+  }
 }
 
 /* ---------- modals ---------- */
@@ -1522,7 +1589,7 @@ async function doSubmit(){
 }
 function closeModal(){
   if (S.fp && !S.fp.saved && !S.demo && S.assets) S.fp.added.forEach(p => { try { S.assets.delete(p); } catch {} });
-  S.fp = null; $("#modalRoot").innerHTML = ""; modalSubmit = null;
+  S.fp = null; S.rf = null; $("#modalRoot").innerHTML = ""; modalSubmit = null;
 }
 function renderFormPhotos(){
   const el = $("#sp-photos"); if (!el || !S.fp) return;
@@ -1647,6 +1714,7 @@ function stayForm(id, preset = {}){
       return;
     }
     if (!(await save("stays", body))) return false;
+    if (type === "workshop") await autoRoster(person, body.name, start, end);
     toast(id ? (body.spaceId !== st.spaceId ? `Moved to ${space(body.spaceId).name}` : "Stay updated") : "Booked");
   }, e => {
     const tgt = e && e.target && e.target.id;
@@ -2095,7 +2163,12 @@ document.addEventListener("click", async e => {
     case "toast-action": if (toastAction){ const f = toastAction.fn; toastAction = null; $("#toastRoot").innerHTML = ""; if (await f()) toast("Undone"); } break;
     case "new-event": eventForm(null); break;
     case "edit-event": if (writable()) eventForm(id); break;
-    case "delete-event": if (armed(a) && await remove("events", S.modalCtx.id)){ closeModal(); closeDrawer(); toast("Event deleted"); } break;
+    case "delete-event": { if (!armed(a)) break; const eid = S.modalCtx.id;
+      if (await remove("events", eid)){ for (const r of (D().attend || []).filter(r => r.eventId === eid)) await remove("attend", r.id); closeModal(); closeDrawer(); toast("Event deleted"); }
+      break; }
+    case "event-people": if (writable()) rosterForm(id); break;
+    case "rf-add": if (S.rf){ S.rf.push({ name: "", role: "participant" }); renderRoster(); const ins = document.querySelectorAll(".rf-name"); ins[ins.length - 1].focus(); } break;
+    case "rf-del": if (S.rf){ const [r] = S.rf.splice(Number(a.dataset.k), 1); if (r && r.id) S.rfGone.push(r.id); renderRoster(); } break;
     case "copy-link": try { await navigator.clipboard.writeText(a.dataset.url); toast("Link copied"); } catch { toast("Select the link and copy it."); } break;
     case "sign-out": lsSet("rb-token", ""); clearCaches(); location.reload(); break;
     case "go-visitors": setView("visitors"); break;
@@ -2130,6 +2203,8 @@ $("#pubTo").addEventListener("change", e => { if (validDate(e.target.value)){ S.
 document.addEventListener("keydown", e => { if (e.key !== "Escape") return; if ($("#modalRoot").innerHTML) closeModal(); else if (S.openSpace || S.openPerson || S.openEvent) closeDrawer(); });
 // keep a page's past stays open across refreshes
 document.addEventListener("toggle", e => { if (e.target.matches && e.target.matches("details.pastlist")) S.pastOpen = e.target.open ? (S.openPerson || S.openSpace) : null; }, true);
+document.addEventListener("input", e => { const t = e.target; if (!S.rf || !t.dataset || t.dataset.k === undefined) return; const r = S.rf[Number(t.dataset.k)]; if (!r) return; if (t.classList.contains("rf-name")) r.name = t.value; if (t.classList.contains("rf-role")) r.role = t.value; });
+document.addEventListener("change", e => { const t = e.target; if (S.rf && t.classList && t.classList.contains("rf-role")){ const r = S.rf[Number(t.dataset.k)]; if (r) r.role = t.value; } });
 $("#peopleSearch").addEventListener("input", e => { S.pq = e.target.value; renderPeople(); });
 window.addEventListener("hashchange", () => setView(location.hash.slice(1), false));
 let rT; window.addEventListener("resize", () => { clearTimeout(rT); rT = setTimeout(() => { if (S.view === "calendar") renderCalendar(); }, 150); });
@@ -2180,6 +2255,7 @@ function makeDemo(){
 function subscribeAll(db){
   const timer = setTimeout(() => { if (S.loaded.size < 3){ S.slow = true; renderNotice(); } }, 10000);
   const onErr = () => { clearTimeout(timer); S.slow = false; renderAll(); };
+  db.collection("attend").onSnapshot(snap => { S.real.attend = snap.docs.map(d => ({ id: d.id, ...d.data() })); if (!S.demo && (S.openEvent || S.view === "events")) renderAll(); }, () => {});
   db.collection("people").onSnapshot(snap => { S.real.people = snap.docs.map(d => ({ id: d.id, ...d.data() })); if (!S.hosted) S.peopleOk = true; pxReset(); if (!S.demo) renderAll(); }, () => {});
   db.collection("events").onSnapshot(snap => { S.real.events = snap.docs.map(d => ({ id: d.id, ...d.data() })); if (!S.demo && S.view === "calendar") renderCalendar(); }, () => {});
   for (const coll of ["spaces","stays","work"]){
@@ -2211,7 +2287,7 @@ function authLost(){
   toast("Please sign in again."); showLogin();
 }
 function gasDb(){
-  let data = { spaces: [], stays: [], work: [], events: [], people: [], settings: [] }, ready = false, queue = Promise.resolve(), pending = 0;
+  let data = { spaces: [], stays: [], work: [], events: [], people: [], attend: [], settings: [] }, ready = false, queue = Promise.resolve(), pending = 0;
   const subs = [];
   const cached = readCache(CACHE_TEAM);
   if (cached){ data = cached.data; S.peopleOk = Array.isArray(data.people); data.people = data.people || []; ready = true; S.stale = cached.at; }
@@ -2230,6 +2306,7 @@ function gasDb(){
     S.peopleOk = Array.isArray(r.people);
     data = { spaces: r.spaces || [], stays: r.stays || [], work: r.work || [], events: r.events || [], settings: r.settings || [] };
     if (S.peopleOk) data.people = r.people;
+    data.attend = r.attend || [];
     ready = true; S.stale = 0; S.offline = false; writeCache(CACHE_TEAM, data); fireAll();
   }
   const send = body => {
@@ -2308,7 +2385,7 @@ async function hostedBoot(cfg){
   S.photoBase = "https://drive.google.com/thumbnail?sz=w1600&id=";
   if (new URLSearchParams(location.search).has("visit")){
     S.visit = true; document.body.classList.add("visit-mode"); setView("visitors", false);
-    const show = d => { S.real = { spaces: d.spaces || [], stays: d.stays || [], work: d.blocks || [], events: [], people: [], settings: d.settings || {} }; ["spaces","stays","work"].forEach(k => S.loaded.add(k)); renderAll(); };
+    const show = d => { S.real = { spaces: d.spaces || [], stays: d.stays || [], work: d.blocks || [], events: [], people: [], attend: [], settings: d.settings || {} }; ["spaces","stays","work"].forEach(k => S.loaded.add(k)); renderAll(); };
     const c = readCache(CACHE_PUB);
     if (c) show(c.data); else $("#pubBody").innerHTML = `<p class="faint">Loading…</p>`;
     let data; try { data = await gasCall({ action: "public" }); } catch {}
