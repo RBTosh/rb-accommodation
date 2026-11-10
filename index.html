@@ -1418,7 +1418,13 @@ function renderPublic(){
 const ROLES = [["instructor","Teaching"],["participant","Participating"],["support","Supporting"],["maybe","Maybe"]];
 const evEnd = ev => addDays(ev.last, 1);
 const evDays = ev => diff(ev.start, ev.last) + 1;
-const rosterOf = ev => (D().attend || []).filter(r => r.eventId === ev.id && r.name);
+const attendReady = () => S.demo || !S.hosted || S.attendOk;
+function rosterOf(ev){
+  if (attendReady()) return (D().attend || []).filter(r => r.eventId === ev.id && r.name);
+  const to = evEnd(ev), seen = new Set();
+  return activeStays().filter(x => x.start < to && (!x.end || x.end > ev.start)).map(x => personOfStay(x)).filter(p => p && typeOf(p) === "workshop" && !seen.has(p.id) && seen.add(p.id))
+    .map(p => ({ id: "auto:" + p.id, eventId: ev.id, personId: p.id, name: p.name, role: "participant" }));
+}
 // "Leah" finds the "Mickey & Leah" household when nobody else has that name
 function findPersonLoose(name){
   const exact = findPerson(name); if (exact) return exact;
@@ -1512,10 +1518,11 @@ function renderEventDrawer(){
   root.innerHTML = `<div class="scrim" data-act="close-drawer" style="${fresh ? "" : "animation:none"}"></div>
   <aside class="drawer" role="dialog" aria-modal="true" aria-label="${esc(ev.name)}" style="${fresh ? "" : "animation:none"}">
     <div class="dr-top"><button class="btn ghost sm" data-act="close-drawer">Close</button><span class="grow"></span>
-      ${w ? `<button class="btn sm" data-act="event-people" data-id="${esc(ev.id)}">People</button>` : ""}${w && !past ? `<button class="btn sm plus" data-act="event-book" data-ev="${esc(ev.id)}" data-id="">Book</button>` : ""}${w ? `<button class="btn sm" data-act="edit-event" data-id="${esc(ev.id)}">Edit</button>` : ""}</div>
+      ${w && attendReady() ? `<button class="btn sm" data-act="event-people" data-id="${esc(ev.id)}">People</button>` : ""}${w && !past ? `<button class="btn sm plus" data-act="event-book" data-ev="${esc(ev.id)}" data-id="">Book</button>` : ""}${w ? `<button class="btn sm" data-act="edit-event" data-id="${esc(ev.id)}">Edit</button>` : ""}</div>
     <div class="dr-body">
       <div class="dr-title"><h2>${esc(ev.name)}</h2><div class="chips"><span class="chip">${esc(evRange(ev))}</span><span class="chip">${esc(evWhen(ev))}</span></div></div>
       <div class="summary">${np ? `<span><b>${np}</b>${np === 1 ? "participant" : "participants"}</span>` : ""}${nt ? `<span><b>${nt}</b>teaching</span>` : ""}${ns ? `<span><b>${ns}</b>supporting</span>` : ""}<span><b>${i.people}</b>on the land</span>${!past && i.needCount ? `<span class="alert"><b>${i.needCount}</b>${i.needCount === 1 ? "needs" : "need"} a space</span>` : ""}</div>
+      ${!attendReady() ? `<div class="banner"><span class="grow"><b>Update the sheet's script</b> to see who's teaching, taking part and supporting. Until then, everyone booked as Workshop shows as participating.</span></div>` : ""}
       ${roles || `<div class="none">${w ? `Nobody listed yet. Tap <b>People</b> to add who teaches, takes part and supports.` : "Nobody listed yet."}</div>`}
       ${sect("Needs a space", i.g.needs.length ? `<div class="list">${i.g.needs.map(erow).join("")}</div>` : "", i.g.needs.reduce((a, e) => a + e.heads, 0))}
       ${sect("Also on the land", i.g.other.length ? `<div class="list">${i.g.other.map(erow).join("")}</div>` : "", i.g.other.reduce((a, e) => a + e.heads, 0))}
@@ -1560,7 +1567,7 @@ function renderRoster(){
 }
 // A workshop booking that overlaps an event puts the person on its list as participating
 async function autoRoster(person, name, start, end){
-  if (!peopleWritable()) return;
+  if (!peopleWritable() || !attendReady()) return;
   const to = end || addDays(start, 1);
   for (const ev of (D().events || []).filter(e => validDate(e.start) && start < evEnd(e) && to > e.start)){
     const list = rosterOf(ev), pid = person && !person.virtual ? person.id : "";
@@ -2290,7 +2297,7 @@ function gasDb(){
   let data = { spaces: [], stays: [], work: [], events: [], people: [], attend: [], settings: [] }, ready = false, queue = Promise.resolve(), pending = 0;
   const subs = [];
   const cached = readCache(CACHE_TEAM);
-  if (cached){ data = cached.data; S.peopleOk = Array.isArray(data.people); data.people = data.people || []; ready = true; S.stale = cached.at; }
+  if (cached){ data = cached.data; S.peopleOk = Array.isArray(data.people); S.attendOk = Array.isArray(data.attend); data.people = data.people || []; ready = true; S.stale = cached.at; }
   const snapOf = l => {
     const list = data[l.coll] || [];
     if (l.id){ const r = list.find(x => x.id === l.id); return { id: l.id, exists: !!r, data: () => r ? { ...r } : undefined, metadata: { fromCache: false, hasPendingWrites: false } }; }
@@ -2306,6 +2313,7 @@ function gasDb(){
     S.peopleOk = Array.isArray(r.people);
     data = { spaces: r.spaces || [], stays: r.stays || [], work: r.work || [], events: r.events || [], settings: r.settings || [] };
     if (S.peopleOk) data.people = r.people;
+    S.attendOk = Array.isArray(r.attend);
     data.attend = r.attend || [];
     ready = true; S.stale = 0; S.offline = false; writeCache(CACHE_TEAM, data); fireAll();
   }
