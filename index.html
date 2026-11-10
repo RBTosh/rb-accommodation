@@ -1963,7 +1963,11 @@ function renderPeople(){
   const q = norm(S.pq);
   const shown = all.filter(i => (S.ptype === "all" || i.ty === S.ptype) && (!q || norm(i.p.name).includes(q) || norm(i.p.description).includes(q)));
   const byName = (a, b) => String(a.p.name).localeCompare(String(b.p.name));
-  const sorts = { arriving: (a, b) => byStart(a.next, b.next) || byName(a, b), past: (a, b) => (a.last && b.last && a.last.end < b.last.end ? 1 : -1) };
+  // residents follow the order of their homes (same as the calendar), then the order they were entered
+  const homeOrder = new Map(sortedSpaces().map((s, k) => [s.id, k])), stayOrder = new Map(D().stays.map((x, k) => [x.id, k]));
+  const homeStay = i => i.cur || i.next || i.last || i.sts[0];
+  const byHome = (a, b) => { const x = homeStay(a), y = homeStay(b); return ((x ? homeOrder.get(x.spaceId) : 999) ?? 999) - ((y ? homeOrder.get(y.spaceId) : 999) ?? 999) || ((x ? stayOrder.get(x.id) : 0) ?? 0) - ((y ? stayOrder.get(y.id) : 0) ?? 0); };
+  const sorts = { res: byHome, arriving: (a, b) => byStart(a.next, b.next) || byName(a, b), past: (a, b) => (a.last && b.last && a.last.end < b.last.end ? 1 : -1) };
   const html = PGROUPS.map(([g, title]) => {
     const items = shown.filter(i => i.g === g).sort(sorts[g] || byName);
     if (!items.length) return "";
