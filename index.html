@@ -440,6 +440,8 @@ body.is-dragging,body.is-dragging *{cursor:grabbing!important;user-select:none;-
 .pgroup.res .li .t{color:var(--ink-2)}
 .prow .t{font-weight:500}
 .prow .when{font-size:13.5px;color:var(--ink-2);white-space:nowrap;flex:none;text-align:right}
+.ev-li .t{font-family:var(--f-display);font-size:20px;font-weight:500}
+.drawer .summary{margin-top:-8px}
 .tag-dec{font-size:12.5px;font-weight:600;color:var(--warn);background:var(--warn-soft);padding:2px 9px;border-radius:999px;white-space:nowrap;flex:none}
 .prow .when.soon{color:var(--ok);font-weight:600}
 .prow .swatch{align-self:flex-start;margin-top:8px}
@@ -627,6 +629,11 @@ details.pastlist .list{background:var(--sunk);box-shadow:none}
     <div id="peopleList" class="view"></div>
   </section>
 
+  <section class="view" id="view-events" hidden>
+    <div class="view-h"><h2>Events</h2></div>
+    <div id="eventsList" class="view"></div>
+  </section>
+
   <section class="view" id="view-visitors" hidden>
     <div class="banner info"><span class="grow">Preview of the page visitors see. It lists spaces that are ready to use, aren't someone's long-term home, and have free nights in the dates below. Names, notes and repairs stay private.<span id="pubLink"></span></span>
 </div>
@@ -660,7 +667,7 @@ const SCRIPT_MSG = "To save people, update the script in your Google Sheet first
 const AMENITIES = [["power","Power"],["water","Water"],["fridge","Fridge"],["bed","Bed & bedding"],["screened","Screened"],["lock","Lockable door"],["wifi","Wifi"]];
 const PRIOS = [["blocker","Blocks use"],["needed","Needed"],["nice","Nice to have"]];
 const WSTAT = [["todo","To do"],["doing","In progress"],["done","Done"]];
-const VIEWS = ["spaces","calendar","repairs","visitors","people"];
+const VIEWS = ["spaces","calendar","repairs","visitors","people","events"];
 const label = (list, k) => (list.find(x => x[0] === k) || [k, k || "—"])[1];
 const USABLE = new Set(["ready","usable"]);
 
@@ -692,7 +699,7 @@ function lsSet(k, v){ try { localStorage.setItem(k, v); } catch {} }
 const S = {
   db: null, assets: null, canWrite: false, demo: false, connected: false, loaded: new Set(),
   real: { spaces: [], stays: [], work: [], events: [], people: [], settings: {} }, demoData: null,
-  openPerson: null, focusStay: null, ptype: "all", pq: "", peopleOk: false,
+  openPerson: null, openEvent: null, focusStay: null, ptype: "all", pq: "", peopleOk: false,
   view: "spaces", filter: "all", wfilter: "open",
   openSpace: null, pendingOpen: null, gIdx: 0, photoTarget: null,
   cal: { start: addDays(TODAY, -7), zoom: "month" },
@@ -852,7 +859,7 @@ function setView(v, push = true){
   if (v === "work") v = "repairs"; if (v === "outsiders") v = "visitors";
   if (!VIEWS.includes(v)) v = "calendar";
   S.view = v;
-  document.querySelectorAll(".tab").forEach(t => t.setAttribute("aria-selected", String(t.dataset.view === (v === "visitors" || v === "repairs" ? "spaces" : v))));
+  document.querySelectorAll(".tab").forEach(t => t.setAttribute("aria-selected", String(t.dataset.view === (v === "visitors" || v === "repairs" ? "spaces" : v === "events" ? "calendar" : v))));
   VIEWS.forEach(k => { $("#view-" + k).hidden = k !== v; });
   if (push && location.hash !== "#" + v){ try { history.replaceState(null, "", "#" + v); } catch { location.hash = v; } }
   renderView(); renderTopActions(); window.scrollTo(0, 0);
@@ -861,7 +868,8 @@ function renderTopActions(){
   const w = writable(), plus = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>';
   const b = (act, label, primary, aria) => `<button class="btn sm${primary ? " primary" : ""} hbtn" data-act="${act}"${aria ? ` aria-label="${aria}"` : ""}>${plus}<span>${label}</span></button>`;
   let h = "";
-  if (S.view === "calendar") h = w ? b("new-event", "Event", false, "Add an event") + b("new-stay", "Book", true, "Book a stay") : "";
+  if (S.view === "calendar") h = `<button class="btn sm hbtn" data-act="go-events">Events</button>` + (w ? b("new-stay", "Book", true, "Book a stay") : "");
+  else if (S.view === "events") h = `<button class="btn sm hbtn" data-act="go-calendar">‹ Calendar</button>` + (w ? b("new-event", "Event", true, "Add an event") : "");
   else if (S.view === "spaces") h = `<button class="btn sm hbtn" data-act="go-visitors">Visitor page</button>` + (w ? b("new-space", "Space", true, "Add a space") : "");
   else if (S.view === "repairs") h = w && D().spaces.length ? b("new-work", "Repair", true, "Add a repair") : "";
   else if (S.view === "people") h = w ? b("new-person", "Person", true, "Add a person") : "";
@@ -871,7 +879,7 @@ function renderTopActions(){
 function renderAll(){ pxReset(); renderNotice(); renderView(); renderDrawer(); renderTopActions(); }
 function renderView(){
   pxReset();
-  ({ spaces: renderSpaces, calendar: renderCalendar, repairs: renderWork, visitors: renderPublic, people: renderPeople })[S.view]();
+  ({ spaces: renderSpaces, calendar: renderCalendar, repairs: renderWork, visitors: renderPublic, people: renderPeople, events: renderEvents })[S.view]();
 }
 function setRepCount(){
   const n = D().work.filter(w => w.status !== "done").length;
@@ -1006,10 +1014,12 @@ document.addEventListener("drop", e => {
 document.addEventListener("dragend", () => { roDrag = null; document.querySelectorAll(".ro-row").forEach(x => x.classList.remove("dragging", "drop-before", "drop-after")); });
 
 /* ---------- side sheet ---------- */
-function openSpace(id){ S.openSpace = id; S.openPerson = null; S.gIdx = 0; renderDrawer(); }
-function openPerson(id, focusStay){ if (!id) return; S.openPerson = id; S.focusStay = focusStay || null; S.openSpace = null; S.pendingOpen = null; renderDrawer(); }
-function closeDrawer(){ S.openSpace = null; S.openPerson = null; S.pendingOpen = null; renderDrawer(); }
+function openEvent(id){ S.openEvent = id; S.openSpace = null; S.openPerson = null; renderDrawer(); }
+function openSpace(id){ S.openSpace = id; S.openPerson = null; S.openEvent = null; S.gIdx = 0; renderDrawer(); }
+function openPerson(id, focusStay){ if (!id) return; S.openEvent = null; S.openPerson = id; S.focusStay = focusStay || null; S.openSpace = null; S.pendingOpen = null; renderDrawer(); }
+function closeDrawer(){ S.openSpace = null; S.openPerson = null; S.openEvent = null; S.pendingOpen = null; renderDrawer(); }
 function renderDrawer(){
+  if (S.openEvent) return renderEventDrawer();
   if (S.openPerson) return renderPersonDrawer();
   const root = $("#drawerRoot"), sp = S.openSpace && space(S.openSpace);
   if (!sp){ root.innerHTML = ""; if (S.openSpace !== S.pendingOpen) S.openSpace = null; document.body.style.overflow = ""; return; }
@@ -1218,7 +1228,7 @@ function renderCalendar(){
   const evs = (D().events || []).filter(ev => validDate(ev.start) && validDate(ev.last) && ev.last >= ev.start && ev.start < end && addDays(ev.last, 1) > start);
   const evSpans = evs.map(ev => { const l = Math.max(0, diff(start, ev.start)), r = Math.min(days, diff(start, ev.last) + 1); return { ev, l, r }; }).filter(o => o.r > o.l);
   const evTint = evSpans.map(o => `<span class="evtint" style="left:${o.l * cw}px;width:${(o.r - o.l) * cw}px"></span>`).join("");
-  const evRow = evSpans.length ? `<div class="cal-row evrow"><div class="cal-name"><small>Events</small></div><div class="cal-evs" style="width:${W}px">${evSpans.map(o => `<button class="evbar${(o.r - o.l) * cw < String(o.ev.name).length * 8 + 110 ? " spill" : ""}" data-act="edit-event" data-id="${esc(o.ev.id)}" ${writable() ? "" : "disabled"} style="left:${o.l * cw}px;width:${Math.max(8, (o.r - o.l) * cw)}px" title="${esc(o.ev.name)} · ${fmt(o.ev.start)} – ${fmt(o.ev.last)}"><span class="n">${esc(o.ev.name)} <small>${fmt(o.ev.start)} – ${fmt(o.ev.last)}</small></span></button>`).join("")}</div></div>` : "";
+  const evRow = evSpans.length ? `<div class="cal-row evrow"><div class="cal-name"><small>Events</small></div><div class="cal-evs" style="width:${W}px">${evSpans.map(o => `<button class="evbar${(o.r - o.l) * cw < String(o.ev.name).length * 8 + 110 ? " spill" : ""}" data-act="open-event" data-id="${esc(o.ev.id)}" style="left:${o.l * cw}px;width:${Math.max(8, (o.r - o.l) * cw)}px" title="${esc(o.ev.name)} · ${fmt(o.ev.start)} – ${fmt(o.ev.last)}"><span class="n">${esc(o.ev.name)} <small>${fmt(o.ev.start)} – ${fmt(o.ev.last)}</small></span></button>`).join("")}</div></div>` : "";
   let rows = "", resDivider = false;
   for (const sp of sps){
     const sts = staysFor(sp.id).filter(s => s.start < end && (!s.end || s.end > start));
@@ -1395,6 +1405,101 @@ function renderPublic(){
       ${sp.publicBlurb ? `<p class="prose muted small">${esc(sp.publicBlurb)}</p>` : ""}
       ${am.length ? `<div class="chips">${am.map(a => `<span class="chip">${esc(label(AMENITIES, a))}</span>`).join("")}</div>` : ""}
     </div></div>`; }).join("")}</div>` : `<div class="none">Nothing free for these dates.</div>`;
+}
+
+/* ---------- events ----------
+   Who is on the land during an event comes from the stays that overlap its dates. */
+const evEnd = ev => addDays(ev.last, 1);
+const evDays = ev => diff(ev.start, ev.last) + 1;
+function eventInfo(ev){
+  const from = ev.start, to = evEnd(ev);
+  const sts = activeStays().filter(x => x.start < to && (!x.end || x.end > from));
+  const byP = new Map();
+  sts.forEach(x => {
+    const p = personOfStay(x), k = p ? p.id : "s:" + x.id;
+    if (!byP.has(k)) byP.set(k, { p, sts: [] });
+    byP.get(k).sts.push(x);
+  });
+  const g = { needs: [], part: [], help: [], res: [] };
+  byP.forEach(e => {
+    e.sts.sort(byStart);
+    const ty = typeOf(e.p);
+    e.heads = Math.max(...e.sts.map(heads));
+    e.ty = ty;
+    if (e.sts.every(x => isHold(space(x.spaceId)))) g.needs.push(e);
+    else if (ty === "resident") g.res.push(e);
+    else if (ty === "workshop") g.part.push(e);
+    else g.help.push(e);
+  });
+  const name = e => (e.p ? e.p.name : personName(e.sts[0])) || "";
+  Object.values(g).forEach(list => list.sort((a, b) => name(a).localeCompare(name(b))));
+  const people = [...byP.values()].reduce((a, e) => a + e.heads, 0);
+  const n = diff(from, to), sps = sortedSpaces(realSpaces());
+  const free = sps.filter(s => !isRes(s) && !isLast(s) && fitFor(s, from, to, 1).ok === n);
+  const part = sps.filter(s => !isRes(s) && !isLast(s)).map(s => ({ s, ok: fitFor(s, from, to, 1).ok })).filter(r => r.ok > 0 && r.ok < n);
+  const last = sps.filter(s => isLast(s) && fitFor(s, from, to, 1).ok === n);
+  const homes = resAwayFor(from, to);
+  return { from, to, g, people, free, part, last, homes, name };
+}
+function evWhen(ev){
+  if (ev.last < TODAY) return "Ended";
+  if (ev.start <= TODAY) return "On now";
+  const d = diff(TODAY, ev.start);
+  return d === 1 ? "Tomorrow" : d < 14 ? `in ${d} days` : d < 70 ? `in ${Math.round(d / 7)} weeks` : `in ${Math.round(d / 30.4)} months`;
+}
+const evRange = ev => { const y = ev.last.slice(0, 4), same = ev.start.slice(0, 4) === y; return `${same ? fmt(ev.start) : fmtY(ev.start)} – ${fmt(ev.last)}${y !== TODAY.slice(0, 4) || !same ? ", " + y : ""} · ${evDays(ev)} ${evDays(ev) === 1 ? "day" : "days"}`; };
+function renderEvents(){
+  const el = $("#eventsList"), all = (D().events || []).filter(ev => validDate(ev.start) && validDate(ev.last)).sort(byStart);
+  if (!all.length){
+    el.innerHTML = `<div class="empty-state"><span class="label">No events yet</span><h2>Workshops, retreats and gatherings</h2><p>Each event shows across the top of the calendar, and its page shows who's coming, who still needs a space, and what's free.</p>${writable() ? `<div class="row"><button class="btn primary plus" data-act="new-event">Add an event</button></div>` : ""}</div>`;
+    return;
+  }
+  const card = ev => {
+    const i = eventInfo(ev), past = ev.last < TODAY;
+    const np = i.g.part.reduce((a, e) => a + e.heads, 0);
+    const bits = [`${i.people} on the land`, np ? `${np} ${np === 1 ? "participant" : "participants"}` : "", !past && i.g.needs.length ? `${i.g.needs.length} need${i.g.needs.length === 1 ? "s" : ""} a space` : "", !past ? `${i.free.length} ${i.free.length === 1 ? "space" : "spaces"} free` : ""].filter(Boolean);
+    return `<button class="li ev-li" data-act="open-event" data-id="${esc(ev.id)}"><span class="grow"><span class="t">${esc(ev.name)}</span><br><span class="s">${esc(evRange(ev))}</span><br><span class="s">${esc(bits.join(" · "))}</span></span><span class="when${!past && ev.start <= addDays(TODAY, 30) ? " soon" : ""}">${esc(evWhen(ev))}</span></button>`;
+  };
+  const up = all.filter(ev => ev.last >= TODAY), past = all.filter(ev => ev.last < TODAY).reverse();
+  el.innerHTML = (up.length ? `<div class="list">${up.map(card).join("")}</div>` : `<div class="none">Nothing coming up.</div>`)
+    + (past.length ? `<details class="past"><summary>Past <span class="faint" style="font-size:15px">${past.length}</span></summary><div class="list">${past.map(card).join("")}</div></details>` : "");
+}
+function renderEventDrawer(){
+  const root = $("#drawerRoot"), ev = (D().events || []).find(x => x.id === S.openEvent);
+  if (!ev){ root.innerHTML = ""; S.openEvent = null; document.body.style.overflow = ""; return; }
+  const fresh = !root.innerHTML, w = writable(), i = eventInfo(ev), past = ev.last < TODAY;
+  document.body.style.overflow = "hidden";
+  const row = e => {
+    const x = e.sts.find(s => !isHold(space(s.spaceId))) || e.sts[0], whole = e.sts[0].start <= ev.start && (!e.sts[e.sts.length - 1].end || e.sts[e.sts.length - 1].end >= evEnd(ev));
+    const where = [...new Set(e.sts.map(spName))].join(" → ");
+    const dates = whole ? "" : ` · ${fmt(e.sts[0].start)} – ${e.sts[e.sts.length - 1].end ? fmt(e.sts[e.sts.length - 1].end) : "on"}`;
+    const hold = e.sts.some(s => s.status === "hold");
+    return `<button class="li" data-act="${e.p ? "open-person" : "edit-stay"}" data-id="${esc(e.p ? e.p.id : x.id)}" data-stay="${esc(x.id)}"><span class="swatch ty-${e.ty}"></span><span class="grow"><span class="t">${esc(i.name(e))}</span>${e.heads > 1 ? ` <span class="faint">×${e.heads}</span>` : ""}<br><span class="s">${esc(where + dates)}${hold ? " · on hold" : ""}</span></span>${e.p && e.p.status === "deciding" ? `<span class="tag-dec">Being decided</span>` : ""}</button>`;
+  };
+  const group = (title, list, note) => list.length ? `<section class="sect"><div class="sect-h"><h3>${title}</h3><span class="hint">${list.reduce((a, e) => a + e.heads, 0)}${note || ""}</span></div><div class="list">${list.map(row).join("")}</div></section>` : "";
+  const chips = (list, cls) => list.map(s => `<button class="fitchip${cls || ""}" data-act="event-book" data-ev="${esc(ev.id)}" data-id="${esc(s.id)}"${w ? "" : " disabled"}>${esc(s.name)}</button>`).join("");
+  const room = past ? "" : `<section class="sect"><div class="sect-h"><h3>Room left</h3><span class="hint">for the whole event</span></div>
+    <div class="fits">${i.free.length ? chips(i.free) : `<span class="hint">No space is free for every night.</span>`}
+    ${i.homes.length ? `<span class="hint" style="margin-left:6px">Resident away:</span>${chips(i.homes, " lastchip")}` : ""}
+    ${i.last.length ? `<span class="hint" style="margin-left:6px">Last resort:</span>${chips(i.last, " lastchip")}` : ""}</div>
+    ${i.part.length ? `<div class="fits"><span class="hint">Part of it:</span>${i.part.map(r => `<button class="fitchip part" data-act="open-space" data-id="${esc(r.s.id)}">${esc(r.s.name)} · ${r.ok} of ${diff(i.from, i.to)} nights</button>`).join("")}</div>` : ""}
+  </section>`;
+  const keepScroll = !fresh && root.querySelector(".drawer") ? root.querySelector(".drawer").scrollTop : 0;
+  root.innerHTML = `<div class="scrim" data-act="close-drawer" style="${fresh ? "" : "animation:none"}"></div>
+  <aside class="drawer" role="dialog" aria-modal="true" aria-label="${esc(ev.name)}" style="${fresh ? "" : "animation:none"}">
+    <div class="dr-top"><button class="btn ghost sm" data-act="close-drawer">Close</button><span class="grow"></span>
+      ${w && !past ? `<button class="btn sm plus" data-act="event-book" data-ev="${esc(ev.id)}" data-id="">Book</button>` : ""}${w ? `<button class="btn sm" data-act="edit-event" data-id="${esc(ev.id)}">Edit</button>` : ""}</div>
+    <div class="dr-body">
+      <div class="dr-title"><h2>${esc(ev.name)}</h2><div class="chips"><span class="chip">${esc(evRange(ev))}</span><span class="chip">${esc(evWhen(ev))}</span></div></div>
+      <div class="summary"><span><b>${i.people}</b>on the land</span>${i.g.part.length ? `<span><b>${i.g.part.reduce((a, e) => a + e.heads, 0)}</b>${i.g.part.length === 1 && i.g.part[0].heads === 1 ? "participant" : "participants"}</span>` : ""}${!past && i.g.needs.length ? `<span class="alert"><b>${i.g.needs.length}</b>${i.g.needs.length === 1 ? "needs" : "need"} a space</span>` : ""}</div>
+      ${group("Needs a space", i.g.needs)}
+      ${group("Participants", i.g.part)}
+      ${group("Helpers & guests", i.g.help)}
+      ${i.g.res.length ? `<section class="sect"><div class="sect-h"><h3>Residents</h3><span class="hint">${i.g.res.reduce((a, e) => a + e.heads, 0)}</span></div><p class="prose small muted">${i.g.res.map(e => esc(i.name(e))).join(" · ")}</p></section>` : ""}
+      ${room}
+    </div>
+  </aside>`;
+  if (keepScroll) root.querySelector(".drawer").scrollTop = keepScroll;
 }
 
 /* ---------- modals ---------- */
@@ -1990,10 +2095,14 @@ document.addEventListener("click", async e => {
     case "toast-action": if (toastAction){ const f = toastAction.fn; toastAction = null; $("#toastRoot").innerHTML = ""; if (await f()) toast("Undone"); } break;
     case "new-event": eventForm(null); break;
     case "edit-event": if (writable()) eventForm(id); break;
-    case "delete-event": if (armed(a) && await remove("events", S.modalCtx.id)){ closeModal(); toast("Event deleted"); } break;
+    case "delete-event": if (armed(a) && await remove("events", S.modalCtx.id)){ closeModal(); closeDrawer(); toast("Event deleted"); } break;
     case "copy-link": try { await navigator.clipboard.writeText(a.dataset.url); toast("Link copied"); } catch { toast("Select the link and copy it."); } break;
     case "sign-out": lsSet("rb-token", ""); clearCaches(); location.reload(); break;
     case "go-visitors": setView("visitors"); break;
+    case "go-events": setView("events"); break;
+    case "go-calendar": setView("calendar"); break;
+    case "open-event": openEvent(id); break;
+    case "event-book": { const ev = (D().events || []).find(x => x.id === a.dataset.ev); if (ev) stayForm(null, { spaceId: id || (D().spaces.find(isHold) || {}).id, start: ev.start, end: addDays(ev.last, 1), category: "workshop" }); break; }
     case "reorder-start": startReorder(); break;
     case "reorder-cancel": S.reorder = false; S.ro = null; renderSpaces(); break;
     case "reorder-done": finishReorder(); break;
@@ -2018,7 +2127,7 @@ $("#calJump").addEventListener("change", e => { const v = e.target.value; if (!v
   S.scrollToDate = addDays(v, -1); e.target.value = ""; renderCalendar(); });
 $("#pubFrom").addEventListener("change", e => { if (validDate(e.target.value)){ S.pub.from = e.target.value; if (S.pub.to <= S.pub.from) S.pub.to = addDays(S.pub.from, 7); renderPublic(); } });
 $("#pubTo").addEventListener("change", e => { if (validDate(e.target.value)){ S.pub.to = e.target.value; renderPublic(); } });
-document.addEventListener("keydown", e => { if (e.key !== "Escape") return; if ($("#modalRoot").innerHTML) closeModal(); else if (S.openSpace || S.openPerson) closeDrawer(); });
+document.addEventListener("keydown", e => { if (e.key !== "Escape") return; if ($("#modalRoot").innerHTML) closeModal(); else if (S.openSpace || S.openPerson || S.openEvent) closeDrawer(); });
 // keep a page's past stays open across refreshes
 document.addEventListener("toggle", e => { if (e.target.matches && e.target.matches("details.pastlist")) S.pastOpen = e.target.open ? (S.openPerson || S.openSpace) : null; }, true);
 $("#peopleSearch").addEventListener("input", e => { S.pq = e.target.value; renderPeople(); });
