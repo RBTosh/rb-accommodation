@@ -440,6 +440,7 @@ body.is-dragging,body.is-dragging *{cursor:grabbing!important;user-select:none;-
 .pgroup.res .li .t{color:var(--ink-2)}
 .prow .t{font-weight:500}
 .prow .when{font-size:13.5px;color:var(--ink-2);white-space:nowrap;flex:none;text-align:right}
+.tag-dec{font-size:12.5px;font-weight:600;color:var(--warn);background:var(--warn-soft);padding:2px 9px;border-radius:999px;white-space:nowrap;flex:none}
 .prow .when.soon{color:var(--ok);font-weight:600}
 .prow .swatch{align-self:flex-start;margin-top:8px}
 details.past summary{cursor:pointer;list-style:none;font-family:var(--f-display);font-size:22px;color:var(--ink-2);width:max-content}
@@ -1164,9 +1165,9 @@ function renderWeekLine(){
 function blocksForRow(sts){
   const out = [];
   [...sts].sort((a, b) => a.start < b.start ? -1 : a.start > b.start ? 1 : 0).forEach(x => {
-    const last = out[out.length - 1], p = personOfStay(x), key = p ? p.id : norm(x.name), hold = x.status === "hold" || isDeciding(x);
-    if (last && last.key === key && last.end && last.end === x.start && heads(x) === last.hc){
-      last.end = x.end; last.ids.push(x.id); last.hold = last.hold && hold;
+    const last = out[out.length - 1], p = personOfStay(x), key = p ? p.id : norm(x.name), hold = x.status === "hold";
+    if (last && last.key === key && last.end && last.end === x.start && heads(x) === last.hc && last.hold === hold){
+      last.end = x.end; last.ids.push(x.id);
     } else out.push({ key, name: personName(x), hc: heads(x), start: x.start, end: x.end, ids: [x.id], hold });
   });
   return out;
@@ -1619,7 +1620,7 @@ function personForm(pid){
     delete body.virtual;
     if (!(await save("people", body))) return false;
     for (const st of sts) if (st.personId !== id || st.name !== name || st.category !== body.type) await save("stays", { ...st, personId: id, name, category: body.type });
-    if (dated) await save("stays", { id: newId("stays"), name, personId: id, spaceId: fv("pp-space"), category: body.type, start, end: validDate(end) ? end : "", headcount: 1, status: "confirmed", notes: "" });
+    if (dated) await save("stays", { id: newId("stays"), name, personId: id, spaceId: fv("pp-space"), category: body.type, start, end: validDate(end) ? end : "", headcount: 1, status: status === "deciding" ? "hold" : "confirmed", notes: "" });
     if (S.openPerson) S.openPerson = id;
     toast(pid ? "Saved" : dated ? `${name} added to the calendar` : `${name} added`);
   }, () => {
@@ -1660,9 +1661,9 @@ function personInfo(p){
   const past = sts.filter(x => x.end && x.end <= TODAY), last = past[past.length - 1], ty = typeOf(p), curSp = cur && space(cur.spaceId);
   let g;
   if (ty === "resident" || (curSp && isRes(curSp))) g = "res";
-  else if (p.status === "deciding") g = "deciding";
   else if (cur) g = "here";
   else if (next) g = "arriving";
+  else if (p.status === "deciding") g = "deciding";
   else if (!sts.length || p.status === "coming") g = "unknown";
   else g = "past";
   return { p, sts, cur, next, last, ty, g };
@@ -1688,7 +1689,7 @@ function personRow(i){
   const sub = [g === "res" ? "" : label(TYPES, ty), line].filter(Boolean).join(" · ");
   return `<button class="li prow" data-act="open-person" data-id="${esc(p.id)}"><span class="swatch ty-${ty}"></span>
     <span class="grow"><span class="t">${esc(p.name)}</span><br><span class="s">${esc(sub)}</span>${p.description ? `<br><span class="s faint">${esc(trunc(p.description, 90))}</span>` : ""}</span>
-    ${when ? `<span class="when${soon ? " soon" : ""}">${esc(when)}</span>` : ""}</button>`;
+    ${p.status === "deciding" && (g === "here" || g === "arriving") ? `<span class="tag-dec">Being decided</span>` : ""}${when ? `<span class="when${soon ? " soon" : ""}">${esc(when)}</span>` : ""}</button>`;
 }
 function renderPeople(){
   const all = PX().list.map(personInfo), listEl = $("#peopleList");
@@ -1698,7 +1699,7 @@ function renderPeople(){
   const n = g => all.filter(i => i.g === g).length;
   const soon = all.filter(i => i.g === "arriving" && diff(TODAY, i.next.start) <= 30).length;
   const onLand = activeStays().filter(x => covers(x, TODAY)).reduce((a, x) => a + heads(x), 0);
-  $("#peopleSummary").innerHTML = all.length ? `<span><b>${onLand}</b>on the land</span><span><b>${soon}</b>arriving in 30 days</span>${n("unknown") ? `<span><b>${n("unknown")}</b>dates unknown</span>` : ""}${n("deciding") ? `<span><b>${n("deciding")}</b>being decided</span>` : ""}` : "";
+  $("#peopleSummary").innerHTML = all.length ? `<span><b>${onLand}</b>on the land</span><span><b>${soon}</b>arriving in 30 days</span>${n("unknown") ? `<span><b>${n("unknown")}</b>dates unknown</span>` : ""}${all.some(i => i.p.status === "deciding") ? `<span><b>${all.filter(i => i.p.status === "deciding").length}</b>being decided</span>` : ""}` : "";
   const note = $("#peopleNote");
   note.innerHTML = S.hosted && !S.visit && S.loaded.size && !S.peopleOk && !S.stale ? `<div class="banner"><span class="grow"><b>One more step.</b> Everyone on the calendar is listed here already. To save details like contact and arrival, update the script in your Google Sheet.</span></div>` : "";
   note.hidden = !note.innerHTML;
